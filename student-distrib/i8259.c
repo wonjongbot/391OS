@@ -10,7 +10,7 @@ uint8_t master_mask; /* IRQs 0-7  */
 uint8_t slave_mask;  /* IRQs 8-15 */
 
 /* Initialize the 8259 PIC */
-void i8259_init(void) {
+void i8259_init(void) {     
 }
 
 /* Enable (unmask) the specified IRQ */
