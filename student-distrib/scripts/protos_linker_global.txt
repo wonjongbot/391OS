@@ -1,0 +1,6 @@
+.globl INT0_linker, INT1_linker, INT2_linker, INT3_linker, INT4_linker, INT5_linker
+.globl INT6_linker, INT7_linker, INT8_linker, INT9_linker, INT10_linker, INT11_linker
+.globl INT12_linker, INT13_linker, INT14_linker, INT15_linker, INT16_linker, INT17_linker
+.globl INT18_linker, INT19_linker, INT20_linker, INT21_linker, INT22_linker, INT23_linker
+.globl INT24_linker, INT25_linker, INT26_linker, INT27_linker, INT28_linker, INT29_linker
+.globl INT30_linker, INT31_linker
