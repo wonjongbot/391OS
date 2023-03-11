@@ -47,6 +47,11 @@ int idt_test(){
 
 // add more tests here
 
+int divide_zero_test(){
+	int i = 0;
+	return i / 0;
+}
+
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
@@ -57,4 +62,5 @@ int idt_test(){
 void launch_tests(){
 	TEST_OUTPUT("idt_test", idt_test());
 	// launch your tests here
+	divide_zero_test();
 }
