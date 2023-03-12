@@ -1,6 +1,3 @@
-#ifndef _LINKAGE_H
-#define _LINKAGE_H
-
 void INT0_linker();
 void INT1_linker();
 void INT2_linker();
@@ -33,6 +30,3 @@ void INT28_linker();
 void INT29_linker();
 void INT30_linker();
 void INT31_linker();
-void INT80_linker();
-
-#endif /* _LINKAGE_H */

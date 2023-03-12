@@ -1,17 +1,3 @@
-# linkage.S - Set up assembly linkage for handlers in IDT
-# vim:ts=4 noexpandtab
-
-#define CREATE_LINKER(name, handler)     \
-    .globl name                         ;\
-    name:                               ;\
-        pushal                          ;\
-        pushfl                          ;\
-        call handler                    ;\
-        popfl                           ;\
-        popal                           ;\
-        iret
-
-/* linkage wrappers */
 CREATE_LINKER(INT0_linker, INT0)
 CREATE_LINKER(INT1_linker, INT1)
 CREATE_LINKER(INT2_linker, INT2)
@@ -44,11 +30,3 @@ CREATE_LINKER(INT28_linker, INT28)
 CREATE_LINKER(INT29_linker, INT29)
 CREATE_LINKER(INT30_linker, INT30)
 CREATE_LINKER(INT31_linker, INT31)
-CREATE_LINKER(INT80_linker, INT80)
-
-// # ctrl + alt + 2 
-//     # brings up qemu monitor
-//     # info mem (lists all the paged area)
-//         # ! if we don't have this properly we ahve PG disabled
-//     # info registers
-//     # info pic
