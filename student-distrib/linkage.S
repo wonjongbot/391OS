@@ -1,0 +1,54 @@
+# linkage.S - Set up assembly linkage for handlers in IDT
+# vim:ts=4 noexpandtab
+
+#define CREATE_LINKER(name, handler)     \
+    .globl name                         ;\
+    name:                               ;\
+        pushal                          ;\
+        pushfl                          ;\
+        call handler                    ;\
+        popfl                           ;\
+        popal                           ;\
+        iret
+
+/* linkage wrappers */
+CREATE_LINKER(INT0_linker, INT0)
+CREATE_LINKER(INT1_linker, INT1)
+CREATE_LINKER(INT2_linker, INT2)
+CREATE_LINKER(INT3_linker, INT3)
+CREATE_LINKER(INT4_linker, INT4)
+CREATE_LINKER(INT5_linker, INT5)
+CREATE_LINKER(INT6_linker, INT6)
+CREATE_LINKER(INT7_linker, INT7)
+CREATE_LINKER(INT8_linker, INT8)
+CREATE_LINKER(INT9_linker, INT9)
+CREATE_LINKER(INT10_linker, INT10)
+CREATE_LINKER(INT11_linker, INT11)
+CREATE_LINKER(INT12_linker, INT12)
+CREATE_LINKER(INT13_linker, INT13)
+CREATE_LINKER(INT14_linker, INT14)
+CREATE_LINKER(INT15_linker, INT15)
+CREATE_LINKER(INT16_linker, INT16)
+CREATE_LINKER(INT17_linker, INT17)
+CREATE_LINKER(INT18_linker, INT18)
+CREATE_LINKER(INT19_linker, INT19)
+CREATE_LINKER(INT20_linker, INT20)
+CREATE_LINKER(INT21_linker, INT21)
+CREATE_LINKER(INT22_linker, INT22)
+CREATE_LINKER(INT23_linker, INT23)
+CREATE_LINKER(INT24_linker, INT24)
+CREATE_LINKER(INT25_linker, INT25)
+CREATE_LINKER(INT26_linker, INT26)
+CREATE_LINKER(INT27_linker, INT27)
+CREATE_LINKER(INT28_linker, INT28)
+CREATE_LINKER(INT29_linker, INT29)
+CREATE_LINKER(INT30_linker, INT30)
+CREATE_LINKER(INT31_linker, INT31)
+CREATE_LINKER(INT80_linker, INT80)
+
+// # ctrl + alt + 2 
+//     # brings up qemu monitor
+//     # info mem (lists all the paged area)
+//         # ! if we don't have this properly we ahve PG disabled
+//     # info registers
+//     # info pic
