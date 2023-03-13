@@ -14,9 +14,12 @@ void i8259_init(void) {
     unsigned long flags;
 
     cli_and_save(flags);    // Disable interupts
- 
-	master_mask = MASK; // save masks
-	slave_mask = MASK;
+
+    master_mask = inb(MASTER_DATA);
+    slave_mask = inb(SLAVE_DATA);
+
+    outb(MASK, MASTER_DATA);
+    outb(MASK, SLAVE_DATA);
  
 	outb(ICW1, MASTER_COMMAND);  // starts the initialization sequence (in cascade mode)
 
@@ -35,10 +38,13 @@ void i8259_init(void) {
 
 	outb(ICW4, SLAVE_DATA);     // Set 8086 Mode
 
-	outb(master_mask, MASTER_DATA);   // restore saved masks.
-	outb(slave_mask, SLAVE_DATA);
+	outb(0xff, MASTER_DATA);   // restore saved masks.
+	outb(0xff, SLAVE_DATA);
 
     restore_flags(flags);
+
+    // enable secondary pic for interrupts
+    enable_irq(0x2);
 }
 
 /* Enable (unmask) the specified IRQ */
@@ -57,7 +63,7 @@ void enable_irq(uint32_t irq_num) {
         irq_num -= 8;
     }
     value = inb(port) & ~(1 << irq_num);
-    outb(port, value);
+    outb(value, port);
 
     restore_flags(flags);
 }
@@ -78,7 +84,7 @@ void disable_irq(uint32_t irq_num) {
         irq_num -= 8;
     }
     value = inb(port) | (1 << irq_num);
-    outb(port, value);
+    outb(value, port);
 
     restore_flags(flags);
 }
@@ -89,11 +95,10 @@ void send_eoi(uint32_t irq_num) {
 
     cli_and_save(flags);    // Disable interupts
 
-    if (irq_num >= 8) {
-        outb(irq_num | EOI, SLAVE_COMMAND);
-    } else {
-        outb(irq_num | EOI, MASTER_COMMAND);
-    }
+    if (irq_num >= 8)
+        outb(EOI, SLAVE_COMMAND);
+    outb(EOI, MASTER_COMMAND);
+
     
     restore_flags(flags);
 }

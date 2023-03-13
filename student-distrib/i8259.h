@@ -31,7 +31,7 @@
 /* End-of-interrupt byte.  This gets OR'd with
  * the interrupt number and sent out to the PIC
  * to declare the interrupt finished */
-#define EOI                 0x60
+#define EOI                 0x20
 
 /* Externally-visible functions */
 
