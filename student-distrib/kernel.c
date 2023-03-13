@@ -10,6 +10,7 @@
 #include "tests.h"
 #include "interrupt.h"
 #include "keyboard.h"
+#include "rtc.h"
 
 
 #define RUN_TESTS
@@ -143,12 +144,13 @@ void entry(unsigned long magic, unsigned long addr) {
     init_idt();
 
     /* Init the PIC */
-    //i8259_init();
+    i8259_init();
 
     //init the rtc
-
+    rtc_init();
+    rtc_set_freq(15);
     //init the keyboard
-    //keyboard_init();
+    keyboard_init();
 
     //init page
 
@@ -164,7 +166,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
 #ifdef RUN_TESTS
     /* Run tests */
-    //launch_tests();
+    launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
 
