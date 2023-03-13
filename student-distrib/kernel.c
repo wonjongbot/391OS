@@ -141,7 +141,7 @@ void entry(unsigned long magic, unsigned long addr) {
     init_idt();
     
     /* Init the PIC */
-    i8259_init();
+    //i8259_init();
 
     /* Init the PIC */
     //i8259_init();
@@ -164,7 +164,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
 #ifdef RUN_TESTS
     /* Run tests */
-    launch_tests();
+    //launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
 
