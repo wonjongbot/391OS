@@ -1,6 +1,9 @@
 #include "x86_desc.h"
 #include "lib.h"
 #include "types.h"
+#include "linkage.h"
+#include "i8259.h"
+#include "keyboard.h"
 
 void INT0x00(){
     printf("Interrupt 0:Divide Error Exception (#DE)\n");
@@ -164,6 +167,7 @@ void INT0x1f(){
 
 void INT0x21(){
     printf("Interrupt 0x21 -- Keyboard interrupt\n");
+    keyboard_handler();
 }
 
 void INT0x80(){
@@ -207,7 +211,7 @@ static void init_interrupt(){
         idt[i].size = 0x1;
         idt[i].reserved0 = 0x0;
         idt[i].dpl = 0x0;
-        idt[i].present=0x0;
+        idt[i].present=0x1;
     }
 }
 

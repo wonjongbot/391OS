@@ -1,6 +1,8 @@
 #ifndef _LINKAGE_H
 #define _LINKAGE_H
 
+#include "interrupt.h"
+
 void INT0x00_linker();
 void INT0x01_linker();
 void INT0x02_linker();
