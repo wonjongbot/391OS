@@ -16,6 +16,7 @@
 #define MASTER_DATA         MASTER_8259_PORT + 1
 #define SLAVE_COMMAND       SLAVE_8259_PORT 
 #define SLAVE_DATA          SLAVE_8259_PORT + 1
+#define MASK                0xFF
 
 /* Initialization control words to init each PIC.
  * See the Intel manuals for details on the meaning

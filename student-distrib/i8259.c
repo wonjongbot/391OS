@@ -15,8 +15,8 @@ void i8259_init(void) {
 
     cli_and_save(flags);    // Disable interupts
  
-	master_mask = inb(MASTER_DATA); // save masks
-	slave_mask = inb(SLAVE_DATA);
+	master_mask = MASK; // save masks
+	slave_mask = MASK;
  
 	outb(ICW1, MASTER_COMMAND);  // starts the initialization sequence (in cascade mode)
 
