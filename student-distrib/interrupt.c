@@ -4,6 +4,7 @@
 #include "linkage.h"
 #include "i8259.h"
 #include "keyboard.h"
+#include "rtc.h"
 
 void INT0x00(){
     printf("Interrupt 0:Divide Error Exception (#DE)\n");
@@ -165,9 +166,14 @@ void INT0x1f(){
     while(1);
 }
 
+//handler for kbd
 void INT0x21(){
-    printf("Interrupt 0x21 -- Keyboard interrupt\n");
     keyboard_handler();
+}
+
+// handler for rtc
+void INT0x28(){
+    rtc_handler();
 }
 
 void INT0x80(){
@@ -175,17 +181,17 @@ void INT0x80(){
     while(1);
 }
 
-static void init_idt_entry(idt_desc_t desc, uint32_t index, uint32_t DPL, uint32_t handler){
-    desc.seg_selector = KERNEL_CS;
-    desc.reserved3 = 0x0;
-    desc.reserved2 = 0x1;
-    desc.reserved1 = 0x1;
-    desc.size = 0x1;
-    desc.reserved0 = 0x0;
-    desc.dpl = 0x3 & DPL;
-    desc.present = 0x1;
-    SET_IDT_ENTRY(desc, handler);
-}
+// static void init_idt_entry(idt_desc_t desc, uint32_t index, uint32_t DPL, uint32_t handler){
+//     desc.seg_selector = KERNEL_CS;
+//     desc.reserved3 = 0x0;
+//     desc.reserved2 = 0x1;
+//     desc.reserved1 = 0x1;
+//     desc.size = 0x1;
+//     desc.reserved0 = 0x0;
+//     desc.dpl = 0x3 & DPL;
+//     desc.present = 0x1;
+//     SET_IDT_ENTRY(desc, handler);
+// }
 
 static void init_exception(){
     int i;
@@ -332,6 +338,9 @@ void init_idt(){
 
     // Interrupt 0x21 -- keyboard
     SET_IDT_ENTRY(idt[0x21], INT0x21_linker);
+
+    // Interrupt 0x28 -- rtc
+    SET_IDT_ENTRY(idt[0x28], INT0x28_linker);
 
     // system call
     SET_IDT_ENTRY(idt[0x80], INT0x80_linker);
