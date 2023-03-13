@@ -163,6 +163,19 @@ int32_t puts(int8_t* s) {
     return index;
 }
 
+int UIflag = 0;
+/* putc for rtc testing */
+void putc_rtc() {
+    char c;
+    if(UIflag == 0)
+        c = 'U';
+    else
+        c = 'I';
+    *(uint8_t *)(video_mem + ((NUM_COLS * 13 + 60) << 1)) = c;
+    *(uint8_t *)(video_mem + ((NUM_COLS * 13 + 60) << 1) + 1) = ATTRIB;
+    UIflag ^= 1;
+}
+
 /* void putc(uint8_t c);
  * Inputs: uint_8* c = character to print
  * Return Value: void
@@ -171,7 +184,34 @@ void putc(uint8_t c) {
     if(c == '\n' || c == '\r') {
         screen_y++;
         screen_x = 0;
-    } else {
+    }
+    // case for baskspace
+    else if(c == '\b'){
+        if(screen_x > 0){
+            screen_x--;
+        }
+        else{
+            screen_x = NUM_COLS - 1;
+            screen_y--;
+            if(screen_y < 0){
+                screen_y = NUM_ROWS - 1;
+            }
+            screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        }
+        screen_x %= NUM_COLS;
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = 0x00;
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+    }
+    else if(c == '\t'){
+        screen_x += 4;
+        if(screen_x >= NUM_COLS)
+            screen_x = NUM_COLS - 1;
+    }
+    else {
+        if(screen_x >= NUM_COLS - 1){
+            screen_x = 0;
+            screen_y++;
+        }
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
         screen_x++;
