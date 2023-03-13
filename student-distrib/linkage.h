@@ -35,8 +35,8 @@ void INT0x1c_linker();
 void INT0x1d_linker();
 void INT0x1e_linker();
 void INT0x1f_linker();
-
 void INT0x21_linker();
+void INT0x28_linker();
 void INT0x80_linker();
 
 #endif /* _LINKAGE_H */
