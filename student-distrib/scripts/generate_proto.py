@@ -20,16 +20,15 @@ f = open("student-distrib/scripts/protos_linker_S.txt", "w")
 for i in range(32):
     f.write(f"INT{i}_linker:\nPUSHAL\ncall INT{i}\nPOPAL\nIRET\n\n")
     '''
-'''
-f = open("student-distrib/scripts/protos_linker_ss.txt", "w")
+
+'''f = open("student-distrib/scripts/protos_linker_ss.txt", "w")
 
 for i in range(32):
-    f.write(f"CREATE_LINKER(INT{i}_linker, INT{i})\n")
-'''
+    f.write("CREATE_LINKER(INT0x{:02x}_linker, INT0x{:02x})\n".format(i, i))'''
 
 
 f = open("student-distrib/scripts/proto_h.txt", "w")
 
 for i in range(32):
-    f.write(f"void INT{i}_linker();\n")
+    f.write("void INT0x{:02x}_linker();\n".format(i))
     

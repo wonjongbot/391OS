@@ -5,46 +5,55 @@
     .globl name                         ;\
     name:                               ;\
         pushal                          ;\
-        pushfl                          ;\
         call handler                    ;\
-        popfl                           ;\
         popal                           ;\
         iret
 
+#define CREATE_LINKER_poparg(name, handler)     \
+    .globl name                         ;\
+    name:                               ;\
+        pushal                          ;\
+        call handler                    ;\
+        popal                           ;\
+        addl $4, %esp                   ;\
+        iret
+
 /* linkage wrappers */
-CREATE_LINKER(INT0_linker, INT0)
-CREATE_LINKER(INT1_linker, INT1)
-CREATE_LINKER(INT2_linker, INT2)
-CREATE_LINKER(INT3_linker, INT3)
-CREATE_LINKER(INT4_linker, INT4)
-CREATE_LINKER(INT5_linker, INT5)
-CREATE_LINKER(INT6_linker, INT6)
-CREATE_LINKER(INT7_linker, INT7)
-CREATE_LINKER(INT8_linker, INT8)
-CREATE_LINKER(INT9_linker, INT9)
-CREATE_LINKER(INT10_linker, INT10)
-CREATE_LINKER(INT11_linker, INT11)
-CREATE_LINKER(INT12_linker, INT12)
-CREATE_LINKER(INT13_linker, INT13)
-CREATE_LINKER(INT14_linker, INT14)
-CREATE_LINKER(INT15_linker, INT15)
-CREATE_LINKER(INT16_linker, INT16)
-CREATE_LINKER(INT17_linker, INT17)
-CREATE_LINKER(INT18_linker, INT18)
-CREATE_LINKER(INT19_linker, INT19)
-CREATE_LINKER(INT20_linker, INT20)
-CREATE_LINKER(INT21_linker, INT21)
-CREATE_LINKER(INT22_linker, INT22)
-CREATE_LINKER(INT23_linker, INT23)
-CREATE_LINKER(INT24_linker, INT24)
-CREATE_LINKER(INT25_linker, INT25)
-CREATE_LINKER(INT26_linker, INT26)
-CREATE_LINKER(INT27_linker, INT27)
-CREATE_LINKER(INT28_linker, INT28)
-CREATE_LINKER(INT29_linker, INT29)
-CREATE_LINKER(INT30_linker, INT30)
-CREATE_LINKER(INT31_linker, INT31)
-CREATE_LINKER(INT80_linker, INT80)
+CREATE_LINKER(INT0x00_linker, INT0x00)
+CREATE_LINKER(INT0x01_linker, INT0x01)
+CREATE_LINKER(INT0x02_linker, INT0x02)
+CREATE_LINKER(INT0x03_linker, INT0x03)
+CREATE_LINKER(INT0x04_linker, INT0x04)
+CREATE_LINKER(INT0x05_linker, INT0x05)
+CREATE_LINKER(INT0x06_linker, INT0x06)
+CREATE_LINKER(INT0x07_linker, INT0x07)
+CREATE_LINKER(INT0x08_linker, INT0x08)
+CREATE_LINKER(INT0x09_linker, INT0x09)
+CREATE_LINKER(INT0x0a_linker, INT0x0a)
+CREATE_LINKER(INT0x0b_linker, INT0x0b)
+CREATE_LINKER(INT0x0c_linker, INT0x0c)
+CREATE_LINKER(INT0x0d_linker, INT0x0d)
+CREATE_LINKER(INT0x0e_linker, INT0x0e)
+CREATE_LINKER(INT0x0f_linker, INT0x0f)
+CREATE_LINKER(INT0x10_linker, INT0x10)
+CREATE_LINKER(INT0x11_linker, INT0x11)
+CREATE_LINKER(INT0x12_linker, INT0x12)
+CREATE_LINKER(INT0x13_linker, INT0x13)
+CREATE_LINKER(INT0x14_linker, INT0x14)
+CREATE_LINKER(INT0x15_linker, INT0x15)
+CREATE_LINKER(INT0x16_linker, INT0x16)
+CREATE_LINKER(INT0x17_linker, INT0x17)
+CREATE_LINKER(INT0x18_linker, INT0x18)
+CREATE_LINKER(INT0x19_linker, INT0x19)
+CREATE_LINKER(INT0x1a_linker, INT0x1a)
+CREATE_LINKER(INT0x1b_linker, INT0x1b)
+CREATE_LINKER(INT0x1c_linker, INT0x1c)
+CREATE_LINKER(INT0x1d_linker, INT0x1d)
+CREATE_LINKER(INT0x1e_linker, INT0x1e)
+CREATE_LINKER(INT0x1f_linker, INT0x1f)
+
+CREATE_LINKER(INT0x21_linker, INT0x21)
+CREATE_LINKER(INT0x80_linker, INT0x80)
 
 // # ctrl + alt + 2 
 //     # brings up qemu monitor
