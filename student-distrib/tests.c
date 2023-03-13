@@ -1,6 +1,7 @@
 #include "tests.h"
 #include "x86_desc.h"
 #include "lib.h"
+#include "rtc.h"
 
 #define PASS 1
 #define FAIL 0
@@ -48,8 +49,20 @@ int idt_test(){
 // add more tests here
 
 int divide_zero_test(){
-	int i = 0;
-	return i / 0;
+	int a = 0;
+	int b = 0;
+	int c = a / b;
+	return c;
+}
+
+void rtc_freq_test(){
+	int i, n;
+	for(n = 3; n < 16; n++){
+		printf("SET_FREQ TEST: %d\n", n);
+		rtc_set_freq(n);
+		for(i = 0; i < n * (100000000>>2); i++);
+	}
+	rtc_set_freq(0);
 }
 
 /* Checkpoint 2 tests */
@@ -62,5 +75,6 @@ int divide_zero_test(){
 void launch_tests(){
 	TEST_OUTPUT("idt_test", idt_test());
 	// launch your tests here
+	rtc_freq_test();
 	divide_zero_test();
 }
