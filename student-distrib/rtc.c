@@ -41,11 +41,16 @@ unsigned rtc_target = 1;
 //int32_t rtc_flag = 0;
 
 void rtc_set_freq(unsigned frequency){
-    // reset the counter
-    rtc_counter = 0;
-    // set counter target
-    rtc_target = (float)(1024) / (float)frequency;
-
+    if(frequency == 0){
+        rtc_set_rate(0);
+    }
+    else{
+        rtc_set_rate(6);
+        // reset the counter
+        rtc_counter = 0;
+        // set counter target
+        rtc_target = (float)(1024) / (float)frequency;
+    }
 }
 
 void rtc_handler(void) {
@@ -58,7 +63,8 @@ void rtc_handler(void) {
     inb(CMOS);		    // just throw away contents
     send_eoi(RTC_IRQ);
     if(rtc_counter == 0){
-        putc_rtc();
+        //putc_rtc();
+        printf(".");
     }
     rtc_counter = (rtc_counter + 1)%rtc_target;
 
