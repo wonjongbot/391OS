@@ -26,15 +26,15 @@ void rtc_init(void) {
 }
 
 void rtc_set_rate(unsigned rate){
-    unsigned long flags;
+    //unsigned long flags;
     /* Changing Interrupt Rate */
     rate &= 0x0F;   // rate must be above 2 and not over 15
-    cli_and_save(flags);
+    //cli_and_save(flags);
     outb(REG_A | 0x80, RTC);   // Set index to register A, disable NMI
     char prev_2 = inb(CMOS);  // Get initial value of register A
     outb(REG_A | 0x80, RTC);   // Reset index to A
     outb((prev_2 & 0xF0) | rate, CMOS);   // Write only our rate to A. Rate is bottom 4 bits
-    restore_flags(flags);
+    //restore_flags(flags);
 }
 unsigned rtc_counter = 0;
 unsigned rtc_target = 1;
@@ -57,13 +57,11 @@ void rtc_handler(void) {
     outb(REG_C, RTC);	// select register C
     inb(CMOS);		    // just throw away contents
     send_eoi(RTC_IRQ);
-    if(rtc_counter >= rtc_target){
+    if(rtc_counter == 0){
         putc_rtc();
-        rtc_counter = 0;
     }
-    else{
-        rtc_counter++;
-    }
+    rtc_counter = (rtc_counter + 1)%rtc_target;
+
     restore_flags(flags);
     return;
 }
