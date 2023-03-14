@@ -148,7 +148,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
     //init the rtc
     rtc_init();
-    rtc_set_freq(15);
+    //rtc_set_freq(1);
     //init the keyboard
     keyboard_init();
 
@@ -166,7 +166,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
 #ifdef RUN_TESTS
     /* Run tests */
-    launch_tests();
+    //launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
 

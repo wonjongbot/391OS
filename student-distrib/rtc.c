@@ -20,9 +20,11 @@ void rtc_init(void) {
     restore_flags(flags);
 
     enable_irq(RTC_IRQ);          // Turn on IRQ8
+    // set the rtc to fastest frequency possible: 1024 Hz
+    rtc_set_rate(6);
 }
 
-void rtc_set_freq(int32_t rate){
+void rtc_set_rate(unsigned rate){
     unsigned long flags;
     /* Changing Interrupt Rate */
     rate &= 0x0F;   // rate must be above 2 and not over 15
@@ -33,18 +35,27 @@ void rtc_set_freq(int32_t rate){
     outb((prev_2 & 0xF0) | rate, CMOS);   // Write only our rate to A. Rate is bottom 4 bits
     restore_flags(flags);
 }
+unsigned rtc_counter = 0;
+unsigned rtc_target = 1;
+//int32_t rtc_flag = 0;
+
+void rtc_set_freq(unsigned frequency){
+    // reset the counter
+    rtc_counter = 0;
+    // set counter target
+    rtc_target = (float)(1024) / (float)frequency;
+
+}
 
 void rtc_handler(void) {
 
     /* Need these two lines or interrupt will not happen again to get another interrupt*/
-    unsigned long flags;
-    cli_and_save(flags);    // Disable interrupts
+    // unsigned long flags;
+    // cli_and_save(flags);    // Disable interrupts
 
     outb(REG_C, RTC);	// select register C
     inb(CMOS);		    // just throw away contents
     send_eoi(RTC_IRQ);
-
     putc_rtc();
-
-    restore_flags(flags);
+    // restore_flags(flags);
 }

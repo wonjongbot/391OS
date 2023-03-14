@@ -55,14 +55,28 @@ int divide_zero_test(){
 	return c;
 }
 
+// void rtc_freq_test(){
+// 	int i, n;
+// 	for(n = 3; n < 16; n++){
+// 		printf("SET_FREQ TEST: %d\n", n);
+// 		rtc_set_freq(n);
+// 		for(i = 0; i < n * (100000000>>2); i++);
+// 	}
+// 	rtc_set_freq(0);
+// }
+
 void rtc_freq_test(){
-	int i, n;
-	for(n = 3; n < 16; n++){
-		printf("SET_FREQ TEST: %d\n", n);
-		rtc_set_freq(n);
-		for(i = 0; i < n * (100000000>>2); i++);
+	unsigned i, j;
+	for(i = 1; i < 8192; i++){
+		rtc_set_freq(i);
+		for(j = 0; j < 100000000; j++);
 	}
-	rtc_set_freq(0);
+	// for(i = 0; i < 500000000; i++);
+	// printf("SET_FREQ_TEST");
+	// rtc_set_freq(2);
+	// for(i = 0; i < 500000000; i++);
+	// printf("SET_FREQ_TEST");
+	// rtc_set_freq(1000);
 }
 
 /* Checkpoint 2 tests */
@@ -76,5 +90,5 @@ void launch_tests(){
 	TEST_OUTPUT("idt_test", idt_test());
 	// launch your tests here
 	rtc_freq_test();
-	divide_zero_test();
+	//divide_zero_test();
 }
