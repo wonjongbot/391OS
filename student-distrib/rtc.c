@@ -9,19 +9,20 @@
 
 
 void rtc_init(void) {
-    unsigned long flags;
+    // unsigned long flags;
 
     /* Turning on periodic interrupt: IRQ8 */
-    cli_and_save(flags);    // Disable interrupts
+    // cli_and_save(flags);    // Disable interrupts
     outb(REG_B | 0x80, RTC);       // Select Register B and disable NMI
     char prev = inb(CMOS);  // Read current value of register B
     outb(REG_B | 0x80, RTC);       // Set index again (a read will reset the index to register D)
     outb(prev | 0x40, CMOS);    // Write previous value ORed with 0x40. This turns on bit 6 of register B
-    restore_flags(flags);
+    // restore_flags(flags);
 
-    enable_irq(RTC_IRQ);          // Turn on IRQ8
     // set the rtc to fastest frequency possible: 1024 Hz
     rtc_set_rate(6);
+
+    enable_irq(RTC_IRQ);          // Turn on IRQ8
 }
 
 void rtc_set_rate(unsigned rate){
@@ -50,12 +51,19 @@ void rtc_set_freq(unsigned frequency){
 void rtc_handler(void) {
 
     /* Need these two lines or interrupt will not happen again to get another interrupt*/
-    // unsigned long flags;
-    // cli_and_save(flags);    // Disable interrupts
+    unsigned long flags;
+    cli_and_save(flags);    // Disable interrupts
 
     outb(REG_C, RTC);	// select register C
     inb(CMOS);		    // just throw away contents
     send_eoi(RTC_IRQ);
-    putc_rtc();
-    // restore_flags(flags);
+    if(rtc_counter >= rtc_target){
+        putc_rtc();
+        rtc_counter = 0;
+    }
+    else{
+        rtc_counter++;
+    }
+    restore_flags(flags);
+    return;
 }
