@@ -1,6 +1,7 @@
 #include "tests.h"
 #include "x86_desc.h"
 #include "lib.h"
+#include "rtc.h"
 
 #define PASS 1
 #define FAIL 0
@@ -48,8 +49,40 @@ int idt_test(){
 // add more tests here
 
 int divide_zero_test(){
-	int i = 0;
-	return i / 0;
+	int a = 0;
+	int b = 0;
+	int c = a / b;
+	return c;
+}
+
+// void rtc_freq_test(){
+// 	int i, n;
+// 	for(n = 3; n < 16; n++){
+// 		printf("SET_FREQ TEST: %d\n", n);
+// 		rtc_set_freq(n);
+// 		for(i = 0; i < n * (100000000>>2); i++);
+// 	}
+// 	rtc_set_freq(0);
+// }
+
+void rtc_freq_test(){
+	unsigned i, j;
+	clear();
+	for(i = 1; i < 1025; i = i * 2){
+		printf("FREQUENCY IS %dHz\n", i);
+		rtc_set_freq(i);
+		for(j = 0; j < 600000000; j++);
+		for(j = 0; j < 400000000; j++);
+		printf("\n");
+	}
+	printf("RTC TEST DONE\n");
+	rtc_set_rate(0);
+	// for(i = 0; i < 500000000; i++);
+	// printf("SET_FREQ_TEST");
+	// rtc_set_freq(2);
+	// for(i = 0; i < 500000000; i++);
+	// printf("SET_FREQ_TEST");
+	// rtc_set_freq(1000);
 }
 
 /* Checkpoint 2 tests */
@@ -62,5 +95,6 @@ int divide_zero_test(){
 void launch_tests(){
 	TEST_OUTPUT("idt_test", idt_test());
 	// launch your tests here
-	divide_zero_test();
+	rtc_freq_test();
+	//divide_zero_test();
 }
