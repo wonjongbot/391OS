@@ -1,6 +1,7 @@
 #include "tests.h"
 #include "x86_desc.h"
 #include "lib.h"
+#include "paging.h"
 
 #define PASS 1
 #define FAIL 0
@@ -29,28 +30,73 @@ static inline void assertion_failure(){
  * Coverage: Load IDT, IDT definition
  * Files: x86_desc.h/S
  */
-int idt_test(){
-	TEST_HEADER;
+	/*int idt_test(){
+		TEST_HEADER;
 
-	int i;
-	int result = PASS;
-	for (i = 0; i < 10; ++i){
-		if ((idt[i].offset_15_00 == NULL) && 
-			(idt[i].offset_31_16 == NULL)){
-			assertion_failure();
-			result = FAIL;
+		int i;
+		int result = PASS;
+		for (i = 0; i < 10; ++i){
+			if ((idt[i].offset_15_00 == NULL) && 
+				(idt[i].offset_31_16 == NULL)){
+				assertion_failure();
+				result = FAIL;
+			}
 		}
+
+		return result;
 	}
 
-	return result;
-}
+	//add more tests here
 
-// add more tests here
+	int divide_zero_test(){
+		int i = 0;
+		return i / 0;
+	}*/
 
-int divide_zero_test(){
-	int i = 0;
-	return i / 0;
-}
+ void page_fault_exception_test(){
+ 	TEST_HEADER;
+ 	int* p = NULL;
+ 	int a;
+ 	a = *p;
+ }
+
+
+ void page_overflow_test(){
+ 	TEST_HEADER;
+ 	int* p = (int*)(0x800000 + 0x100000);
+ 	int a;
+ 	a= *p;
+ }
+
+ int paging_vga_test(){
+ 	TEST_HEADER;
+ 	int *a = (int *)0x000B8000;
+ 	int b;
+ 	b = *a;
+ 	return 1;
+ }
+
+ int paging_kernal_test(){
+ 	TEST_HEADER;
+ 	int *a = (int *)((1<<22)+12);
+ 	int b;
+ 	b = *a;
+ 	return 1;
+ }
+
+  
+ int paging_struct_test(){
+ 	TEST_HEADER;
+ 	int i;
+ 	int flag = 1;
+ 	for(i=0;i<PAGE_DIC_ENTRY;i++){
+ 		flag = flag && page_directory[i].val;
+ 	}
+ 	for(i=0;i<PAGE_TAB_ENTRY;i++){
+ 		flag = flag && page_table0[i].val;
+ 	}
+ 	return flag!=0;
+ }
 
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
@@ -60,7 +106,11 @@ int divide_zero_test(){
 
 /* Test suite entry point */
 void launch_tests(){
-	TEST_OUTPUT("idt_test", idt_test());
-	// launch your tests here
-	divide_zero_test();
+	TEST_OUTPUT("paging_struct_test", paging_struct_test());
+	 TEST_OUTPUT("paging_vga_test", paging_vga_test());
+	 TEST_OUTPUT("paging_kernal_test", paging_kernal_test());
+	 //launch your tests here
+	page_overflow_test();
+	page_fault_exception_test();
 }
+

@@ -9,6 +9,7 @@
 #include "debug.h"
 #include "tests.h"
 #include "interrupt.h"
+#include "paging.h"
 
 #define RUN_TESTS
 
@@ -137,14 +138,22 @@ void entry(unsigned long magic, unsigned long addr) {
         ltr(KERNEL_TSS);
     }
 
-    /* Initialize Interrupt vector table*/
+     /* Initialize Interrupt vector table*/
     init_idt();
     
     /* Init the PIC */
-    i8259_init();
+    //i8259_init();
 
-    //init rtc
+    /* Init the PIC */
+    //i8259_init();
 
+    //init the rtc
+//
+    //init the keyboard
+
+    //init page
+    init_paging();
+//wwwwww
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
 
@@ -158,7 +167,6 @@ void entry(unsigned long magic, unsigned long addr) {
 #ifdef RUN_TESTS
     /* Run tests */
     launch_tests();
-
 #endif
     /* Execute the first program ("shell") ... */
 
