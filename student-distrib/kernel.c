@@ -142,9 +142,6 @@ void entry(unsigned long magic, unsigned long addr) {
 
      /* Initialize Interrupt vector table*/
     init_idt();
-    
-    /* Init the PIC */
-    //i8259_init();
 
     /* Init the PIC */
     //i8259_init();
