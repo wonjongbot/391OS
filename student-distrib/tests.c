@@ -1,12 +1,8 @@
 #include "tests.h"
 #include "x86_desc.h"
 #include "lib.h"
-<<<<<<< student-distrib/tests.c
 #include "paging.h"
 #include "rtc.h"
-=======
-#include "rtc.h"
->>>>>>> student-distrib/tests.c
 
 #define PASS 1
 #define FAIL 0
@@ -65,8 +61,6 @@ static inline void assertion_failure(){
  	a = *p;
  }
 
-<<<<<<< student-distrib/tests.c
-
  void page_overflow_test(){
  	TEST_HEADER;
  	int* p = (int*)(0x800000 + 0x100000);
@@ -103,23 +97,13 @@ static inline void assertion_failure(){
  	}
  	return flag!=0;
  }
-=======
+
 int divide_zero_test(){
 	int a = 0;
 	int b = 0;
 	int c = a / b;
 	return c;
 }
-
-// void rtc_freq_test(){
-// 	int i, n;
-// 	for(n = 3; n < 16; n++){
-// 		printf("SET_FREQ TEST: %d\n", n);
-// 		rtc_set_freq(n);
-// 		for(i = 0; i < n * (100000000>>2); i++);
-// 	}
-// 	rtc_set_freq(0);
-// }
 
 void rtc_freq_test(){
 	unsigned i, j;
@@ -133,14 +117,7 @@ void rtc_freq_test(){
 	}
 	printf("RTC TEST DONE\n");
 	rtc_set_rate(0);
-	// for(i = 0; i < 500000000; i++);
-	// printf("SET_FREQ_TEST");
-	// rtc_set_freq(2);
-	// for(i = 0; i < 500000000; i++);
-	// printf("SET_FREQ_TEST");
-	// rtc_set_freq(1000);
 }
->>>>>>> student-distrib/tests.c
 
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
@@ -150,18 +127,19 @@ void rtc_freq_test(){
 
 /* Test suite entry point */
 void launch_tests(){
-<<<<<<< student-distrib/tests.c
+	// launch your tests here
+	//idt test
+	TEST_OUTPUT("idt_test", idt_test());
+
+	//paging tests
 	TEST_OUTPUT("paging_struct_test", paging_struct_test());
-	 TEST_OUTPUT("paging_vga_test", paging_vga_test());
-	 TEST_OUTPUT("paging_kernal_test", paging_kernal_test());
-	 //launch your tests here
+	TEST_OUTPUT("paging_vga_test", paging_vga_test());
+	TEST_OUTPUT("paging_kernal_test", paging_kernal_test());
 	page_overflow_test();
 	page_fault_exception_test();
-=======
-	TEST_OUTPUT("idt_test", idt_test());
-	// launch your tests here
+
+	//rtc changing frequency test
 	rtc_freq_test();
 	//divide_zero_test();
->>>>>>> student-distrib/tests.c
 }
 
