@@ -31,28 +31,23 @@ static inline void assertion_failure(){
  * Coverage: Load IDT, IDT definition
  * Files: x86_desc.h/S
  */
-	/*int idt_test(){
-		TEST_HEADER;
+int idt_test(){
+	TEST_HEADER;
 
-		int i;
-		int result = PASS;
-		for (i = 0; i < 10; ++i){
-			if ((idt[i].offset_15_00 == NULL) && 
-				(idt[i].offset_31_16 == NULL)){
-				assertion_failure();
-				result = FAIL;
-			}
+	int i;
+	int result = PASS;
+	for (i = 0; i < 10; ++i){
+		if ((idt[i].offset_15_00 == NULL) && 
+			(idt[i].offset_31_16 == NULL)){
+			assertion_failure();
+			result = FAIL;
 		}
-
-		return result;
 	}
 
-	//add more tests here
+	return result;
+}
 
-	int divide_zero_test(){
-		int i = 0;
-		return i / 0;
-	}*/
+//add more tests here
 
  void page_fault_exception_test(){
  	TEST_HEADER;
@@ -128,18 +123,20 @@ void rtc_freq_test(){
 /* Test suite entry point */
 void launch_tests(){
 	// launch your tests here
-	//idt test
+	// idt test
 	TEST_OUTPUT("idt_test", idt_test());
 
-	//paging tests
+	// rtc changing frequency test
+	rtc_freq_test();
+
+	// paging tests
 	TEST_OUTPUT("paging_struct_test", paging_struct_test());
 	TEST_OUTPUT("paging_vga_test", paging_vga_test());
 	TEST_OUTPUT("paging_kernal_test", paging_kernal_test());
 	page_overflow_test();
 	page_fault_exception_test();
 
-	//rtc changing frequency test
-	rtc_freq_test();
+	// zero-division exception
 	//divide_zero_test();
 }
 
