@@ -9,6 +9,8 @@
 #include "debug.h"
 #include "tests.h"
 #include "interrupt.h"
+#include "rtc.h"
+#include "keyboard.h"
 #include "paging.h"
 
 #define RUN_TESTS
@@ -148,9 +150,10 @@ void entry(unsigned long magic, unsigned long addr) {
     //i8259_init();
 
     //init the rtc
-//
+    rtc_init();
+    rtc_set_freq(1);
     //init the keyboard
-
+    keyboard_init();
     //init page
     init_paging();
 //wwwwww
