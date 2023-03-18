@@ -1,6 +1,6 @@
 #include "paging.h"
 
-inline void init_paging_ctr_regs(); 
+
 /* 
  *   init_paging
  *   DESCRIPTION: used to init and open paging
@@ -11,60 +11,64 @@ inline void init_paging_ctr_regs();
  */
 void init_paging(){
     uint32_t i;
+    uint32_t kernal_index,vga_table_index,vga_dic_index,modex_table_index;
     //initialize the page directory
-    for(i=0;i<PAGE_DIC_ENTRY;i++){
-        page_directory[i].val = 0;  // clear entry
-        page_directory[i].rw = 1;   // set read and write flag
+    for(i=0;i<PAGE_DIC_MAX;i++){
+        page_directory[i].val = 0;  // clean all
+        page_directory[i].rw = 1;   // set rw flag
     }
     //initialize the page table
-    for(i=0;i<PAGE_TAB_ENTRY;i++){
-        page_table0[i].val = 0;     // clear entrt
-        page_table0[i].rw = 1;      // set read and write flag
-        page_table0[i].base_addr = i;   // set the base address as the entry index (4kB aligned)
-    
-        page_table_vga[i].val = 0;
-        page_table_vga[i].rw = 1;
-
-        page_table_modex[i].val = 0;
-        page_table_modex[i].rw = 1;
+    for(i=0;i<PAGE_TAB_MAX;i++){
+        page_table0[i].val = 0;     // clean all
+        page_table0[i].rw = 1;      // set rw flag
+        page_table0[i].base_addr = i;   // set the base address as the entry index aligned
     }
-    // Set the kernal page (4MB), set present present, read and flag, 4MB size, global flags, and set the aligned address
-    page_directory[get_dir_entry(KERNAL_ADDR)].val = (PAGEF_PRESENT | PAGEF_RW | PAGEF_SIZE | PAGEF_GLOBAL | (KERNAL_ADDR & ALIGNED_ADDR_MASK));
-    // Set the VGA page, first set the page directory entry, set the present, rw, global flags, and set the aligned address as the page_table0's address
-    // Then, set the page_table0. 
-    for (i = VGA_TEXT_BUF_ADDR; i<= (VGA_TEXT_BUF_ADDR2+80*25*2+160); i+=0x1000){
-        page_directory[get_dir_entry(i)].val = (PAGEF_PRESENT | PAGEF_RW | PAGEF_GLOBAL | ((uint32_t)page_table0 & ALIGNED_ADDR_MASK));
-        page_table0[get_pag_entry(i)].val = (PAGEF_PRESENT | PAGEF_RW | (i & ALIGNED_ADDR_MASK));
+    // Set the kernal page (4MB)
+    kernal_index=get_dir_entry(KERNAL_ADDR);
+    page_directory[kernal_index].present=1;
+    page_directory[kernal_index].rw=1;
+    page_directory[kernal_index].pat=1;
+    page_directory[kernal_index].global=1;
+    page_directory[kernal_index].base_addr=KERNAL_ADDR>>TABLE_ADDRESS_SHIFT ;
+    
+    // Set the VGA page, first set the page directory entry
+    // Then, set the page_table0.  80 rows 25 columns 2 chars each character, 160 is left for more space 
+    for (i = VGA_TEXT_BUF_ADDR; i<= VGA_TEXT_BUF_ADDR3; i+=0x1000){
+        //get index
+        vga_table_index=get_pag_entry(i);
+        vga_dic_index=get_dir_entry(i);
+
+        page_directory[vga_dic_index].present=1;
+        page_directory[vga_dic_index].rw=1;
+        page_directory[vga_dic_index].global=1;
+        page_directory[vga_dic_index].base_addr=((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+        
+        page_table0[vga_table_index].present=1;
+        page_table0[vga_table_index].rw=1;
+        page_table0[vga_table_index].base_addr=(i & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
     }
     // Set Modex Pagingls
     for(i=VGA_MODEX_ADDR; i<0xB0000; i+=0x1000){
-        page_table0[get_pag_entry(i)].val = (PAGEF_PRESENT | PAGEF_RW | (i & ALIGNED_ADDR_MASK));
+        modex_table_index=get_pag_entry(i);
+        page_table0[modex_table_index].present=1;
+        page_table0[modex_table_index].rw=1;
+        page_table0[modex_table_index].base_addr=(i & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
     }
     // Init paging by seting the control registers
-    init_paging_ctr_regs();
-}
-
-/* 
- *   init_paging_ctr_regs
- *   DESCRIPTION: initialize the page control registers
- *   INPUTS: none
- *   OUTPUTS: none 
- *   RETURN VALUE: none
- *   SIDE EFFECTS: will change the control registers, and will enable paging
- */
-inline void init_paging_ctr_regs(){   // Referance : https://wiki.osdev.org/Paging - Enabling
     asm volatile(
         "movl $page_directory, %%eax \n\t"          // move page_directory's address to cr3(PBDR)
         "movl %%eax, %%cr3 \n\t"
         "movl %%cr4, %%eax \n\t"
-        "orl  $0x10, %%eax \n\t"                    // set bit 4 in cr4 to 1 to enable mixed size pages
+        "orl  $0x10, %%eax \n\t"                    // set 5th in cr4 to 1 to enable mixed size pages
         "movl %%eax, %%cr4 \n\t"
         "movl %%cr0, %%eax \n\t"
-        "orl  $0x80000001, %%eax \n\t"              // set the bit 0 in cr0 and highest bit in cr0 to enable paging and set protection
+        "orl  $0x80000001, %%eax \n\t"              // set the 1th in cr0 and highest bit in cr0 to enable paging 
         "movl %%eax, %%cr0 \n\t"
         :   // No output regs
         :   // No vars
-        : "%eax"    // %eax changed
+        : "%eax","cc"    // %eax changed
         );
 }
+
+
 

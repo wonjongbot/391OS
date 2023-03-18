@@ -84,10 +84,10 @@ int idt_test(){
  	TEST_HEADER;
  	int i;
  	int flag = 1;
- 	for(i=0;i<PAGE_DIC_ENTRY;i++){
+ 	for(i=0;i<PAGE_DIC_MAX;i++){
  		flag = flag && page_directory[i].val;
  	}
- 	for(i=0;i<PAGE_TAB_ENTRY;i++){
+ 	for(i=0;i<PAGE_TAB_MAX;i++){
  		flag = flag && page_table0[i].val;
  	}
  	return flag!=0;

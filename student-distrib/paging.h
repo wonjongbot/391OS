@@ -1,39 +1,34 @@
 #include "lib.h"
 
-// Paging flag define (bit masks)
-#define PAGEF_PRESENT            0x1
-#define PAGEF_RW                 0x2
-#define PAGEF_SIZE               0x80
-#define PAGEF_GLOBAL             0x100
+//the address in table start from the 12th b
+#define	TABLE_ADDRESS_SHIFT		12
 
 // Number of entriy in page directory and page table
-#define PAGE_DIC_ENTRY      1024
-#define PAGE_TAB_ENTRY      1024
+#define PAGE_DIC_MAX      1024
+#define PAGE_TAB_MAX      1024
 
 // Macro for 4KB and 4MB
-#define PAGE_4KB_OFF             12                         // The bit start of 4KB
-#define PAGE_4MB_OFF             22                         // The bit start of 4MB
-#define PAGE_4KB_VAL             (1<<PAGE_4KB_OFF)          // The value of 4MB
-#define PAGE_4MB_VAL             (1<<PAGE_4MB_OFF)          // The value of 4MB
+#define PAGE_4KB_VAL             (1<<12)          // The value of 4MB
+#define PAGE_4MB_VAL             (1<<22)          // The value of 4MB
 #define PAGE_10BITS_MASK         0x03FF                     // Used to get low 10 bits
-#define PAGE_8MB_OFF             23
-#define PAGE_8MB_VAL             (1<<PAGE_8MB_OFF)
+
 
 // Offset to get the component from virtural addr
-#define VIRTUAL_DIR_OFF          22                         // Bits offset of page directory in virtual address
-#define VIRTUAL_PAG_OFF          12                         // Bits offset of page table in virtual address
-#define ALIGNED_ADDR_OFF         12
+#define VIRTUAL_DIR_OFF          22                         // offset of page directory in virtual address
+#define VIRTUAL_PAG_OFF          12                         // offset of page table in virtual address
+
 
 // Addrs
 #define KERNAL_ADDR              PAGE_4MB_VAL               // Kernal start at 4MB in physical memory
-//#define VGA_TEXT_BUF_ADDR        (0xB8000)                   // Text buffer of VGA start at 0xB8000, Referance : https://en.wikipedia.org/wiki/VGA_text_mode - Access methods
 #define VGA_MODEX_ADDR           0x0A0000
 
 #define VGA_TEXT_BUF_ADDR (0xB8000)
 // #define VGA_TEXT_BUF_ADDR1 (0xB8000+(80*25*2+160))
 // #define VGA_TEXT_BUF_ADDR2 (0xB8000+(80*25*2+160)*2)
+// #define VGA_TEXT_BUF_ADDR2 (0xB8000+(80*25*2+160)*3)
 #define VGA_TEXT_BUF_ADDR1 (0xBA000)
-#define VGA_TEXT_BUF_ADDR2 (0xBC000)
+#define VGA_TEXT_BUF_ADDR2 (0xBA000+80*25*2+160)
+#define VGA_TEXT_BUF_ADDR3 (0xBA000+80*25*4+160*2)
 
 #define ALIGNED_ADDR_MASK        0xFFFFF000                 // Used to get the 20 LSBs
 
@@ -45,9 +40,17 @@ typedef union PTE{
     struct {
         uint32_t present         :1;    // present flag
         uint32_t rw              :1;    // read and write flag
+        uint32_t us              :1;    // user or supervisor flag
+        uint32_t pwt             :1;    // pwt flag
+        uint32_t pcd             :1;    // pcd flag
+        uint32_t accessed        :1;    // accessed flag
+        uint32_t dirty           :1;    // accessed flag
+        uint32_t pat             :1;    // 4MB or 4KB size flag
+        uint32_t global          :1;    // global flag
+        uint32_t avl             :3;    // available flag
         uint32_t base_addr       :20;   // base address (4KB aligned)
     } __attribute__ ((packed));
-} pte_t;
+} PTE;
 
 //unit struct in PDE
 typedef union PDE{
@@ -55,18 +58,22 @@ typedef union PDE{
     struct {
         uint32_t present         :1;    // present flag
         uint32_t rw              :1;    // read and write flag
+        uint32_t us              :1;    // user or supervisor flag
+        uint32_t pwt             :1;    // pwt flag
+        uint32_t pcd             :1;    // pcd flag
+        uint32_t accessed        :1;    // accessed flag
+        uint32_t dirty           :1;    // dirty flag
+        uint32_t pat             :1;    // 4MB or 4KB size flag
+        uint32_t global          :1;    // global flag
+        uint32_t avl             :3;    // available flag
         uint32_t base_addr       :20;   // base address (4KB aligned)
     } __attribute__ ((packed));
-} pde_t;
+} PDE;
 
 // page_directory
-pde_t page_directory[PAGE_DIC_ENTRY] __attribute__((aligned (PAGE_4KB_VAL)));
+PDE page_directory[PAGE_DIC_MAX] __attribute__((aligned (PAGE_4KB_VAL)));
 // first page table
-pte_t page_table0[PAGE_TAB_ENTRY] __attribute__((aligned (PAGE_4KB_VAL)));
-// page table vga
-pte_t page_table_vga[PAGE_TAB_ENTRY] __attribute__((aligned (PAGE_4KB_VAL)));
-// page table for modex
-pte_t page_table_modex[PAGE_TAB_ENTRY] __attribute__((aligned (PAGE_4KB_VAL)));
+PTE page_table0[PAGE_TAB_MAX] __attribute__((aligned (PAGE_4KB_VAL)));
 
 void init_paging();
 
