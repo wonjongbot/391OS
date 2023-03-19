@@ -22,7 +22,7 @@
 #define KERNAL_ADDR              PAGE_4MB_VAL               // Kernal start at 4MB in physical memory
 #define VGA_MODEX_ADDR           0x0A0000
 
-#define VGA_TEXT_BUF_ADDR (0xB8000)
+#define VGA_TEXT_BUF_ADDR0 (0xB8000)
 // #define VGA_TEXT_BUF_ADDR1 (0xB8000+(80*25*2+160))
 // #define VGA_TEXT_BUF_ADDR2 (0xB8000+(80*25*2+160)*2)
 // #define VGA_TEXT_BUF_ADDR2 (0xB8000+(80*25*2+160)*3)
@@ -32,8 +32,8 @@
 
 #define ALIGNED_ADDR_MASK        0xFFFFF000                 // Used to get the 20 LSBs
 
-#define get_dir_entry(vir_addr)      (((uint32_t)vir_addr>>VIRTUAL_DIR_OFF)&PAGE_10BITS_MASK)   // macro used to get the page directory index from virtual address
-#define get_pag_entry(vir_addr)      (((uint32_t)vir_addr>>VIRTUAL_PAG_OFF)&PAGE_10BITS_MASK)   // macro used to get the page table index from virtual address
+#define dir_entry(vir_addr)      (((uint32_t)vir_addr>>VIRTUAL_DIR_OFF)&PAGE_10BITS_MASK)   // macro used to get the page directory index from virtual address
+#define page_entry(vir_addr)      (((uint32_t)vir_addr>>VIRTUAL_PAG_OFF)&PAGE_10BITS_MASK)   // macro used to get the page table index from virtual address
 
 typedef union PTE{
     uint32_t val;
@@ -45,7 +45,7 @@ typedef union PTE{
         uint32_t pcd             :1;    // pcd flag
         uint32_t accessed        :1;    // accessed flag
         uint32_t dirty           :1;    // accessed flag
-        uint32_t pat             :1;    // 4MB or 4KB size flag
+        uint32_t ps              :1;    // 4MB or 4KB size flag
         uint32_t global          :1;    // global flag
         uint32_t avl             :3;    // available flag
         uint32_t base_addr       :20;   // base address (4KB aligned)
@@ -63,7 +63,7 @@ typedef union PDE{
         uint32_t pcd             :1;    // pcd flag
         uint32_t accessed        :1;    // accessed flag
         uint32_t dirty           :1;    // dirty flag
-        uint32_t pat             :1;    // 4MB or 4KB size flag
+        uint32_t ps              :1;    // 4MB or 4KB size flag
         uint32_t global          :1;    // global flag
         uint32_t avl             :3;    // available flag
         uint32_t base_addr       :20;   // base address (4KB aligned)

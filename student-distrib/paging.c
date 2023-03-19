@@ -12,31 +12,39 @@
 void init_paging(){
     uint32_t i;
     uint32_t kernal_index,vga_table_index,vga_dic_index,modex_table_index;
-    //initialize the page directory
-    for(i=0;i<PAGE_DIC_MAX;i++){
-        page_directory[i].val = 0;  // clean all
-        page_directory[i].rw = 1;   // set rw flag
-    }
+    
     //initialize the page table
     for(i=0;i<PAGE_TAB_MAX;i++){
         page_table0[i].val = 0;     // clean all
+        page_table0[i].present=(i == 0) ? 0 : 1;
         page_table0[i].rw = 1;      // set rw flag
         page_table0[i].base_addr = i;   // set the base address as the entry index aligned
     }
+    
+    //initialize the page directory
+    //page_directory[0] (4kb)
+    for(i=0;i<PAGE_DIC_MAX;i++){
+        page_directory[i].val = 0;  // clean all
+        //page_directory[i].present=1;
+        page_directory[i].rw = 1;   // set rw flag
+    }
+    page_directory[0].present = 1;
+    page_directory[0].base_addr=((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+    
     // Set the kernal page (4MB)
-    kernal_index=get_dir_entry(KERNAL_ADDR);
+    kernal_index=dir_entry(KERNAL_ADDR);
     page_directory[kernal_index].present=1;
     page_directory[kernal_index].rw=1;
-    page_directory[kernal_index].pat=1;
+    page_directory[kernal_index].ps=1;
     page_directory[kernal_index].global=1;
     page_directory[kernal_index].base_addr=KERNAL_ADDR>>TABLE_ADDRESS_SHIFT ;
     
     // Set the VGA page, first set the page directory entry
     // Then, set the page_table0.  80 rows 25 columns 2 chars each character, 160 is left for more space 
-    for (i = VGA_TEXT_BUF_ADDR; i<= VGA_TEXT_BUF_ADDR3; i+=0x1000){
+    for (i = VGA_TEXT_BUF_ADDR0; i<= VGA_TEXT_BUF_ADDR3; i+=0x1000){
         //get index
-        vga_table_index=get_pag_entry(i);
-        vga_dic_index=get_dir_entry(i);
+        vga_table_index=page_entry(i);
+        vga_dic_index=dir_entry(i);
 
         page_directory[vga_dic_index].present=1;
         page_directory[vga_dic_index].rw=1;
@@ -49,7 +57,7 @@ void init_paging(){
     }
     // Set Modex Pagingls
     for(i=VGA_MODEX_ADDR; i<0xB0000; i+=0x1000){
-        modex_table_index=get_pag_entry(i);
+        modex_table_index=page_entry(i);
         page_table0[modex_table_index].present=1;
         page_table0[modex_table_index].rw=1;
         page_table0[modex_table_index].base_addr=(i & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
@@ -64,9 +72,7 @@ void init_paging(){
         "movl %%cr0, %%eax \n\t"
         "orl  $0x80000001, %%eax \n\t"              // set the 1th in cr0 and highest bit in cr0 to enable paging 
         "movl %%eax, %%cr0 \n\t"
-        :   // No output regs
-        :   // No vars
-        : "%eax","cc"    // %eax changed
+        :   :   : "%eax","cc"    // %eax,cc changed
         );
 }
 
