@@ -9,7 +9,12 @@
 uint8_t master_mask; /* IRQs 0-7  */
 uint8_t slave_mask;  /* IRQs 8-15 */
 
-/* Initialize the 8259 PIC */
+/* 
+ * i8259_init
+ * Input: None
+ * Output: None
+ * Initialize the 8259 PIC
+ */
 void i8259_init(void) {    
     unsigned long flags;
 
@@ -47,7 +52,12 @@ void i8259_init(void) {
     enable_irq(0x2);
 }
 
-/* Enable (unmask) the specified IRQ */
+/* 
+ * enable_irq
+ * Input: None
+ * Output: None
+ * Enable (unmask) the specified IRQ 
+ */
 void enable_irq(uint32_t irq_num) {
     unsigned long flags;
 
@@ -68,7 +78,12 @@ void enable_irq(uint32_t irq_num) {
     restore_flags(flags);
 }
 
-/* Disable (mask) the specified IRQ */
+/* 
+ * disable_irq
+ * Input: None
+ * Output: None
+ * Disable (mask) the specified IRQ
+ */
 void disable_irq(uint32_t irq_num) {
     unsigned long flags;
 
@@ -89,7 +104,12 @@ void disable_irq(uint32_t irq_num) {
     restore_flags(flags);
 }
 
-/* Send end-of-interrupt signal for the specified IRQ */
+/* 
+ * send_eoi
+ * Input: None
+ * Output: None
+ * Send end-of-interrupt signal for the specified IRQ
+ */
 void send_eoi(uint32_t irq_num) {
     unsigned long flags;
 

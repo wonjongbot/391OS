@@ -14,8 +14,10 @@
 /* Initializes RTC */
 void rtc_init(void);
 
+/* Set RTC Frequency */
 void rtc_set_rate(unsigned rate);
 
+/* Set RTC Rate */
 void rtc_set_freq(unsigned frequency);
 
 /* Handles interrupts */

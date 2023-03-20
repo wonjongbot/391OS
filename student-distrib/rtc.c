@@ -7,7 +7,12 @@
 #include "i8259.h"
 #include "types.h"
 
-
+/* 
+ * rtc_init
+ * Input: None
+ * Output: None
+ * Starts up the rtc in periodic interrupt mode
+ */
 void rtc_init(void) {
     // unsigned long flags;
 
@@ -25,6 +30,12 @@ void rtc_init(void) {
     enable_irq(RTC_IRQ);          // Turn on IRQ8
 }
 
+/* 
+ * rtc_set_rate
+ * Input: None
+ * Output: None
+ * Set RTC Rate
+ */
 void rtc_set_rate(unsigned rate){
     //unsigned long flags;
     /* Changing Interrupt Rate */
@@ -40,6 +51,12 @@ unsigned rtc_counter = 0;
 unsigned rtc_target = 1;
 //int32_t rtc_flag = 0;
 
+/* 
+ * rtc_set_freq
+ * Input: None
+ * Output: None
+ * Set RTC Frequency
+ */
 void rtc_set_freq(unsigned frequency){
     if(frequency == 0){
         rtc_set_rate(0);
@@ -53,6 +70,12 @@ void rtc_set_freq(unsigned frequency){
     }
 }
 
+/*
+ * hrtc_handler
+ * Input: None
+ * Output: None
+ * Handles all RTC interrupts and runs through test interrupts
+ */
 void rtc_handler(void) {
 
     /* Need these two lines or interrupt will not happen again to get another interrupt*/
