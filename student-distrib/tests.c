@@ -24,10 +24,10 @@ int ret;
     printf("[TEST %s] Running %s at %s:%d\n", __FUNCTION__, __FUNCTION__, __FILE__, __LINE__);\
     set_attrib(0x07);
 #define TEST_OUTPUT(name, result)    \
-    printf("[TEST %s] Result = ", name); \
+    printf("[TEST %s]\n", name); \
     ret = (result); \
-    (ret) ? set_attrib(0x02) : set_attrib(0x04);\
-    printf("%s\n", (ret) ? "PASS" : "FAIL");\
+    set_attrib(ret ? 0x02 : 0x04); \
+    printf("%s\n", ret ? "PASS" : "FAIL");\
     set_attrib(0x07);
 
 static inline void assertion_failure() {
