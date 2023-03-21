@@ -3,7 +3,6 @@
 //the address in table start from the 12th b
 #define	TABLE_ADDRESS_SHIFT		12
 
-// Number of entriy in page directory and page table
 #define PAGE_DIC_MAX      1024
 #define PAGE_TAB_MAX      1024
 
@@ -13,7 +12,7 @@
 #define PAGE_10BITS_MASK         0x03FF                     // Used to get low 10 bits
 
 
-// Offset to get the component from virtural addr
+// Offset from virtural addr
 #define VIRTUAL_DIR_OFF          22                         // offset of page directory in virtual address
 #define VIRTUAL_PAG_OFF          12                         // offset of page table in virtual address
 
