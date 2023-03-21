@@ -19,6 +19,11 @@
 
 // Addrs
 #define KERNAL_ADDR              PAGE_4MB_VAL               // Kernal start at 4MB in physical memory
+#define VGA_TEXT_BUF_ADDR        0xB8000                    // VGA text mode starts at 0xB8000
+
+/* if we are to create multiple pages for vga page switching, we would uncomment these lines */
+
+/*
 #define VGA_MODEX_ADDR           0x0A0000
 
 #define VGA_TEXT_BUF_ADDR0 (0xB8000)
@@ -28,6 +33,7 @@
 #define VGA_TEXT_BUF_ADDR1 (0xBA000)
 #define VGA_TEXT_BUF_ADDR2 (0xBA000+80*25*2+160)
 #define VGA_TEXT_BUF_ADDR3 (0xBA000+80*25*4+160*2)
+*/
 
 #define ALIGNED_ADDR_MASK        0xFFFFF000                 // Used to get the 20 LSBs
 
