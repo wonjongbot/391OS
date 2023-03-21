@@ -193,7 +193,7 @@ int paging_struct_test() {
 void divide_zero_test() {
     int a = 0;
     int b = 0;
-    int c = a / b;
+    a = a / b;
 }
 
 /* RTC Frequency Test
