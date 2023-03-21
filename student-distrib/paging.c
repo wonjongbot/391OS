@@ -24,13 +24,13 @@ void init_paging(){
     //initialize the page table
     for(i=0;i<PAGE_TAB_MAX;i++){
         page_table0[i].val = 0;     // clean all
-        page_table0[i].present=(i == 0) ? 1 : 0;
+        page_table0[i].present=0;
         page_table0[i].rw = 1;      // set rw flag
         page_table0[i].base_addr = i;   // set the base address as the entry index aligned
     }
     
-    page_directory[0].present = 1;
-    page_directory[0].base_addr=((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+    // page_directory[0].present = 1;
+    // page_directory[0].base_addr=((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
     
     // Set the kernal page (4MB)
     kernal_index=dir_entry(KERNAL_ADDR);
@@ -42,7 +42,8 @@ void init_paging(){
     
     // Set the VGA page, first set the page directory entry
     // Then, set the page_table0.  80 rows 25 columns 2 chars each character, 160 is left for more space 
-    for (i = VGA_TEXT_BUF_ADDR0; i<= VGA_TEXT_BUF_ADDR3; i+=0x1000){
+    // for (i = VGA_TEXT_BUF_ADDR0; i<= VGA_TEXT_BUF_ADDR3; i+=0x1000){
+    i = 0xb8000;
         //get index
         vga_table_index=page_entry(i);
         vga_dic_index=dir_entry(i);
@@ -55,14 +56,14 @@ void init_paging(){
         page_table0[vga_table_index].present=1;
         page_table0[vga_table_index].rw=1;
         page_table0[vga_table_index].base_addr=(i & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
-    }
-    // Set Modex Pagingls
-    for(i=VGA_MODEX_ADDR; i<0xB0000; i+=0x1000){
-        modex_table_index=page_entry(i);
-        page_table0[modex_table_index].present=1;
-        page_table0[modex_table_index].rw=1;
-        page_table0[modex_table_index].base_addr=(i & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
-    }
+    // }
+    // // Set Modex Pagingls
+    // for(i=VGA_MODEX_ADDR; i<0xB0000; i+=0x1000){
+    //     modex_table_index=page_entry(i);
+    //     page_table0[modex_table_index].present=1;
+    //     page_table0[modex_table_index].rw=1;
+    //     page_table0[modex_table_index].base_addr=(i & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+    // }
     // Init paging by seting the control registers
     asm volatile(
         "movl $page_directory, %%eax \n\t"          // move page_directory's address to cr3(PBDR)
