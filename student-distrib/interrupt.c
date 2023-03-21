@@ -7,72 +7,100 @@
 #include "rtc.h"
 
 void INT0x00(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 0:Divide Error Exception (#DE)\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x01(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 1:Debug Exception (#DB)\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x02(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 2:NMI Interrupt\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x03(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 3:Breakpoint Exception (#BP)\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x04(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 4:Overflow Exception (#OF)\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x05(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 5:BOUND Range Exceeded Exception (#BR)\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x06(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 6:Invalid Opcode Exception (#UD)\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x07(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 7:Device Not Available Exception (#NM)\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x08(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 8:Double Fault Exception (#DF)\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x09(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 9:Coprocessor Segment Overrun\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x0a(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 10:Invalid TSS Exception (#TS)\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x0b(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 11:Segment Not Present (#NP)\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x0c(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 12:Stack Fault Exception (#SS)\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x0d(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 13:General Protection Exception (#GP)\n");
+    set_attrib(0x7);
     while(1);
 }
 
@@ -84,87 +112,121 @@ void INT0x0e(){
 }
 
 void INT0x0f(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 15\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x10(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 16:x87 FPU Floating-Point Error (#MF)\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x11(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 17:Alignment Check Exception (#AC)\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x12(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 18:Machine-Check Exception (#MC)\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x13(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 19:SIMD Floating-Point Exception (#XF)\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x14(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 20\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x15(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 21\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x16(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 22\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x17(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 23\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x18(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 24\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x19(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 25\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x1a(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 26\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x1b(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 27\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x1c(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 28\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x1d(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 29\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x1e(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 30\n");
+    set_attrib(0x7);
     while(1);
 }
 
 void INT0x1f(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 31\n");
+    set_attrib(0x7);
     while(1);
 }
 

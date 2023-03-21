@@ -9,7 +9,9 @@
 
 /* format these macros as you see fit */
 #define TEST_HEADER 	\
-	printf("[TEST %s] Running %s at %s:%d\n", __FUNCTION__, __FUNCTION__, __FILE__, __LINE__)
+	set_attrib(0x0B);\
+	printf("[TEST %s] Running %s at %s:%d\n", __FUNCTION__, __FUNCTION__, __FILE__, __LINE__);\
+	set_attrib(0x07);
 #define TEST_OUTPUT(name, result)	\
 	printf("[TEST %s] Result = %s\n", name, (result) ? "PASS" : "FAIL");
 
@@ -84,17 +86,23 @@ int idt_test(){
 	char *a;
 	char b;
 	uint32_t i;
-	printf("\t[*] Checking bounds of VGA text mode page - [0xB8000, 0xB8FFF] \n");
+	printf("\t[*] Checking bounds of VGA text mode page - [0xB8000, 0xB8FFF]");
 	for(i = 0xb8000; i < 0xb9000; i++){
 		a = (char*)i;
 		b = *a;
 	}
-	printf("\t[*] Checking bounds of Kernel page - [0x400000, 0x4FFFFF]\n");
+	set_attrib(0x02);
+	printf(" ... success!\n");
+	set_attrib(0x07);
+	printf("\t[*] Checking bounds of Kernel page - [0x400000, 0x4FFFFF]");
 	for(i = 0x400000; i < 0x500000; i++){
 		a = (char*)i;
 		b = *a;
 	}
-	printf("\t[*] All valid memories can be successfully accessed!\n");
+	set_attrib(0x02);
+	printf(" ... success!\n");
+	printf("\t[*] All valid memory addresses can be successfully accessed!\n");
+	set_attrib(0x07);
  	return 1;
  }
 
@@ -143,20 +151,22 @@ void rtc_freq_test(){
 
 /* Test suite entry point */
 void launch_tests(){
+	clear();
+	reset_text_cursor();
 	// launch your tests here
 	// idt test
 	TEST_OUTPUT("idt_test", idt_test());
 
 	// rtc changing frequency test
 	//rtc_freq_test();
-	clear();
-	reset_text_cursor();
+	// clear();
+	// reset_text_cursor();
 	// paging tests
 	TEST_OUTPUT("paging_struct_test", paging_struct_test());
 	TEST_OUTPUT("paging_vga_test", paging_vga_test());
 	TEST_OUTPUT("paging_kernal_test", paging_kernal_test());
 	TEST_OUTPUT("paging upper and lower bound test", paging_check_bounds());
-	page_overflow_test();
+	//page_overflow_test();
 	page_fault_exception_test();
 
 	// zero-division exception
