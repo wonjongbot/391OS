@@ -7,162 +7,162 @@
 #include "rtc.h"
 
 void INT0x00(){
-    printf("Interrupt 0:Divide Error Exception (#DE)\n");
+    printf("[!] Interrupt 0:Divide Error Exception (#DE)\n");
     while(1);
 }
 
 void INT0x01(){
-    printf("Interrupt 1:Debug Exception (#DB)\n");
+    printf("[!] Interrupt 1:Debug Exception (#DB)\n");
     while(1);
 }
 
 void INT0x02(){
-    printf("Interrupt 2:NMI Interrupt\n");
+    printf("[!] Interrupt 2:NMI Interrupt\n");
     while(1);
 }
 
 void INT0x03(){
-    printf("Interrupt 3:Breakpoint Exception (#BP)\n");
+    printf("[!] Interrupt 3:Breakpoint Exception (#BP)\n");
     while(1);
 }
 
 void INT0x04(){
-    printf("Interrupt 4:Overflow Exception (#OF)\n");
+    printf("[!] Interrupt 4:Overflow Exception (#OF)\n");
     while(1);
 }
 
 void INT0x05(){
-    printf("Interrupt 5:BOUND Range Exceeded Exception (#BR)\n");
+    printf("[!] Interrupt 5:BOUND Range Exceeded Exception (#BR)\n");
     while(1);
 }
 
 void INT0x06(){
-    printf("Interrupt 6:Invalid Opcode Exception (#UD)\n");
+    printf("[!] Interrupt 6:Invalid Opcode Exception (#UD)\n");
     while(1);
 }
 
 void INT0x07(){
-    printf("Interrupt 7:Device Not Available Exception (#NM)\n");
+    printf("[!] Interrupt 7:Device Not Available Exception (#NM)\n");
     while(1);
 }
 
 void INT0x08(){
-    printf("Interrupt 8:Double Fault Exception (#DF)\n");
+    printf("[!] Interrupt 8:Double Fault Exception (#DF)\n");
     while(1);
 }
 
 void INT0x09(){
-    printf("Interrupt 9:Coprocessor Segment Overrun\n");
+    printf("[!] Interrupt 9:Coprocessor Segment Overrun\n");
     while(1);
 }
 
 void INT0x0a(){
-    printf("Interrupt 10:Invalid TSS Exception (#TS)\n");
+    printf("[!] Interrupt 10:Invalid TSS Exception (#TS)\n");
     while(1);
 }
 
 void INT0x0b(){
-    printf("Interrupt 11:Segment Not Present (#NP)\n");
+    printf("[!] Interrupt 11:Segment Not Present (#NP)\n");
     while(1);
 }
 
 void INT0x0c(){
-    printf("Interrupt 12:Stack Fault Exception (#SS)\n");
+    printf("[!] Interrupt 12:Stack Fault Exception (#SS)\n");
     while(1);
 }
 
 void INT0x0d(){
-    printf("Interrupt 13:General Protection Exception (#GP)\n");
+    printf("[!] Interrupt 13:General Protection Exception (#GP)\n");
     while(1);
 }
 
 void INT0x0e(){
-    printf("Interrupt 14:Page-Fault Exception (#PF) \n");
+    printf("[!] Interrupt 14:Page-Fault Exception (#PF) \n");
     while(1);
 }
 
 void INT0x0f(){
-    printf("Interrupt 15\n");
+    printf("[!] Interrupt 15\n");
     while(1);
 }
 
 void INT0x10(){
-    printf("Interrupt 16:x87 FPU Floating-Point Error (#MF)\n");
+    printf("[!] Interrupt 16:x87 FPU Floating-Point Error (#MF)\n");
     while(1);
 }
 
 void INT0x11(){
-    printf("Interrupt 17:Alignment Check Exception (#AC)\n");
+    printf("[!] Interrupt 17:Alignment Check Exception (#AC)\n");
     while(1);
 }
 
 void INT0x12(){
-    printf("Interrupt 18:Machine-Check Exception (#MC)\n");
+    printf("[!] Interrupt 18:Machine-Check Exception (#MC)\n");
     while(1);
 }
 
 void INT0x13(){
-    printf("Interrupt 19:SIMD Floating-Point Exception (#XF)\n");
+    printf("[!] Interrupt 19:SIMD Floating-Point Exception (#XF)\n");
     while(1);
 }
 
 void INT0x14(){
-    printf("Interrupt 20\n");
+    printf("[!] Interrupt 20\n");
     while(1);
 }
 
 void INT0x15(){
-    printf("Interrupt 21\n");
+    printf("[!] Interrupt 21\n");
     while(1);
 }
 
 void INT0x16(){
-    printf("Interrupt 22\n");
+    printf("[!] Interrupt 22\n");
     while(1);
 }
 
 void INT0x17(){
-    printf("Interrupt 23\n");
+    printf("[!] Interrupt 23\n");
     while(1);
 }
 
 void INT0x18(){
-    printf("Interrupt 24\n");
+    printf("[!] Interrupt 24\n");
     while(1);
 }
 
 void INT0x19(){
-    printf("Interrupt 25\n");
+    printf("[!] Interrupt 25\n");
     while(1);
 }
 
 void INT0x1a(){
-    printf("Interrupt 26\n");
+    printf("[!] Interrupt 26\n");
     while(1);
 }
 
 void INT0x1b(){
-    printf("Interrupt 27\n");
+    printf("[!] Interrupt 27\n");
     while(1);
 }
 
 void INT0x1c(){
-    printf("Interrupt 28\n");
+    printf("[!] Interrupt 28\n");
     while(1);
 }
 
 void INT0x1d(){
-    printf("Interrupt 29\n");
+    printf("[!] Interrupt 29\n");
     while(1);
 }
 
 void INT0x1e(){
-    printf("Interrupt 30\n");
+    printf("[!] Interrupt 30\n");
     while(1);
 }
 
 void INT0x1f(){
-    printf("Interrupt 31\n");
+    printf("[!] Interrupt 31\n");
     while(1);
 }
 

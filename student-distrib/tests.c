@@ -83,20 +83,18 @@ int idt_test(){
  	TEST_HEADER;
 	char *a;
 	char b;
-	printf("Checking lower bounds of VGA memory\n");
-	a = (char*)0xb8000;
-	b = *a;
-	printf("Checking upper bounds of VGA memory\n");
-	a = (char*)0xb8fff;
-	printf("tsting address %d\n", a);
-	b = *a;
-	printf("Checking lower bounds of kernel memory\n");
-	a = (char*)0x400000;
-	b = *a;
-	printf("Checking upper bounds of kernel memory\n");
-	a = (char*)0x4fffff;
-	b = *a;
-	printf("bound test success!\n");
+	uint32_t i;
+	printf("\t[*] Checking bounds of VGA text mode page - [0xB8000, 0xB8FFF] \n");
+	for(i = 0xb8000; i < 0xb9000; i++){
+		a = (char*)i;
+		b = *a;
+	}
+	printf("\t[*] Checking bounds of Kernel page - [0x400000, 0x4FFFFF]\n");
+	for(i = 0x400000; i < 0x500000; i++){
+		a = (char*)i;
+		b = *a;
+	}
+	printf("\t[*] All valid memories can be successfully accessed!\n");
  	return 1;
  }
 
