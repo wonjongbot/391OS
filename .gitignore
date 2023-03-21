@@ -116,3 +116,6 @@ source/
 *bootimg
 *Makefile.dep
 *mp3.img
+
+# ide
+.idea
