@@ -1,6 +1,7 @@
 # linkage.S - Set up assembly linkage for handlers in IDT
 # vim:ts=4 noexpandtab
 
+/* This macro generates comman asm linkage of interrupt handlers */
 #define CREATE_LINKER(name, handler)     \
     .globl name                         ;\
     name:                               ;\
@@ -9,6 +10,7 @@
         popal                           ;\
         iret
 
+/* This macro generates comman asm linkage of interrupt handlers that push error code on stack*/
 #define CREATE_LINKER_poparg(name, handler)     \
     .globl name                         ;\
     name:                               ;\
