@@ -112,6 +112,8 @@ void rtc_freq_test(){
 	}
 	printf("RTC TEST DONE\n");
 	rtc_set_rate(0);
+	clear();
+	reset_text_cursor();
 }
 
 /* Checkpoint 2 tests */

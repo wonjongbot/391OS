@@ -176,6 +176,16 @@ void putc_rtc() {
     UIflag ^= 1;
 }
 
+
+/* void putc(uint8_t c);
+ * Inputs: none
+ * Return Value: void
+ *  Function: resets screen_x and screen_y so next putc is on top left*/
+void reset_text_cursor(void){
+    screen_x = 0;
+    screen_y = 0;
+}
+
 /* void putc(uint8_t c);
  * Inputs: uint_8* c = character to print
  * Return Value: void

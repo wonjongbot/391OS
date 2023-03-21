@@ -71,7 +71,7 @@ void rtc_set_freq(unsigned frequency){
 }
 
 /*
- * hrtc_handler
+ * rtc_handler
  * Input: None
  * Output: None
  * Handles all RTC interrupts and runs through test interrupts
@@ -87,7 +87,8 @@ void rtc_handler(void) {
     send_eoi(RTC_IRQ);
     if(rtc_counter == 0){
         //putc_rtc();
-        printf(".");
+        //printf(".");
+        test_interrupts(); 
     }
     rtc_counter = (rtc_counter + 1)%rtc_target;
 
