@@ -113,6 +113,6 @@ dkms.conf
 source/
 
 # 391 image file and build related stuff
-bootimg
-Makefile.dep
-mp3.img
+bootimg*
+Makefile.dep*
+mp3.img*
