@@ -7,6 +7,13 @@
 #define PASS 1
 #define FAIL 0
 
+// set_atrib function takes in 4 bits for foreground color and 4 bits for background color
+// colors we used are :
+// 		- 0x07: black background with grey text
+//		- 0x0B: black background with cyan text
+//		- 0x02: black background with green text
+//		- 0x4E: red background with yellow text
+
 /* format these macros as you see fit */
 #define TEST_HEADER 	\
 	set_attrib(0x0B);\

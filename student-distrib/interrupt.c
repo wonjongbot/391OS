@@ -6,6 +6,13 @@
 #include "keyboard.h"
 #include "rtc.h"
 
+// set_atrib function takes in 4 bits for foreground color and 4 bits for background color
+// colors we used are :
+// 		- 0x07: black background with grey text
+//		- 0x0B: black background with cyan text
+//		- 0x02: black background with green text
+//		- 0x4E: red background with yellow text
+
 /* 
  * INT0x00
  * Input: None
