@@ -7,6 +7,9 @@
 #define PASS 1
 #define FAIL 0
 
+// global variable to check test function output
+int ret;
+
 // set_atrib function takes in 4 bits for foreground color and 4 bits for background color
 // colors we used are :
 // 		- 0x07: black background with grey text
@@ -20,7 +23,11 @@
     printf("[TEST %s] Running %s at %s:%d\n", __FUNCTION__, __FUNCTION__, __FILE__, __LINE__);\
     set_attrib(0x07);
 #define TEST_OUTPUT(name, result)    \
-    printf("[TEST %s] Result = %s\n", name, (result) ? "PASS" : "FAIL");
+    printf("[TEST %s] Result = ", name); \
+    ret = (result); \
+    (ret) ? set_attrib(0x02) : set_attrib(0x04);\
+    printf("%s\n", (ret) ? "PASS" : "FAIL");\
+    set_attrib(0x07);
 
 static inline void assertion_failure() {
     /* Use exception #15 for assertions, otherwise
@@ -154,6 +161,7 @@ int paging_check_bounds() {
     }
     set_attrib(0x02);
     printf(" ... success!\n");
+    set_attrib(0x2f);
     printf("\t[*] All valid memory addresses can be successfully accessed!\n");
     set_attrib(0x07);
     return PASS;
