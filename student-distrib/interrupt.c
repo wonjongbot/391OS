@@ -77,7 +77,9 @@ void INT0x0d(){
 }
 
 void INT0x0e(){
+    set_attrib(0x4E);
     printf("[!] Interrupt 14:Page-Fault Exception (#PF) \n");
+    set_attrib(0x7);
     while(1);
 }
 
