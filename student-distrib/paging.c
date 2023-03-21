@@ -13,14 +13,6 @@ void init_paging(){
     uint32_t i;
     uint32_t kernal_index,vga_table_index,vga_dic_index,modex_table_index;
     
-    //initialize the page table
-    for(i=0;i<PAGE_TAB_MAX;i++){
-        page_table0[i].val = 0;     // clean all
-        page_table0[i].present=(i == 0) ? 0 : 1;
-        page_table0[i].rw = 1;      // set rw flag
-        page_table0[i].base_addr = i;   // set the base address as the entry index aligned
-    }
-    
     //initialize the page directory
     //page_directory[0] (4kb)
     for(i=0;i<PAGE_DIC_MAX;i++){
@@ -28,6 +20,15 @@ void init_paging(){
         //page_directory[i].present=1;
         page_directory[i].rw = 1;   // set rw flag
     }
+
+    //initialize the page table
+    for(i=0;i<PAGE_TAB_MAX;i++){
+        page_table0[i].val = 0;     // clean all
+        page_table0[i].present=(i == 0) ? 1 : 0;
+        page_table0[i].rw = 1;      // set rw flag
+        page_table0[i].base_addr = i;   // set the base address as the entry index aligned
+    }
+    
     page_directory[0].present = 1;
     page_directory[0].base_addr=((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
     
