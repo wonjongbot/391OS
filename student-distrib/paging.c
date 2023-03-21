@@ -11,13 +11,13 @@
  */
 void init_paging(){
     uint32_t i;
-    uint32_t kernal_index,vga_table_index,vga_dic_index,modex_table_index;
+    uint32_t kernal_index,vga_table_index,vga_dic_index; // declare variables for table and directory index
+    // modex_table_index;
     
     //initialize the page directory
     //page_directory[0] (4kb)
     for(i=0;i<PAGE_DIC_MAX;i++){
         page_directory[i].val = 0;  // clean all
-        //page_directory[i].present=1;
         page_directory[i].rw = 1;   // set rw flag
     }
 
@@ -29,6 +29,7 @@ void init_paging(){
         page_table0[i].base_addr = i;   // set the base address as the entry index aligned
     }
     
+    /* we would uncomment this if we want the first page to be available*/
     // page_directory[0].present = 1;
     // page_directory[0].base_addr=((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
     
@@ -41,22 +42,27 @@ void init_paging(){
     page_directory[kernal_index].base_addr=KERNAL_ADDR>>TABLE_ADDRESS_SHIFT ;
     
     // Set the VGA page, first set the page directory entry
-    // Then, set the page_table0.  80 rows 25 columns 2 chars each character, 160 is left for more space 
-    // for (i = VGA_TEXT_BUF_ADDR0; i<= VGA_TEXT_BUF_ADDR3; i+=0x1000){
-    i = 0xb8000;
-        //get index
-        vga_table_index=page_entry(i);
-        vga_dic_index=dir_entry(i);
+    // Then, set the page_table0.  80 rows 25 columns 2 chars each character, 160 is left for more space
 
-        page_directory[vga_dic_index].present=1;
-        page_directory[vga_dic_index].rw=1;
-        page_directory[vga_dic_index].global=1;
-        page_directory[vga_dic_index].base_addr=((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
-        
-        page_table0[vga_table_index].present=1;
-        page_table0[vga_table_index].rw=1;
-        page_table0[vga_table_index].base_addr=(i & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+    // we would do this if we are to have multiple VGA pages 
+    // for (i = VGA_TEXT_BUF_ADDR0; i<= VGA_TEXT_BUF_ADDR3; i+=0x1000){
+
+    //get index for the page table and page directory for VGA text mode page (ADDR 0xb8000)
+    vga_table_index=page_entry(VGA_TEXT_BUF_ADDR);
+    vga_dic_index=dir_entry(VGA_TEXT_BUF_ADDR);
+
+    page_directory[vga_dic_index].present=1;
+    page_directory[vga_dic_index].rw=1;
+    page_directory[vga_dic_index].global=1;
+    page_directory[vga_dic_index].base_addr=((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+    
+    page_table0[vga_table_index].present=1;
+    page_table0[vga_table_index].rw=1;
+    page_table0[vga_table_index].base_addr=(i & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+    
     // }
+
+    /* we would do this if we are to have a seperate page for mode X */
     // // Set Modex Pagingls
     // for(i=VGA_MODEX_ADDR; i<0xB0000; i+=0x1000){
     //     modex_table_index=page_entry(i);
@@ -64,6 +70,7 @@ void init_paging(){
     //     page_table0[modex_table_index].rw=1;
     //     page_table0[modex_table_index].base_addr=(i & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
     // }
+
     // Init paging by seting the control registers
     asm volatile(
         "movl $page_directory, %%eax \n\t"          // move page_directory's address to cr3(PBDR)
