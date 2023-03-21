@@ -13,7 +13,7 @@
 //		- 0x02: black background with green text
 //		- 0x4E: red background with yellow text
 
-/* 
+/*
  * INT0x00
  * Input: None
  * Output: None
@@ -26,7 +26,7 @@ void INT0x00(){
     while(1);
 }
 
-/* 
+/*
  * INT0x01
  * Input: None
  * Output: None
@@ -39,7 +39,7 @@ void INT0x01(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x02()
  * Input: None
  * Output: None
@@ -52,7 +52,7 @@ void INT0x02(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x03()
  * Input: None
  * Output: None
@@ -65,7 +65,7 @@ void INT0x03(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x04()
  * Input: None
  * Output: None
@@ -78,7 +78,7 @@ void INT0x04(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x05()
  * Input: None
  * Output: None
@@ -91,7 +91,7 @@ void INT0x05(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x06()
  * Input: None
  * Output: None
@@ -104,7 +104,7 @@ void INT0x06(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x07()
  * Input: None
  * Output: None
@@ -117,7 +117,7 @@ void INT0x07(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x08()
  * Input: None
  * Output: None
@@ -130,7 +130,7 @@ void INT0x08(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x09()
  * Input: None
  * Output: None
@@ -143,7 +143,7 @@ void INT0x09(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x0a()
  * Input: None
  * Output: None
@@ -156,7 +156,7 @@ void INT0x0a(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x0b()
  * Input: None
  * Output: None
@@ -169,7 +169,7 @@ void INT0x0b(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x0c()
  * Input: None
  * Output: None
@@ -182,7 +182,7 @@ void INT0x0c(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x0d()
  * Input: None
  * Output: None
@@ -195,7 +195,7 @@ void INT0x0d(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x0e()
  * Input: None
  * Output: None
@@ -208,7 +208,7 @@ void INT0x0e(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x0f()
  * Input: None
  * Output: None
@@ -221,7 +221,7 @@ void INT0x0f(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x10()
  * Input: None
  * Output: None
@@ -234,7 +234,7 @@ void INT0x10(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x11()
  * Input: None
  * Output: None
@@ -247,7 +247,7 @@ void INT0x11(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x12()
  * Input: None
  * Output: None
@@ -260,7 +260,7 @@ void INT0x12(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x13()
  * Input: None
  * Output: None
@@ -273,7 +273,7 @@ void INT0x13(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x14()
  * Input: None
  * Output: None
@@ -286,7 +286,7 @@ void INT0x14(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x15()
  * Input: None
  * Output: None
@@ -299,7 +299,7 @@ void INT0x15(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x16()
  * Input: None
  * Output: None
@@ -312,7 +312,7 @@ void INT0x16(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x17()
  * Input: None
  * Output: None
@@ -325,7 +325,7 @@ void INT0x17(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x18()
  * Input: None
  * Output: None
@@ -338,7 +338,7 @@ void INT0x18(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x19()
  * Input: None
  * Output: None
@@ -351,7 +351,7 @@ void INT0x19(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x1a()
  * Input: None
  * Output: None
@@ -364,7 +364,7 @@ void INT0x1a(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x1b()
  * Input: None
  * Output: None
@@ -377,7 +377,7 @@ void INT0x1b(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x1c()
  * Input: None
  * Output: None
@@ -390,7 +390,7 @@ void INT0x1c(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x1d()
  * Input: None
  * Output: None
@@ -403,7 +403,7 @@ void INT0x1d(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x1e()
  * Input: None
  * Output: None
@@ -416,7 +416,7 @@ void INT0x1e(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x1f()
  * Input: None
  * Output: None
@@ -429,7 +429,7 @@ void INT0x1f(){
     while(1);
 }
 
-/* 
+/*
  * INT_0x21()
  * Input: None
  * Output: None
@@ -439,7 +439,7 @@ void INT0x21(){
     keyboard_handler();
 }
 
-/* 
+/*
  * INT_0x28()
  * Input: None
  * Output: None
@@ -449,7 +449,7 @@ void INT0x28(){
     rtc_handler();
 }
 
-/* 
+/*
  * INT_0x80()
  * Input: None
  * Output: None
@@ -460,6 +460,12 @@ void INT0x80(){
     while(1);
 }
 
+/*
+ * init_exception()
+ * Input: None
+ * Output: None
+ * Initializes IDT entries 0-31 for exceptions
+ */
 static void init_exception(){
     int i;
     for(i = 0; i < 0x20; i++){
@@ -474,6 +480,12 @@ static void init_exception(){
     }
 }
 
+/*
+ * init_interrupt()
+ * Input: None
+ * Output: None
+ * Initializes IDT entries 32-47 for interrupts
+ */
 static void init_interrupt(){
     int i;
     for(i = 0x20; i < 0x30; i++){
@@ -488,6 +500,12 @@ static void init_interrupt(){
     }
 }
 
+/*
+ * init_syscall()
+ * Input: None
+ * Output: None
+ * Initializes IDT entry 128 for syscall
+ */
 static void init_syscall(){
     int i = 0x80;
     idt[i].seg_selector = KERNEL_CS;
@@ -500,11 +518,17 @@ static void init_syscall(){
     idt[i].present=0x0;
 }
 
+/*
+ * init_idt()
+ * Input: None
+ * Output: None
+ * Initializes and sets values of the IDT table for exceptions, interrupts, and the syscall
+ */
 void init_idt(){
     init_exception();
     init_interrupt();
     init_syscall();
-    
+
     // initialize interrupt/trap gates of IDT
     {
     // Interrupt 0:Divide Error Exception (#DE)
@@ -518,52 +542,52 @@ void init_idt(){
 
     // Interrupt 3:Breakpoint Exception (#BP)
     SET_IDT_ENTRY(idt[3], INT0x03_linker);
-    
-    // Interrupt 4:Overflow Exception (#OF) 
+
+    // Interrupt 4:Overflow Exception (#OF)
     SET_IDT_ENTRY(idt[4], INT0x04_linker);
-    
-    // Interrupt 5:BOUND Range Exceeded Exception (#BR) 
+
+    // Interrupt 5:BOUND Range Exceeded Exception (#BR)
     SET_IDT_ENTRY(idt[5], INT0x05_linker);
-    
+
     // Interrupt 6:Invalid Opcode Exception (#UD)
     SET_IDT_ENTRY(idt[6], INT0x06_linker);
-    
+
     // Interrupt 7:Device Not Available Exception (#NM)
     SET_IDT_ENTRY(idt[7], INT0x07_linker);
-    
+
     // Interrupt 8:Double Fault Exception (#DF)
     SET_IDT_ENTRY(idt[8], INT0x08_linker);
-    
+
     // Interrupt 9:Coprocessor Segment Overrun
     SET_IDT_ENTRY(idt[9], INT0x09_linker);
-    
+
     // Interrupt 10:Invalid TSS Exception (#TS)
     SET_IDT_ENTRY(idt[10], INT0x0a_linker);
-    
+
     // Interrupt 11:Segment Not Present (#NP)
     SET_IDT_ENTRY(idt[11], INT0x0b_linker);
-    
+
     // Interrupt 12:Stack Fault Exception (#SS)
     SET_IDT_ENTRY(idt[12], INT0x0c_linker);
-    
+
     // Interrupt 13:General Protection Exception (#GP)
     SET_IDT_ENTRY(idt[13], INT0x0d_linker);
-    
-    // Interrupt 14:Page-Fault Exception (#PF) 
+
+    // Interrupt 14:Page-Fault Exception (#PF)
     SET_IDT_ENTRY(idt[14], INT0x0e_linker);
 
     // Interrupt 15
     SET_IDT_ENTRY(idt[15], INT0x0f_linker);
-    
+
     // Interrupt 16:x87 FPU Floating-Point Error (#MF)
     SET_IDT_ENTRY(idt[16], INT0x10_linker);
-    
+
     // Interrupt 17:Alignment Check Exception (#AC)
     SET_IDT_ENTRY(idt[17], INT0x11_linker);
-    
+
     // Interrupt 18:Machine-Check Exception (#MC)
     SET_IDT_ENTRY(idt[18], INT0x12_linker);
-    
+
     // Interrupt 19:SIMD Floating-Point Exception (#XF)
     SET_IDT_ENTRY(idt[19], INT0x13_linker);
 
@@ -578,7 +602,7 @@ void init_idt(){
 
     // Interrupt 23
     SET_IDT_ENTRY(idt[23], INT0x17_linker);
-    
+
     // Interrupt 24
     SET_IDT_ENTRY(idt[24], INT0x18_linker);
 
@@ -587,7 +611,7 @@ void init_idt(){
 
     // Interrupt 26
     SET_IDT_ENTRY(idt[26], INT0x1a_linker);
-    
+
     // Interrupt 27
     SET_IDT_ENTRY(idt[27], INT0x1b_linker);
 
