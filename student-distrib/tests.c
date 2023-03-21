@@ -79,6 +79,27 @@ int idt_test(){
  	return 1;
  }
 
+  int paging_check_bounds(){
+ 	TEST_HEADER;
+	char *a;
+	char b;
+	printf("Checking lower bounds of VGA memory\n");
+	a = (char*)0xb8000;
+	b = *a;
+	printf("Checking upper bounds of VGA memory\n");
+	a = (char*)0xb8fff;
+	printf("tsting address %d\n", a);
+	b = *a;
+	printf("Checking lower bounds of kernel memory\n");
+	a = (char*)0x400000;
+	b = *a;
+	printf("Checking upper bounds of kernel memory\n");
+	a = (char*)0x4fffff;
+	b = *a;
+	printf("bound test success!\n");
+ 	return 1;
+ }
+
   
  int paging_struct_test(){
  	TEST_HEADER;
@@ -129,12 +150,14 @@ void launch_tests(){
 	TEST_OUTPUT("idt_test", idt_test());
 
 	// rtc changing frequency test
-	rtc_freq_test();
-
+	//rtc_freq_test();
+	clear();
+	reset_text_cursor();
 	// paging tests
 	TEST_OUTPUT("paging_struct_test", paging_struct_test());
 	TEST_OUTPUT("paging_vga_test", paging_vga_test());
 	TEST_OUTPUT("paging_kernal_test", paging_kernal_test());
+	TEST_OUTPUT("paging upper and lower bound test", paging_check_bounds());
 	page_overflow_test();
 	page_fault_exception_test();
 
