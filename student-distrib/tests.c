@@ -16,6 +16,7 @@ int ret;
 //		- 0x0B: black background with cyan text
 //		- 0x02: black background with green text
 //		- 0x4E: red background with yellow text
+//      - 0x2f: green background with white text
 
 /* format these macros as you see fit */
 #define TEST_HEADER    \
