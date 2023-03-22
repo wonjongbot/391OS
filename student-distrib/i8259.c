@@ -66,10 +66,10 @@ void enable_irq(uint32_t irq_num) {
     uint16_t port;
     uint8_t value;
 
-    if (irq_num < 8) {
-        port = MASTER_DATA;
+    if (irq_num < 8) {  // Master and Slave PIC both have 8 inputs
+        port = MASTER_DATA;     // Go to Master PIC
     } else {
-        port = SLAVE_DATA;
+        port = SLAVE_DATA;      // Go to Slave PIC
         irq_num -= 8;
     }
     value = inb(port) & ~(1 << irq_num);
@@ -92,11 +92,11 @@ void disable_irq(uint32_t irq_num) {
     uint16_t port;
     uint8_t value;
 
-    if (irq_num < 8) {
+    if (irq_num < 8) {  // Master and Slave PIC both have 8 inputs
         port = MASTER_DATA;
     } else {
         port = SLAVE_DATA;
-        irq_num -= 8;
+        irq_num -= 8;   // Master and Slave PIC both have 8 inputs
     }
     value = inb(port) | (1 << irq_num);
     outb(value, port);
@@ -115,9 +115,9 @@ void send_eoi(uint32_t irq_num) {
 
     cli_and_save(flags);    // Disable interupts
 
-    if (irq_num >= 8)
-        outb(EOI, SLAVE_COMMAND);
-    outb(EOI, MASTER_COMMAND);
+    if (irq_num >= 8)   // Master and Slave PIC both have 8 inputs
+        outb(EOI, SLAVE_COMMAND);   // Output Slave PIC
+    outb(EOI, MASTER_COMMAND);      // Output Master PIC
 
     
     restore_flags(flags);
