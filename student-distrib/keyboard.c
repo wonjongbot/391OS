@@ -2,6 +2,12 @@
 #include "i8259.h"
 #include "lib.h"
 
+int shift_flag = 0;
+
+int ctrl_flag = 0;
+
+int caps_flag = 0;
+
 void keyboard_init(){
     enable_irq(0x1);
 }
@@ -23,6 +29,7 @@ char scancode_down [0x54] = {
 void keyboard_handler(){
     uint32_t scancode;
     scancode = inb(0x60);
+    printf("SCANCODE: %x\n", scancode);
     if(scancode < 0x53)
         putc(scancode_down[scancode]);
     send_eoi(0x1);
