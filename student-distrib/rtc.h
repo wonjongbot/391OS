@@ -17,10 +17,24 @@ void rtc_init(void);
 /* Set RTC Frequency */
 void rtc_set_rate(unsigned rate);
 
+/* Helper function to check for power of 2 */
+int32_t pow_of_two(unsigned number);
+
 /* Set RTC Rate */
-void rtc_set_freq(unsigned frequency);
+int32_t rtc_set_freq(unsigned frequency);
 
 /* Handles interrupts */
 void rtc_handler(void);
 
+/* opens RTC */
+int32_t rtc_open (const uint8_t* filename);
+
+/* read RTC */
+int32_t rtc_read (int32_t fd, void* buf, int32_t nbytes);
+
+/* write RTC */
+int32_t rtc_write (int32_t fd, const void* buf, int32_t nbytes);
+
+/* close RTC */
+int32_t rtc_close (int32_t fd);
 #endif
