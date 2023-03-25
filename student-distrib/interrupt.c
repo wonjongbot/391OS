@@ -6,193 +6,466 @@
 #include "keyboard.h"
 #include "rtc.h"
 
+// set_atrib function takes in 4 bits for foreground color and 4 bits for background color
+// colors we used are :
+// 		- 0x07: black background with grey text
+//		- 0x0B: black background with cyan text
+//		- 0x02: black background with green text
+//		- 0x4E: red background with yellow text
+
+/*
+ * INT0x00
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x00
+ */
 void INT0x00(){
-    printf("Interrupt 0:Divide Error Exception (#DE)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 0:Divide Error Exception (#DE)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT0x01
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x01
+ */
 void INT0x01(){
-    printf("Interrupt 1:Debug Exception (#DB)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 1:Debug Exception (#DB)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x02()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x02
+ */
 void INT0x02(){
-    printf("Interrupt 2:NMI Interrupt\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 2:NMI Interrupt\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x03()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x03
+ */
 void INT0x03(){
-    printf("Interrupt 3:Breakpoint Exception (#BP)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 3:Breakpoint Exception (#BP)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x04()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x04
+ */
 void INT0x04(){
-    printf("Interrupt 4:Overflow Exception (#OF)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 4:Overflow Exception (#OF)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x05()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x05
+ */
 void INT0x05(){
-    printf("Interrupt 5:BOUND Range Exceeded Exception (#BR)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 5:BOUND Range Exceeded Exception (#BR)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x06()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x06
+ */
 void INT0x06(){
-    printf("Interrupt 6:Invalid Opcode Exception (#UD)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 6:Invalid Opcode Exception (#UD)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x07()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x07
+ */
 void INT0x07(){
-    printf("Interrupt 7:Device Not Available Exception (#NM)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 7:Device Not Available Exception (#NM)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x08()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x08
+ */
 void INT0x08(){
-    printf("Interrupt 8:Double Fault Exception (#DF)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 8:Double Fault Exception (#DF)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x09()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x09
+ */
 void INT0x09(){
-    printf("Interrupt 9:Coprocessor Segment Overrun\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 9:Coprocessor Segment Overrun\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x0a()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x0A
+ */
 void INT0x0a(){
-    printf("Interrupt 10:Invalid TSS Exception (#TS)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 10:Invalid TSS Exception (#TS)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x0b()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x0b
+ */
 void INT0x0b(){
-    printf("Interrupt 11:Segment Not Present (#NP)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 11:Segment Not Present (#NP)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x0c()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x0c
+ */
 void INT0x0c(){
-    printf("Interrupt 12:Stack Fault Exception (#SS)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 12:Stack Fault Exception (#SS)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x0d()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x0d
+ */
 void INT0x0d(){
-    printf("Interrupt 13:General Protection Exception (#GP)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 13:General Protection Exception (#GP)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x0e()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x0e
+ */
 void INT0x0e(){
-    printf("Interrupt 14:Page-Fault Exception (#PF) \n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 14:Page-Fault Exception (#PF) \n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x0f()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x0f
+ */
 void INT0x0f(){
-    printf("Interrupt 15\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 15\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x10()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x10
+ */
 void INT0x10(){
-    printf("Interrupt 16:x87 FPU Floating-Point Error (#MF)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 16:x87 FPU Floating-Point Error (#MF)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x11()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x11
+ */
 void INT0x11(){
-    printf("Interrupt 17:Alignment Check Exception (#AC)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 17:Alignment Check Exception (#AC)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x12()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x12
+ */
 void INT0x12(){
-    printf("Interrupt 18:Machine-Check Exception (#MC)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 18:Machine-Check Exception (#MC)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x13()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x13
+ */
 void INT0x13(){
-    printf("Interrupt 19:SIMD Floating-Point Exception (#XF)\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 19:SIMD Floating-Point Exception (#XF)\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x14()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x14
+ */
 void INT0x14(){
-    printf("Interrupt 20\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 20\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x15()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x15
+ */
 void INT0x15(){
-    printf("Interrupt 21\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 21\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x16()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x16
+ */
 void INT0x16(){
-    printf("Interrupt 22\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 22\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x17()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x17
+ */
 void INT0x17(){
-    printf("Interrupt 23\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 23\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x18()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x18
+ */
 void INT0x18(){
-    printf("Interrupt 24\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 24\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x19()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x19
+ */
 void INT0x19(){
-    printf("Interrupt 25\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 25\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x1a()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x1a
+ */
 void INT0x1a(){
-    printf("Interrupt 26\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 26\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x1b()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x1b
+ */
 void INT0x1b(){
-    printf("Interrupt 27\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 27\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x1c()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x1c
+ */
 void INT0x1c(){
-    printf("Interrupt 28\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 28\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x1d()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x1d
+ */
 void INT0x1d(){
-    printf("Interrupt 29\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 29\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x1e()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x1e
+ */
 void INT0x1e(){
-    printf("Interrupt 30\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 30\n");
+    set_attrib(0x7);
     while(1);
 }
 
+/*
+ * INT_0x1f()
+ * Input: None
+ * Output: None
+ * Interrupt handler for exception 0x1f
+ */
 void INT0x1f(){
-    printf("Interrupt 31\n");
+    set_attrib(0x4E);
+    printf("[!] Interrupt 31\n");
+    set_attrib(0x7);
     while(1);
 }
 
-//handler for kbd
+/*
+ * INT_0x21()
+ * Input: None
+ * Output: None
+ * Interrupt handler for keyboard interrupt
+ */
 void INT0x21(){
     keyboard_handler();
 }
 
-// handler for rtc
+/*
+ * INT_0x28()
+ * Input: None
+ * Output: None
+ * Interrupt handler for rtc interrupt
+ */
 void INT0x28(){
     rtc_handler();
 }
 
+/*
+ * INT_0x80()
+ * Input: None
+ * Output: None
+ * Interrupt handler for system calls
+ */
 void INT0x80(){
     printf("SYSTEM CALL 0x80\n");
     while(1);
 }
 
-// static void init_idt_entry(idt_desc_t desc, uint32_t index, uint32_t DPL, uint32_t handler){
-//     desc.seg_selector = KERNEL_CS;
-//     desc.reserved3 = 0x0;
-//     desc.reserved2 = 0x1;
-//     desc.reserved1 = 0x1;
-//     desc.size = 0x1;
-//     desc.reserved0 = 0x0;
-//     desc.dpl = 0x3 & DPL;
-//     desc.present = 0x1;
-//     SET_IDT_ENTRY(desc, handler);
-// }
-
+/*
+ * init_exception()
+ * Input: None
+ * Output: None
+ * Initializes IDT entries 0-31 for exceptions
+ */
 static void init_exception(){
     int i;
     for(i = 0; i < 0x20; i++){
@@ -207,6 +480,12 @@ static void init_exception(){
     }
 }
 
+/*
+ * init_interrupt()
+ * Input: None
+ * Output: None
+ * Initializes IDT entries 32-47 for interrupts
+ */
 static void init_interrupt(){
     int i;
     for(i = 0x20; i < 0x30; i++){
@@ -221,6 +500,12 @@ static void init_interrupt(){
     }
 }
 
+/*
+ * init_syscall()
+ * Input: None
+ * Output: None
+ * Initializes IDT entry 128 for syscall
+ */
 static void init_syscall(){
     int i = 0x80;
     idt[i].seg_selector = KERNEL_CS;
@@ -233,11 +518,17 @@ static void init_syscall(){
     idt[i].present=0x0;
 }
 
+/*
+ * init_idt()
+ * Input: None
+ * Output: None
+ * Initializes and sets values of the IDT table for exceptions, interrupts, and the syscall
+ */
 void init_idt(){
     init_exception();
     init_interrupt();
     init_syscall();
-    
+
     // initialize interrupt/trap gates of IDT
     {
     // Interrupt 0:Divide Error Exception (#DE)
@@ -251,52 +542,52 @@ void init_idt(){
 
     // Interrupt 3:Breakpoint Exception (#BP)
     SET_IDT_ENTRY(idt[3], INT0x03_linker);
-    
-    // Interrupt 4:Overflow Exception (#OF) 
+
+    // Interrupt 4:Overflow Exception (#OF)
     SET_IDT_ENTRY(idt[4], INT0x04_linker);
-    
-    // Interrupt 5:BOUND Range Exceeded Exception (#BR) 
+
+    // Interrupt 5:BOUND Range Exceeded Exception (#BR)
     SET_IDT_ENTRY(idt[5], INT0x05_linker);
-    
+
     // Interrupt 6:Invalid Opcode Exception (#UD)
     SET_IDT_ENTRY(idt[6], INT0x06_linker);
-    
+
     // Interrupt 7:Device Not Available Exception (#NM)
     SET_IDT_ENTRY(idt[7], INT0x07_linker);
-    
+
     // Interrupt 8:Double Fault Exception (#DF)
     SET_IDT_ENTRY(idt[8], INT0x08_linker);
-    
+
     // Interrupt 9:Coprocessor Segment Overrun
     SET_IDT_ENTRY(idt[9], INT0x09_linker);
-    
+
     // Interrupt 10:Invalid TSS Exception (#TS)
     SET_IDT_ENTRY(idt[10], INT0x0a_linker);
-    
+
     // Interrupt 11:Segment Not Present (#NP)
     SET_IDT_ENTRY(idt[11], INT0x0b_linker);
-    
+
     // Interrupt 12:Stack Fault Exception (#SS)
     SET_IDT_ENTRY(idt[12], INT0x0c_linker);
-    
+
     // Interrupt 13:General Protection Exception (#GP)
     SET_IDT_ENTRY(idt[13], INT0x0d_linker);
-    
-    // Interrupt 14:Page-Fault Exception (#PF) 
+
+    // Interrupt 14:Page-Fault Exception (#PF)
     SET_IDT_ENTRY(idt[14], INT0x0e_linker);
 
     // Interrupt 15
     SET_IDT_ENTRY(idt[15], INT0x0f_linker);
-    
+
     // Interrupt 16:x87 FPU Floating-Point Error (#MF)
     SET_IDT_ENTRY(idt[16], INT0x10_linker);
-    
+
     // Interrupt 17:Alignment Check Exception (#AC)
     SET_IDT_ENTRY(idt[17], INT0x11_linker);
-    
+
     // Interrupt 18:Machine-Check Exception (#MC)
     SET_IDT_ENTRY(idt[18], INT0x12_linker);
-    
+
     // Interrupt 19:SIMD Floating-Point Exception (#XF)
     SET_IDT_ENTRY(idt[19], INT0x13_linker);
 
@@ -311,7 +602,7 @@ void init_idt(){
 
     // Interrupt 23
     SET_IDT_ENTRY(idt[23], INT0x17_linker);
-    
+
     // Interrupt 24
     SET_IDT_ENTRY(idt[24], INT0x18_linker);
 
@@ -320,7 +611,7 @@ void init_idt(){
 
     // Interrupt 26
     SET_IDT_ENTRY(idt[26], INT0x1a_linker);
-    
+
     // Interrupt 27
     SET_IDT_ENTRY(idt[27], INT0x1b_linker);
 

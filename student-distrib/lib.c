@@ -6,12 +6,22 @@
 #define VIDEO       0xB8000
 #define NUM_COLS    80
 #define NUM_ROWS    25
-#define ATTRIB      0x7
+#define ATTRIB_DEFAULT      0x7
 
 static int screen_x;
 static int screen_y;
 static char* video_mem = (char *)VIDEO;
+uint8_t ATTRIB = ATTRIB_DEFAULT;
 
+
+/* void set_attrib(uint8_t);
+ * Inputs:  background and foreground color value;
+ * Return Value: none
+ * Function: changes color attributes
+ */
+void set_attrib(uint8_t var){
+    ATTRIB = var;
+}
 /* void clear(void);
  * Inputs: void
  * Return Value: none
