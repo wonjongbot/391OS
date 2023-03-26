@@ -3,6 +3,7 @@
 #include "lib.h"
 #include "paging.h"
 #include "rtc.h"
+#include "terminal.h"
 
 #define PASS 1
 #define FAIL 0
@@ -231,6 +232,17 @@ void rtc_freq_test() {
 }
 
 /* Checkpoint 2 tests */
+
+void terminal_readwrite_test(){
+    char buf [15];
+    terminal_open(3);
+    int i;
+    for(i = 0; i < 10; i++){
+        terminal_read(NULL, buf, 5);
+        terminal_write(NULL, buf, 5);
+    }
+    terminal_close(3);
+}
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -257,5 +269,6 @@ void launch_tests() {
 
     // zero-division exception
 //    divide_zero_test();
+    terminal_readwrite_test();
 }
 
