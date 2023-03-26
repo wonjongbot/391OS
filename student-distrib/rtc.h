@@ -11,14 +11,14 @@
 #define REG_C           0xC
 #define RTC_IRQ         0x8
 
+#include "types.h"
+
+
 /* Initializes RTC */
 void rtc_init(void);
 
 /* Set RTC Frequency */
 void rtc_set_rate(unsigned rate);
-
-/* Helper function to check for power of 2 */
-int32_t pow_of_two(unsigned number);
 
 /* Set RTC Rate */
 int32_t rtc_set_freq(unsigned frequency);
@@ -37,4 +37,12 @@ int32_t rtc_write (int32_t fd, const void* buf, int32_t nbytes);
 
 /* close RTC */
 int32_t rtc_close (int32_t fd);
+
+/* Helper Functions */
+
+/* Gets rtc_target value */
+unsigned get_rtc_target();
+
+/* Check for power of 2 */
+int32_t pow_of_two(unsigned number);
 #endif

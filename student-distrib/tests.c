@@ -217,6 +217,7 @@ void divide_zero_test() {
 void rtc_freq_test() {
     unsigned i, j;
     clear();
+    
     for (i = 2; i < 1025; i = i * 2) {
         printf("FREQUENCY IS %dHz\n", i);
         rtc_set_freq(i);
@@ -231,6 +232,53 @@ void rtc_freq_test() {
 }
 
 /* Checkpoint 2 tests */
+
+/* RTC Frequency Bounds Test
+ *
+ * Testing different RTC frequencies to check if inbounds of 2-1024 and power of 2
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: None
+ * Coverage: RTC
+ * Files: rtc.h/c
+ */
+int rtc_freq_bounds_test() {
+    TEST_HEADER;
+    if (rtc_set_freq(0) == -1 || rtc_set_freq(1) == -1 || rtc_set_freq(1025) == -1 || rtc_set_freq(11) == -1) {
+        return PASS;
+    } else {
+        return FAIL;
+    }
+}
+
+/* RTC Frequency open, read, write, close functions Test
+ *
+ * Testing all of the open, read, write, and close RTC functions
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: None
+ * Coverage: RTC
+ * Files: rtc.h/c
+ */
+int rtc_functions_test() {
+    TEST_HEADER;
+    int i, j;
+    uint16_t freq = 2;
+
+	rtc_open(NULL); //freq set to 2hz
+    
+	for(i = 0; i < 9; i++){ //increase frequency by power of 2 up to 1024(max)
+		clear();
+		freq *= 2; 
+		rtc_write(NULL, &freq, NULL);   // Write in new freq value
+		for(j = 0; j < freq/2; j++){ // wait for freq/2 interrupts before updating
+			rtc_read(NULL, NULL, NULL); //read waits until next interrupt
+		}
+	}
+	rtc_close(NULL);
+};
+
+
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -245,7 +293,9 @@ void launch_tests() {
     TEST_OUTPUT("idt_test", idt_test());
 
     // rtc changing frequency test
-    //rtc_freq_test();
+    rtc_freq_test();
+    TEST_OUTPUT("rtc_freq_bounds_test", rtc_freq_bounds_test());
+    TEST_OUTPUT("rtc_functions_test", rtc_functions_test());
 
     // paging tests
     TEST_OUTPUT("paging_struct_test", paging_struct_test());
