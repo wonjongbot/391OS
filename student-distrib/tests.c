@@ -480,7 +480,10 @@ int read_exec_test() {
  	int length;
  	dentry_t dentry;
  	//corner case
-
+    if(-1 == read_dentry_by_name(s, &dentry)){
+ 		printf("invalid file name! ");
+ 		return ;
+ 	}
 	
  	//length = filesys_get_data_size(dentry.inode);
     length = _inodes[dentry.inode].length;
