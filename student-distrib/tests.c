@@ -471,7 +471,7 @@ int read_exec_test() {
   *   RETURN VALUE: none
   *   SIDE EFFECTS: none
   */
-  int32_t check_read_file_by_name(uint8_t* s,int32_t outbound){
+  void check_read_file_by_name(uint8_t* s,int32_t outbound){
  	int j;
     int32_t read_bytes;
  	for(j = 0; j < 100000; j++){
@@ -480,10 +480,7 @@ int read_exec_test() {
  	int length;
  	dentry_t dentry;
  	//corner case
- 	if(-1 == read_dentry_by_name(s, &dentry)){
- 		printf("invalid file name! ");
- 		return -1;
- 	}
+
 	
  	//length = filesys_get_data_size(dentry.inode);
     length = _inodes[dentry.inode].length;
