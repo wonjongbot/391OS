@@ -414,6 +414,84 @@ int read_exec_test() {
     return PASS;
 }
 
+ /* 
+  *   read_file_by_name
+  *   DESCRIPTION: read the data and print on the screen 
+  *   INPUTS: the file name we want to read
+  *   OUTPUTS: the data in this file
+  *   RETURN VALUE: none
+  *   SIDE EFFECTS: none
+  */
+ static char buf[100000];
+ int32_t read_file_by_name(uint8_t* s){
+ 	int j;
+    int32_t read_bytes;
+ 	for(j = 0; j < 100000; j++){
+             ((int8_t*)buf)[j] = '\0';
+     } // clear the buffer
+ 	int length;
+ 	dentry_t dentry;
+ 	//corner case
+ 	if(-1 == read_dentry_by_name(s, &dentry)){
+ 		printf("invalid file name! ");
+ 		return -1;
+ 	}
+	
+ 	//length = filesys_get_data_size(dentry.inode);
+    length = _inodes[dentry.inode].length;
+    printf("the file length: %d\n",length);
+ 	//read data into the buffer
+    read_bytes= read_data(dentry.inode, 0, (uint8_t*)buf, length);
+ 	printf("the file succussfully read: %d\n",    read_bytes);
+    buf[length] = 0;
+
+ 	int i ;
+ 	for(i = 0 ; i<100000;i++){
+ 		// don't print null bytes
+ 		if(buf[i]!=0){
+ 			//putc( buf[i]);
+            printf("%c",buf[i]);
+ 		}
+ 		 //putc(buf[i]);
+ 	}
+ 	char buffer[32+1];
+ 	buffer[32]=0;
+ 	//just print the pre 32 bytes of the file name
+ 	strncpy(buffer,(int8_t*)dentry.name,32);
+ 	printf("\nfile_name: %s\n",  buffer);
+ 	return 0;
+ }
+
+ /* 
+  *   read_file_by_name
+  *   DESCRIPTION: read the data and print out the bytes successfully read 
+  *   INPUTS: the file name we want to read
+  *           the beyond length to read
+  *   OUTPUTS: the data in this file
+  *   RETURN VALUE: none
+  *   SIDE EFFECTS: none
+  */
+  int32_t check_read_file_by_name(uint8_t* s,int32_t outbound){
+ 	int j;
+    int32_t read_bytes;
+ 	for(j = 0; j < 100000; j++){
+             ((int8_t*)buf)[j] = '\0';
+     } // clear the buffer
+ 	int length;
+ 	dentry_t dentry;
+ 	//corner case
+ 	if(-1 == read_dentry_by_name(s, &dentry)){
+ 		printf("invalid file name! ");
+ 		return -1;
+ 	}
+	
+ 	//length = filesys_get_data_size(dentry.inode);
+    length = _inodes[dentry.inode].length;
+    printf("the file length: %d\n",length);
+ 	//read data into the buffer
+    read_bytes= read_data(dentry.inode, 0, (uint8_t*)buf, length+outbound);
+ 	printf("the file succussfully read: %d\n",    read_bytes);
+  }
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -450,7 +528,9 @@ void launch_tests() {
 //    TEST_OUTPUT("read_curr_dir_by_index_test", read_curr_dir_by_index_test());
 //    TEST_OUTPUT("read_out_of_bounds_dir_by_index_test", read_out_of_bounds_dir_by_index_test());
 //    TEST_OUTPUT("read_file_test", read_file_test());
-//    TEST_OUTPUT("read_big_file_test", read_big_file_test());
-    TEST_OUTPUT("read_exec_test", read_exec_test());
+    //TEST_OUTPUT("read_big_file_test", read_big_file_test());
+    //TEST_OUTPUT("read_exec_test", read_exec_test());
+    //read_file_by_name((uint8_t*)"pingpong");
+     check_read_file_by_name((uint8_t*)"pingpong",100);
 }
 
