@@ -7,7 +7,7 @@ void filesystem_init(const uint32_t fs_start) {
 }
 
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
-    if (dentry == NULL) return -1;
+    if (fname==NULL ||dentry == NULL) return -1;
     uint32_t i;
     uint32_t size = strlen((char*) fname);
     if (size > 32) return -1; // Max name size
