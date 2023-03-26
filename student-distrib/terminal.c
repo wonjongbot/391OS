@@ -23,6 +23,7 @@ uint32_t terminal_read(uint32_t fd, uint8_t* buf, uint32_t nbytes){
             buf[nbytes - 1] = '\n';
         }
         clear_kb_buf();
+        enter_flag = 0;
         return i;
     }
 }
