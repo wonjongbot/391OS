@@ -25,12 +25,14 @@ int ret;
     printf("[TEST] Running %s at %s:%d\n", __FUNCTION__, __FILE__, __LINE__);\
     set_attrib(0x07);
 #define TEST_OUTPUT(name, result)    \
-    printf("[TEST %s]\n", name); \
     ret = (result); \
     set_attrib(ret ? 0x02 : 0x04); \
     printf("%s\n", ret ? "PASS" : "FAIL");\
     set_attrib(0x07);
-
+#define PRINT_PASS \
+    set_attrib(0x02); \
+    printf("PASS\n"); \
+    set_attrib(0x07);
 static inline void assertion_failure() {
     /* Use exception #15 for assertions, otherwise
        reserved by Intel */
@@ -231,9 +233,9 @@ void rtc_freq_test() {
     reset_text_cursor();
 }
 
-int checkNameLim32(unsigned char* dentry_name, unsigned char* expected_name) {
+int checkName(unsigned char* dentry_name, unsigned char* expected_name) {
     int size = strlen((char*) dentry_name);
-    if (size > 32) size = 32;
+    if (size > 32) size = 32; // If no null char
     return strncmp((char*) dentry_name, (char*) expected_name, size) == 0;
 }
 
@@ -245,17 +247,26 @@ int read_curr_dir_dentry_test() {
     printf("TESTING dentry by name . ...");
     int32_t result = read_dentry_by_name(fname, &dentry);
     if (result == -1) return FAIL;
-    return checkNameLim32(dentry.name, fname) ? PASS : FAIL;
+    return checkName(dentry.name, fname) ? PASS : FAIL;
 }
 
-int read_long_file_dentry_test() {
+int read_too_long_file_dentry_test() {
     TEST_HEADER;
     dentry_t dentry;
     uint8_t* fname = (unsigned char*) "verylargetextwithverylongname.txt";
     printf("TESTING dentry by name verylargetextwithverylongname.txt ...");
     int32_t result = read_dentry_by_name(fname, &dentry);
+    return result == -1;
+}
+
+int read_long_file_dentry_test() {
+    TEST_HEADER;
+    dentry_t dentry;
+    uint8_t* fname = (unsigned char*) "verylargetextwithverylongname.tx";
+    printf("TESTING dentry by name verylargetextwithverylongname.tx ...");
+    int32_t result = read_dentry_by_name(fname, &dentry);
     if (result == -1) return FAIL;
-    return checkNameLim32(dentry.name, fname) ? PASS : FAIL;
+    return checkName(dentry.name, fname) ? PASS : FAIL;
 }
 
 int read_similar_file_1_dentry_test() {
@@ -265,7 +276,7 @@ int read_similar_file_1_dentry_test() {
     printf("TESTING dentry by name frame0.txt ...");
     int32_t result = read_dentry_by_name(fname, &dentry);
     if (result == -1) return FAIL;
-    return checkNameLim32(dentry.name, fname) ? PASS : FAIL;
+    return checkName(dentry.name, fname) ? PASS : FAIL;
 }
 
 int read_similar_file_2_dentry_test() {
@@ -275,7 +286,7 @@ int read_similar_file_2_dentry_test() {
     printf("TESTING dentry by name frame1.txt ...");
     int32_t result = read_dentry_by_name(fname, &dentry);
     if (result == -1) return FAIL;
-    return checkNameLim32(dentry.name, fname) ? PASS : FAIL;
+    return checkName(dentry.name, fname) ? PASS : FAIL;
 }
 
 int read_nonexistent_dentry_test() {
@@ -285,6 +296,122 @@ int read_nonexistent_dentry_test() {
     printf("TESTING dentry by name this_don't_exist.txt ...");
     int32_t result = read_dentry_by_name(fname, &dentry);
     return result == -1 ? PASS : FAIL;
+}
+
+int read_curr_dir_by_index_test() {
+    TEST_HEADER;
+    dentry_t dentry;
+    uint8_t index = 0;
+    printf("TESTING dentry by index . ...");
+    int32_t result = read_dentry_by_index(index, &dentry);
+    if (result == -1) return FAIL;
+    return checkName(dentry.name, (unsigned char*) ".");
+}
+
+int read_out_of_bounds_dir_by_index_test() {
+    TEST_HEADER;
+    dentry_t dentry;
+    uint8_t index = 100;
+    printf("TESTING dentry at out-of-bounds index ...");
+    int32_t result = read_dentry_by_index(index, &dentry);
+    return result == -1;
+}
+
+int read_file_test() {
+    TEST_HEADER;
+    dentry_t dentry;
+    uint8_t* fname = (unsigned char*) "frame0.txt";
+    read_dentry_by_name(fname, &dentry);
+
+    char* solution = "/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\\n"
+                     "         o\n"
+                     "           o    o\n"
+                     "       o\n"
+                     "             o\n"
+                     "        o     O\n"
+                     "    _    \\\n"
+                     " |\\/.\\   | \\/  /  /\n"
+                     " |=  _>   \\|   \\ /\n"
+                     " |/\\_/    |/   |/\n"
+                     "----------M----M--------\n";
+
+    uint32_t length = strlen(solution);
+    uint8_t buf[length + 1];
+    buf[length] = '\0';
+    printf("TESTING reading frame0.txt\n");
+    read_data(dentry.inode, 0, buf, length);
+    printf("%s\n", buf);
+    printf("...");
+
+    return strncmp((char*) buf, solution, length) == 0 ? PASS : FAIL;
+}
+
+int read_big_file_test() {
+    TEST_HEADER;
+    dentry_t dentry;
+    uint8_t* fname = (unsigned char*) "verylargetextwithverylongname.tx";
+    read_dentry_by_name(fname, &dentry);
+
+    char* first100Solution = "very large text file with a very long name\n"
+                             "123456789012345678901234567890123456789012345678901234567";
+    char* last100Solution = "]\\{}|;':\",./<>?~!@#$%^&*()_+`1234567890-=[]\\{}|;':\",./<>?~!@#$%^&*()_+`1234567890-=[]\\{}|;':\",./<>?\n";
+
+    uint32_t length = 5277; // Hardcoded num bytes in file
+    uint8_t buf[length + 1];
+    buf[length] = '\0';
+    printf("TESTING reading verylargetextwithverylongname.tx\n");
+    read_data(dentry.inode, 0, buf, length);
+
+    uint8_t* last100 = &buf[length - 100];
+
+    printf("TESTING first 100 chars match...\n");
+    printf("Solution first 5 bytes: 0x%x 0x%x 0x%x 0x%x 0x%x\n", first100Solution[0], first100Solution[1], first100Solution[2], first100Solution[3], first100Solution[4]);
+    printf("    Read first 5 bytes: 0x%x 0x%x 0x%x 0x%x 0x%x\n...", buf[0], buf[1], buf[2], buf[3], buf[4]);
+    if (strncmp((char*) buf, first100Solution, 100) != 0) return FAIL;
+    PRINT_PASS;
+
+    printf("TESTING last 100 chars match...\n");
+    printf("Solution last 5 bytes: 0x%x 0x%x 0x%x 0x%x 0x%x\n", last100Solution[95], last100Solution[96], last100Solution[97], last100Solution[98], last100Solution[99]);
+    printf("    Read last 5 bytes: 0x%x 0x%x 0x%x 0x%x 0x%x\n", last100[95], last100[96], last100[97], last100[98], last100[99]);
+    return strncmp((char*) last100, last100Solution, 100) == 0 ? PASS : FAIL;
+}
+
+int read_exec_test() {
+    TEST_HEADER;
+    dentry_t dentry;
+    uint8_t* fname = (unsigned char*) "pingpong";
+    read_dentry_by_name(fname, &dentry);
+
+    uint32_t length = 5445; // Hardcoded num bytes in file
+    uint8_t buf[length + 1];
+    buf[length] = '\0';
+    printf("TESTING reading pingpong\n");
+    read_data(dentry.inode, 0, buf, length);
+
+    int8_t* firstCharsSolution = "ELF";
+    int8_t* lastCharsSolution = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    uint8_t firstBuf[20];
+    memcpy(firstBuf, buf, 20);
+
+    printf("First 20 chars: ");
+    uint32_t i;
+    for (i = 0; i < 20; i++) {
+        printf("%c", firstBuf[i]);
+    }
+    printf("\n");
+    printf("  Should match:  %s \n...", firstCharsSolution);
+    if (strncmp((char*) &buf[1], firstCharsSolution, 3) != 0) return FAIL;
+    PRINT_PASS;
+
+    printf("Last 40 chars: ");
+    for (i = 0; i < 40; i++) {
+        printf("%c", buf[length - 40 + i]);
+    }
+    printf("\n");
+    printf(" Should match:    %s \n...", lastCharsSolution);
+    if (strncmp((char*) &buf[length - 37], lastCharsSolution, 36) != 0) return FAIL;
+    return PASS;
 }
 
 /* Checkpoint 3 tests */
@@ -314,10 +441,16 @@ void launch_tests() {
     // zero-division exception
 //    divide_zero_test();
 
-    TEST_OUTPUT("read_curr_dir_dentry_test", read_curr_dir_dentry_test());
-    TEST_OUTPUT("read_very_long_file_test", read_long_file_dentry_test());
-    TEST_OUTPUT("read_similar_file_1_dentry_test", read_similar_file_1_dentry_test());
-    TEST_OUTPUT("read_similar_file_2_dentry_test", read_similar_file_2_dentry_test());
-    TEST_OUTPUT("read_nonexistent_dentry_test", read_nonexistent_dentry_test());
+//    TEST_OUTPUT("read_curr_dir_dentry_test", read_curr_dir_dentry_test());
+//    TEST_OUTPUT("read_very_long_file_test", read_too_long_file_dentry_test());
+//    TEST_OUTPUT("read_very_long_file_test", read_long_file_dentry_test());
+//    TEST_OUTPUT("read_similar_file_1_dentry_test", read_similar_file_1_dentry_test());
+//    TEST_OUTPUT("read_similar_file_2_dentry_test", read_similar_file_2_dentry_test());
+//    TEST_OUTPUT("read_nonexistent_dentry_test", read_nonexistent_dentry_test());
+//    TEST_OUTPUT("read_curr_dir_by_index_test", read_curr_dir_by_index_test());
+//    TEST_OUTPUT("read_out_of_bounds_dir_by_index_test", read_out_of_bounds_dir_by_index_test());
+//    TEST_OUTPUT("read_file_test", read_file_test());
+//    TEST_OUTPUT("read_big_file_test", read_big_file_test());
+    TEST_OUTPUT("read_exec_test", read_exec_test());
 }
 

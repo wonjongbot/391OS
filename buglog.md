@@ -8,3 +8,4 @@
 - **(3/21/23)** testing VGA page's upper bound address yields pagefault. This is because we accessed the address by pointers of integer instead of char, so it accessed 4 consecutive bytes from the starting address! We fixed it by using a pointer of char to access page address.
 - **(3/21/23)** the paging in the info memory only show the kernal page and the first page  and many unused pages. This is because the present flag in the init of page table the first page directory.So just make these page present flag to zero.
 - **(3/21/23)** our testing suite had a graphical bug when we tried to assign colors to PASS and FAIL flags. Turns out we were calling test functions twice when we are changing attribute value based on input test function.
+- **(3/26/23)** we allowed file names greater than 32 chars by truncating them before searching. The behavior was changed to not allow that.
