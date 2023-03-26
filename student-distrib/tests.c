@@ -242,7 +242,7 @@ int read_curr_dir_dentry_test() {
     TEST_HEADER;
     dentry_t dentry;
     uint8_t* fname = (unsigned char*) ".";
-    printf("TESTING reading . ...");
+    printf("TESTING dentry by name . ...");
     int32_t result = read_dentry_by_name(fname, &dentry);
     if (result == -1) return FAIL;
     return checkNameLim32(dentry.name, fname) ? PASS : FAIL;
@@ -252,24 +252,28 @@ int read_long_file_dentry_test() {
     TEST_HEADER;
     dentry_t dentry;
     uint8_t* fname = (unsigned char*) "verylargetextwithverylongname.txt";
-    printf("TESTING reading verylargetextwithverylongname.txt ...");
+    printf("TESTING dentry by name verylargetextwithverylongname.txt ...");
     int32_t result = read_dentry_by_name(fname, &dentry);
     if (result == -1) return FAIL;
     return checkNameLim32(dentry.name, fname) ? PASS : FAIL;
 }
 
-int read_similar_files_dentry_test() {
+int read_similar_file_1_dentry_test() {
     TEST_HEADER;
     dentry_t dentry;
     uint8_t* fname = (unsigned char*) "frame0.txt";
-    printf("TESTING reading frame0.txt ...");
+    printf("TESTING dentry by name frame0.txt ...");
     int32_t result = read_dentry_by_name(fname, &dentry);
     if (result == -1) return FAIL;
-    if (!checkNameLim32(dentry.name, fname)) return FAIL;
+    return checkNameLim32(dentry.name, fname) ? PASS : FAIL;
+}
 
-    fname = (unsigned char*) "frame1.txt";
-    printf("TESTING reading frame1.txt ...");
-    result = read_dentry_by_name(fname, &dentry);
+int read_similar_file_2_dentry_test() {
+    TEST_HEADER;
+    dentry_t dentry;
+    uint8_t* fname = (unsigned char*) "frame1.txt";
+    printf("TESTING dentry by name frame1.txt ...");
+    int32_t result = read_dentry_by_name(fname, &dentry);
     if (result == -1) return FAIL;
     return checkNameLim32(dentry.name, fname) ? PASS : FAIL;
 }
@@ -278,7 +282,7 @@ int read_nonexistent_dentry_test() {
     TEST_HEADER;
     dentry_t dentry;
     uint8_t* fname = (unsigned char*) "this_don't_exist.txt";
-    printf("TESTING reading this_don't_exist.txt ...");
+    printf("TESTING dentry by name this_don't_exist.txt ...");
     int32_t result = read_dentry_by_name(fname, &dentry);
     return result == -1 ? PASS : FAIL;
 }
@@ -312,7 +316,8 @@ void launch_tests() {
 
     TEST_OUTPUT("read_curr_dir_dentry_test", read_curr_dir_dentry_test());
     TEST_OUTPUT("read_very_long_file_test", read_long_file_dentry_test());
-    TEST_OUTPUT("read_similar_files_dentry_test", read_similar_files_dentry_test());
+    TEST_OUTPUT("read_similar_file_1_dentry_test", read_similar_file_1_dentry_test());
+    TEST_OUTPUT("read_similar_file_2_dentry_test", read_similar_file_2_dentry_test());
     TEST_OUTPUT("read_nonexistent_dentry_test", read_nonexistent_dentry_test());
 }
 
