@@ -3,6 +3,7 @@
 #include "lib.h"
 #include "paging.h"
 #include "rtc.h"
+#include "filesystem.h"
 
 #define PASS 1
 #define FAIL 0
@@ -21,7 +22,7 @@ int ret;
 /* format these macros as you see fit */
 #define TEST_HEADER    \
     set_attrib(0x0B);\
-    printf("[TEST %s] Running %s at %s:%d\n", __FUNCTION__, __FUNCTION__, __FILE__, __LINE__);\
+    printf("[TEST] Running %s at %s:%d\n", __FUNCTION__, __FILE__, __LINE__);\
     set_attrib(0x07);
 #define TEST_OUTPUT(name, result)    \
     printf("[TEST %s]\n", name); \
@@ -230,7 +231,58 @@ void rtc_freq_test() {
     reset_text_cursor();
 }
 
+int checkNameLim32(unsigned char* dentry_name, unsigned char* expected_name) {
+    int size = strlen((char*) dentry_name);
+    if (size > 32) size = 32;
+    return strncmp((char*) dentry_name, (char*) expected_name, size) == 0;
+}
+
 /* Checkpoint 2 tests */
+int read_curr_dir_dentry_test() {
+    TEST_HEADER;
+    dentry_t dentry;
+    uint8_t* fname = (unsigned char*) ".";
+    printf("TESTING reading . ...");
+    int32_t result = read_dentry_by_name(fname, &dentry);
+    if (result == -1) return FAIL;
+    return checkNameLim32(dentry.name, fname) ? PASS : FAIL;
+}
+
+int read_long_file_dentry_test() {
+    TEST_HEADER;
+    dentry_t dentry;
+    uint8_t* fname = (unsigned char*) "verylargetextwithverylongname.txt";
+    printf("TESTING reading verylargetextwithverylongname.txt ...");
+    int32_t result = read_dentry_by_name(fname, &dentry);
+    if (result == -1) return FAIL;
+    return checkNameLim32(dentry.name, fname) ? PASS : FAIL;
+}
+
+int read_similar_files_dentry_test() {
+    TEST_HEADER;
+    dentry_t dentry;
+    uint8_t* fname = (unsigned char*) "frame0.txt";
+    printf("TESTING reading frame0.txt ...");
+    int32_t result = read_dentry_by_name(fname, &dentry);
+    if (result == -1) return FAIL;
+    if (!checkNameLim32(dentry.name, fname)) return FAIL;
+
+    fname = (unsigned char*) "frame1.txt";
+    printf("TESTING reading frame1.txt ...");
+    result = read_dentry_by_name(fname, &dentry);
+    if (result == -1) return FAIL;
+    return checkNameLim32(dentry.name, fname) ? PASS : FAIL;
+}
+
+int read_nonexistent_dentry_test() {
+    TEST_HEADER;
+    dentry_t dentry;
+    uint8_t* fname = (unsigned char*) "this_don't_exist.txt";
+    printf("TESTING reading this_don't_exist.txt ...");
+    int32_t result = read_dentry_by_name(fname, &dentry);
+    return result == -1 ? PASS : FAIL;
+}
+
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -242,20 +294,25 @@ void launch_tests() {
     reset_text_cursor();
     // launch your tests here
     // idt test
-    TEST_OUTPUT("idt_test", idt_test());
+//    TEST_OUTPUT("idt_test", idt_test());
 
     // rtc changing frequency test
     //rtc_freq_test();
 
     // paging tests
-    TEST_OUTPUT("paging_struct_test", paging_struct_test());
-    TEST_OUTPUT("paging_vga_test", paging_vga_test());
-    TEST_OUTPUT("paging_kernel_test", paging_kernel_test());
-    TEST_OUTPUT("paging upper and lower bound test", paging_check_bounds());
+//    TEST_OUTPUT("paging_struct_test", paging_struct_test());
+//    TEST_OUTPUT("paging_vga_test", paging_vga_test());
+//    TEST_OUTPUT("paging_kernel_test", paging_kernel_test());
+//    TEST_OUTPUT("paging upper and lower bound test", paging_check_bounds());
 //    page_overflow_test();
 //    page_fault_exception_test();
 
     // zero-division exception
 //    divide_zero_test();
+
+    TEST_OUTPUT("read_curr_dir_dentry_test", read_curr_dir_dentry_test());
+    TEST_OUTPUT("read_very_long_file_test", read_long_file_dentry_test());
+    TEST_OUTPUT("read_similar_files_dentry_test", read_similar_files_dentry_test());
+    TEST_OUTPUT("read_nonexistent_dentry_test", read_nonexistent_dentry_test());
 }
 

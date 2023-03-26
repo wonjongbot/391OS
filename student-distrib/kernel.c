@@ -12,6 +12,7 @@
 #include "rtc.h"
 #include "keyboard.h"
 #include "paging.h"
+#include "filesystem.h"
 
 #define RUN_TESTS
 
@@ -151,6 +152,9 @@ void entry(unsigned long magic, unsigned long addr) {
     rtc_set_freq(0);
     //init the keyboard
     keyboard_init();
+    // init filesystem
+    module_t fs = *(module_t*) mbi->mods_addr;
+    filesystem_init(fs.mod_start);
     //init page
     init_paging();
 
