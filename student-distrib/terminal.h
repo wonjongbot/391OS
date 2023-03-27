@@ -9,7 +9,7 @@
 #include "keyboard.h"
 #include "types.h"
 
-#define ENABLE_HISTORY 0
+#define ENABLE_HISTORY 1
 #define TERMINAL_PROMPT_MODE 0
 #define TERMINAL_PROMPT_LEN 6
 

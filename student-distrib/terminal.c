@@ -14,12 +14,12 @@ void terminal_history_handler(){
         clear_line();
         while(1){
             if(kb_buf[i] == '\n' || kb_buf[i] == '\r'){
-                kb_buf_top = ++i;
                 break;
             }
             putc(kb_buf[i]);
             i++;
         }
+        kb_buf_top = i;
         up_flag = 0;
         down_flag = 0;
     }
