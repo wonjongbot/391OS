@@ -9,6 +9,13 @@
 #include "keyboard.h"
 #include "types.h"
 
+#define TERMINAL_PROMPT_MODE 0
+#define TERMINAL_PROMPT_LEN 6
+
+char kb_buf_history[kb_history_size][kb_buf_size];
+int kb_buf_history_ptr;
+int kb_buf_history_top;
+
 void terminal_init();
 
 uint32_t terminal_open();

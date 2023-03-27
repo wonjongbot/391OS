@@ -232,16 +232,39 @@ void rtc_freq_test() {
 }
 
 /* Checkpoint 2 tests */
+char terminal_flag[] = "391OS>";
 
 void terminal_readwrite_test(){
-    char buf [15];
+    char buf [128];
+    uint32_t fd = 0;
     terminal_open(3);
     int i;
-    for(i = 0; i < 10; i++){
-        terminal_read(NULL, buf, 5);
-        terminal_write(NULL, buf, 5);
-    }
+    if(TERMINAL_PROMPT_MODE)
+    terminal_write(fd, (uint8_t*)terminal_flag, (uint32_t)TERMINAL_PROMPT_LEN);
+    terminal_read(fd, (uint8_t*)buf, (uint32_t)128);
+    terminal_write(fd,(uint8_t*)buf, (uint32_t)128);
+    for(i = 0; i < 600000000; i++);
+    if(TERMINAL_PROMPT_MODE)
+    terminal_write(fd, (uint8_t*)terminal_flag, (uint32_t)TERMINAL_PROMPT_LEN);
+    terminal_read(fd, (uint8_t*)buf, (uint32_t)10);
+    terminal_write(fd, (uint8_t*)buf, (uint32_t)10);
     terminal_close(3);
+}
+
+void terminal_readwrite_test_inf(){
+    char buf [128];
+    uint32_t fd = 0;
+    char exit_flag[] = "exit\n";
+    terminal_open(3);
+    while(1){
+        if(TERMINAL_PROMPT_MODE)
+            terminal_write(fd, (uint8_t*)terminal_flag, (uint32_t)TERMINAL_PROMPT_LEN);
+        terminal_read(fd, (uint8_t*)buf, (uint32_t)128);
+        terminal_write(fd, (uint8_t*)buf, (uint32_t)128);
+        if(strncmp(buf, exit_flag, 4) == 0){
+            break;
+        }
+    }
 }
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
@@ -270,5 +293,6 @@ void launch_tests() {
     // zero-division exception
 //    divide_zero_test();
     terminal_readwrite_test();
+    terminal_readwrite_test_inf();
 }
 

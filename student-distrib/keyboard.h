@@ -18,7 +18,7 @@
 #define CAPS 0x3A
 #define CTRL 0x1D
 #define UP  0x48
-#define DOWN 0xd0
+#define DOWN 0x50
 #define LEFT 0x4B
 #define RIGHT 0x4d
 #define ENTER 0x1c
@@ -27,6 +27,7 @@
 #define UPPERCASE(ASCII) ASCII - CASE_OFFSET
 
 #define kb_buf_size 128
+#define kb_history_size 128
 
 // think of this array as a stack where top is next availble location
 char kb_buf[kb_buf_size];
@@ -36,6 +37,10 @@ int shift_flag;
 int alt_flag;
 int ctrl_flag;
 int enter_flag;
+int up_flag;
+int down_flag;
+int right_flag;
+int left_flag;
 
 void push_kb_buf(uint8_t ascii);
 

@@ -3,6 +3,7 @@
 
 #include "lib.h"
 #include "keyboard.h"
+#include "terminal.h"
 
 #define VIDEO       0xB8000
 #define NUM_COLS    80
@@ -33,6 +34,25 @@ void clear(void) {
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
     }
+}
+
+void clear_line(void) {
+    int32_t i;
+    if(TERMINAL_PROMPT_MODE){
+        for (i = TERMINAL_PROMPT_LEN; i < NUM_COLS; i++) {
+            *(uint8_t *)(video_mem + ((NUM_COLS * (screen_y) + i) << 1)) = ' ';
+            *(uint8_t *)(video_mem + ((NUM_COLS * (screen_y) + i)<< 1) + 1) = ATTRIB;
+        }
+        screen_x = TERMINAL_PROMPT_LEN;
+    }
+    else{
+        for (i = 0; i < NUM_COLS; i++) {
+            *(uint8_t *)(video_mem + ((NUM_COLS * (screen_y) + i) << 1)) = ' ';
+            *(uint8_t *)(video_mem + ((NUM_COLS * (screen_y) + i)<< 1) + 1) = ATTRIB;
+        }
+        screen_x = 0;
+    }
+    cursor_to_coord(screen_x, screen_y);
 }
 
 /* Standard printf().
@@ -199,20 +219,31 @@ void cursor_to_coord(int x, int y){
 void handle_arrowkeys(uint8_t scancode){
     switch(scancode){
         case LEFT:
-            screen_x--;
+            left_flag = 1;
+            break;
+        case KEY_UP(LEFT):
+            left_flag = 1;
             break;
         case RIGHT:
-            screen_x++;
+            right_flag = 1;
+            break;
+        case KEY_UP(RIGHT):
+            right_flag = 0;
             break;
         case UP:
-            screen_y = (screen_y > 0) ? screen_y - 1 : 0;
+            up_flag = 1;
+            break;
+        case KEY_UP(UP):
+            up_flag = 0;
             break;
         case DOWN:
-            screen_y  =(screen_y < NUM_ROWS - 1) ? screen_y + 1 : NUM_ROWS - 1;
+            down_flag = 1;
+            break;
+        case KEY_UP(DOWN):
+            down_flag = 0;
             break;
         default: break;
     }
-    cursor_to_coord(screen_x, screen_y);
 }
 
 
@@ -221,9 +252,13 @@ void handle_arrowkeys(uint8_t scancode){
  * Return Value: void
  *  Function: resets screen_x and screen_y so next putc is on top left*/
 void reset_text_cursor(void){
+    int i;
     screen_x = 0;
     screen_y = 0;
     cursor_to_coord(screen_x, screen_x);
+    for (i = 0; i < NUM_ROWS; i++){
+        last_screenx[i] = 0;
+    }
 }
 
 #define line_bytes 160

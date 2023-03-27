@@ -146,12 +146,12 @@ void set_special_flags(uint8_t scancode){
         case KEY_UP(ALT):
             alt_flag = 0;
             break;
-        case ENTER:
-            enter_flag = 1;
-            break;
-        case KEY_UP(ENTER):
-            enter_flag = 0;
-            break;
+        // case ENTER: // enter flag is unset once our handlers are done with their job. maybe the name should be newline_flag
+        //     enter_flag = 1;
+        //     break;
+        // case KEY_UP(ENTER):
+        //     enter_flag = 0;
+        //     break;
         default: break;
     }
 }
@@ -162,8 +162,11 @@ void push_kb_buf(uint8_t ascii){
 }
 
 uint8_t pop_kb_buf(){
-    kb_buf_top--;
-    return kb_buf[kb_buf_top];
+    if(kb_buf_top > 0){
+        kb_buf_top--;
+        return kb_buf[kb_buf_top];
+    }
+    return NULL;
 }
 
 void clear_kb_buf(){
@@ -181,7 +184,6 @@ void keyboard_handler(){
     scancode = inb(0x60);
     set_special_flags(scancode);
     ascii = scancode_down[scancode];
-    //printf("SCANCODE: %x\n", scancode);
     if(scancode < DOWN_SIZE){
         if(is_printable(ascii)){
             ascii = convert_case(ascii);
@@ -198,7 +200,14 @@ void keyboard_handler(){
                     }
                 }
                 else{
+                    if(ascii == '\n' || ascii == '\r'){
+                        enter_flag = 1;
+                    }
                     if(kb_buf_top < 127){
+                        push_kb_buf(ascii);
+                        putc(ascii);
+                    }
+                    if(kb_buf_top == 127 && (ascii == '\n' || ascii == '\r')){
                         push_kb_buf(ascii);
                         putc(ascii);
                     }
@@ -209,15 +218,10 @@ void keyboard_handler(){
                 reset_text_cursor();
             }
         }
-        // printf("\n KBBUF:\n");
-        // for(i = 0; i < kb_buf_top; i++){
-        //     putc(kb_buf[i]);
-        // }
-        // printf("\n");
     }
     // handling arrow keys
-    // if(scancode == DOWN || scancode == UP || scancode == RIGHT || scancode == LEFT){
-    //     //handle_arrowkeys(scancode);
-    // }
+    if(scancode == DOWN || scancode == UP || scancode == RIGHT || scancode == LEFT){
+        handle_arrowkeys(scancode);
+    }
     send_eoi(0x1);
 }
