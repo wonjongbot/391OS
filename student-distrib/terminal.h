@@ -9,21 +9,23 @@
 #include "keyboard.h"
 #include "types.h"
 
+#define ENABLE_HISTORY 0
 #define TERMINAL_PROMPT_MODE 0
 #define TERMINAL_PROMPT_LEN 6
 
 char kb_buf_history[kb_history_size][kb_buf_size];
 int kb_buf_history_ptr;
 int kb_buf_history_top;
+int kb_buf_top_cached;
 
 void terminal_init();
 
-uint32_t terminal_open();
+int32_t terminal_open();
 
-uint32_t terminal_read(uint32_t fd, uint8_t* buf, uint32_t nbytes);
+int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes);
 
-uint32_t terminal_write(uint32_t fd, const uint8_t* buf, uint32_t nbytes);
+int32_t terminal_write(int32_t fd, const int8_t* buf, int32_t nbytes);
 
-uint32_t terminal_close(uint32_t fd);
+int32_t terminal_close(int32_t fd);
 
 #endif
