@@ -492,6 +492,107 @@ int read_exec_test() {
     read_bytes= read_data(dentry.inode, 0, (uint8_t*)buf, length+outbound);
  	printf("the file succussfully read: %d\n",    read_bytes);
   }
+
+/*
+*   build_fdarray
+  *   DESCRIPTION: build_fdarray
+  *   INPUTS: the file name
+  *           fd index
+  *   OUTPUTS: fdarray
+  *   RETURN VALUE: file length
+  *   SIDE EFFECTS: none
+*/
+
+int32_t build_fdarray(uint8_t* s,int32_t fd){
+    dentry_t dentry;
+ 	//corner case
+ 	if(-1 == read_dentry_by_name(s, &dentry)){
+ 		printf("invalid file name! ");
+ 		return -1;
+ 	}
+    filearray[fd].inode_index=dentry.inode;
+    filearray[fd].file_position=0;
+    return _inodes[dentry.inode].length;
+}
+
+   /* 
+  *   read_file_by_fd
+  *   DESCRIPTION: read the file
+  *   INPUTS: the file name we want to read
+  *           fd index we want to read
+  *   OUTPUTS: the data in this file
+  *   RETURN VALUE: none
+  *   SIDE EFFECTS: none
+  */
+ static char buff[100000];
+ int32_t read_file_by_fd(int32_t fd, int32_t length){
+
+ 	int j;
+    int32_t read_bytes;
+ 	for(j = 0; j < 100000; j++){
+             ((int8_t*)buff)[j] = '\0';
+     } // clear the buffer
+
+    printf("the file length: %d\n",length);
+ 	
+    //read data into the buffer
+    read_bytes=f_read( fd,  (uint8_t*)buff, length);
+
+ 	printf("the file succussfully read: %d\n",    read_bytes);
+    buff[read_bytes] = 0;
+
+ 	int i ;
+ 	for(i = 0 ; i<100000;i++){
+ 		// don't print null bytes
+ 		if(buff[i]!=0){
+            printf("%c",buff[i]);
+ 		}
+
+ 	}
+ 	
+ 	return 0;
+ }
+   /* 
+  *   read_file_by_fd
+  *   DESCRIPTION: read all in directory
+  *   INPUTS: none
+  *   OUTPUTS: all file names
+  *   RETURN VALUE: none
+  *   SIDE EFFECTS: none
+  */
+ int32_t read_dir_all(){
+    int j;
+    int32_t read_bytes;
+    //we don't have pcb now, so just set one fd's file_position to 0
+    filearray[2].file_position=0;
+
+    printf("\ntotal number is: %d\n", _boot_block.dentry_count);
+    while(read_bytes!=-1){
+        for(j = 0; j < 100; j++){
+             ((int8_t*)buff)[j] = '\0';
+        } // clear the buffer
+        //read data into the buffer
+        //for we does make the pcb right now, so just fd into any from 2-8
+        read_bytes=d_read( 2,  (uint8_t*)buff, 32);
+        
+        if (read_bytes==0){
+            continue;
+        }
+        buff[read_bytes] = 0;
+
+        int i ;
+        for(i = 0 ; i<100;i++){
+            // don't print null bytes
+            if(buff[i]!=0){
+                printf("%c",buff[i]);
+            }
+        }
+        printf("\n");
+    }
+ 	
+ 	
+ 	return 0;
+ }
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -531,6 +632,11 @@ void launch_tests() {
     //TEST_OUTPUT("read_big_file_test", read_big_file_test());
     //TEST_OUTPUT("read_exec_test", read_exec_test());
     //read_file_by_name((uint8_t*)"pingpong");
-     check_read_file_by_name((uint8_t*)"pingpong",100);
+     //check_read_file_by_name((uint8_t*)"pingpong",100);
+    
+
+    //read_file_by_fd(2,  build_fdarray((uint8_t*)"pingpong",2));
+    read_dir_all();
+
 }
 
