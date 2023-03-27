@@ -222,7 +222,7 @@ void handle_arrowkeys(uint8_t scancode){
             left_flag = 1;
             break;
         case KEY_UP(LEFT):
-            left_flag = 1;
+            left_flag = 0;
             break;
         case RIGHT:
             right_flag = 1;
