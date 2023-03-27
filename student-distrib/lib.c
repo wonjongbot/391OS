@@ -312,9 +312,13 @@ void putc(uint8_t c) {
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
     }
     else if(c == '\t'){
-        screen_x += 4;
-        if(screen_x >= NUM_COLS)
-            screen_x = NUM_COLS - 1;
+        int i;
+        for(i = 0; i < 4; i++){
+            putc(' ');
+        }
+        // screen_x += 4;
+        // if(screen_x >= NUM_COLS)
+        //     screen_x = NUM_COLS - 1;
     }
     else {
         if(screen_x >= NUM_COLS - 1){
