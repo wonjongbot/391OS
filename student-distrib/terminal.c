@@ -102,5 +102,5 @@ uint32_t terminal_write(uint32_t fd, const uint8_t* buf, uint32_t nbytes){
 }
 
 uint32_t terminal_close(uint32_t fd){
-    return 0;
+    return 1;
 }

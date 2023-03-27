@@ -9,7 +9,7 @@
 #include "keyboard.h"
 #include "types.h"
 
-#define TERMINAL_PROMPT_MODE 1
+#define TERMINAL_PROMPT_MODE 0
 #define TERMINAL_PROMPT_LEN 6
 
 char kb_buf_history[kb_history_size][kb_buf_size];
