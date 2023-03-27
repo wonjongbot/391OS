@@ -177,6 +177,39 @@ void clear_kb_buf(){
     kb_buf_top = 0;
 }
 
+void print_history(){
+    int i, j, ctr;
+    ctr = 0;
+    set_attrib(0x0b);
+    printf("Terminal History (5 most recent):\n");
+    for (i = kb_buf_history_top - 1; 0 <= i && ctr < 5; i--, ctr++){
+        j = 0;
+        printf("\t[*] ");
+        while(1){
+            putc(kb_buf_history[i][j]);
+            if(kb_buf_history[i][j] == '\n' || kb_buf_history[i][j] == '\r') break;
+            j++;
+        }
+    }
+    set_attrib(0x07);
+}
+
+void print_history_full(){
+    int i, j;
+    set_attrib(0x0b);
+    printf("Terminal History (Full):\n");
+    for (i = kb_buf_history_top - 1; 0 <= i; i--){
+        j = 0;
+        printf("\t[*] ");
+        while(1){
+            putc(kb_buf_history[i][j]);
+            if(kb_buf_history[i][j] == '\n' || kb_buf_history[i][j] == '\r') break;
+            j++;
+        }
+    }
+    set_attrib(0x07);
+}
+
 void keyboard_handler(){
     int i;
     uint8_t scancode;
@@ -216,6 +249,14 @@ void keyboard_handler(){
             if(ctrl_flag && (ascii == 'l' || ascii == 'L')){
                 clear();
                 reset_text_cursor();
+            }
+            if(ctrl_flag && (ascii == 'h')){
+                if(kb_buf_top==0)
+                    print_history();
+            }
+            if(ctrl_flag && (ascii == 'H')){
+                if(kb_buf_top==0)
+                    print_history_full();
             }
         }
     }

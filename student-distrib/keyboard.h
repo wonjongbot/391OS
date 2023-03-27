@@ -7,6 +7,7 @@
 #include "i8259.h"
 #include "lib.h"
 #include "types.h"
+#include "terminal.h"
 
 
 // macro for special keys. DOWN keys by default
