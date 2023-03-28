@@ -125,6 +125,9 @@ int32_t rtc_open (const uint8_t* filename) {
  */
 int32_t rtc_read (int32_t fd, void* buf, int32_t nbytes) {
     // wait until interrupt handler clears flag
+    if(buf == NULL){
+        return -1;
+    }
     interrupt_flag = 0; 
     while (interrupt_flag == 0);
 
@@ -141,6 +144,9 @@ int32_t rtc_read (int32_t fd, void* buf, int32_t nbytes) {
  */
 int32_t rtc_write (int32_t fd, const void* buf, int32_t nbytes) {
     /* Sanity checks done in rtc_set_freq */
+    if(buf == NULL){
+        return -1;
+    }
     if(*(unsigned*)buf == 0){
         return -1;
     }
