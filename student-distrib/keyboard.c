@@ -1,8 +1,23 @@
 #include "keyboard.h"
+
+#define ASCII_SPACE 0x20
+#define ASCII_TILDA 0x7E
+#define ASCII_a 0x61
+#define ASCII_z 0x7a
+
+// set_atrib function takes in 4 bits for foreground color and 4 bits for background color
+// colors we used are :
+// 		- 0x07: black background with grey text
+//		- 0x0B: black background with cyan text
+//		- 0x02: black background with green text
+//		- 0x4E: red background with yellow text
+//      - 0x2f: green background with white text
+
+
 void keyboard_init(){
     int i;
     enable_irq(0x1);
-    for(i = 0; i < 128; i++){
+    for(i = 0; i < kb_buf_size; i++){
         kb_buf[i] = 0;
     }
     kb_buf_top = 0;
@@ -10,7 +25,7 @@ void keyboard_init(){
 }
 
 int is_printable(uint8_t ascii){
-    if((ascii > 0x19 && ascii < 0x7D) || ascii == '\t' || ascii == '\b' || ascii == '\n' || ascii == '\r')
+    if((ascii >= ASCII_SPACE && ascii <= ASCII_TILDA) || ascii == '\t' || ascii == '\b' || ascii == '\n' || ascii == '\r')
         return 1;
     else
         return 0;
@@ -18,7 +33,7 @@ int is_printable(uint8_t ascii){
 
 // only changes alphabetic keys who are also affected by capslock
 int is_capsable(uint8_t ascii){
-    if(ascii > 0x60 && ascii < 0x7B)
+    if(ascii >= ASCII_a && ascii <= ASCII_z)
         return 1;
     else
         return 0;
@@ -26,12 +41,12 @@ int is_capsable(uint8_t ascii){
 
 int convert_case(uint8_t ascii){
     uint8_t ret = ascii;
-    if ((caps_flag) && is_capsable(ascii)){
+    if ((caps_flag) && is_capsable(ascii) && !shift_flag){
         ret = UPPERCASE(ascii);
     }
     else if(shift_flag){
         // for alphabetic characters and some other
-        if(ascii > 0x60 && ascii < 0x7E)
+        if(ascii >= ASCII_a && ascii <= ASCII_z && !caps_flag)
             ret = UPPERCASE(ascii);
         // for numbers
         else{
@@ -171,18 +186,20 @@ uint8_t pop_kb_buf(){
 
 void clear_kb_buf(){
     int i;
-    for(i = 0; i < 128; i++){
+    for(i = 0; i < kb_buf_size; i++){
         kb_buf[i] = 0;
     }
     kb_buf_top = 0;
 }
 
+#define history_depth 5
+
 void print_history(){
     int i, j, ctr;
     ctr = 0;
     set_attrib(0x0b);
-    printf("Terminal History (5 most recent):\n");
-    for (i = kb_buf_history_top - 1; 0 <= i && ctr < 5; i--, ctr++){
+    printf("Terminal History (%d most recent):\n", history_depth);
+    for (i = kb_buf_history_top - 1; 0 <= i && ctr < history_depth; i--, ctr++){
         j = 0;
         printf("\t[*] ");
         while(1){
@@ -210,11 +227,14 @@ void print_history_full(){
     set_attrib(0x07);
 }
 
+
+#define KB_SCANCODE_PORT 0x60
+
 void keyboard_handler(){
     int i;
     uint8_t scancode;
     uint8_t ascii;
-    scancode = inb(0x60);
+    scancode = inb(KB_SCANCODE_PORT);
     set_special_flags(scancode);
     ascii = scancode_down[scancode];
     if(scancode < DOWN_SIZE){
@@ -224,7 +244,7 @@ void keyboard_handler(){
                 if(ascii == '\b'){
                     uint8_t tmp = pop_kb_buf();
                     if(tmp == '\t'){
-                        for(i = 0; i < 4; i++){
+                        for(i = 0; i < TAB_SIZE; i++){
                             putc(ascii);
                         }
                     }
@@ -236,11 +256,11 @@ void keyboard_handler(){
                     if(ascii == '\n' || ascii == '\r'){
                         enter_flag = 1;
                     }
-                    if(kb_buf_top < 127){
+                    if(kb_buf_top < kb_buf_size - 1){
                         push_kb_buf(ascii);
                         putc(ascii);
                     }
-                    if(kb_buf_top == 127 && (ascii == '\n' || ascii == '\r')){
+                    if(kb_buf_top == kb_buf_size - 1 && (ascii == '\n' || ascii == '\r')){
                         push_kb_buf(ascii);
                         putc(ascii);
                     }

@@ -23,6 +23,7 @@
 #define LEFT 0x4B
 #define RIGHT 0x4d
 #define ENTER 0x1c
+#define TAB_SIZE 4
 
 #define CASE_OFFSET 0x20
 #define UPPERCASE(ASCII) ASCII - CASE_OFFSET

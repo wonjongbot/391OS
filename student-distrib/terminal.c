@@ -5,11 +5,11 @@ void terminal_history_handler(){
     int i;
     if(up_flag == 1 && kb_buf_history_top > 0 && kb_buf_history_ptr > 0){
         if(kb_buf_history_ptr == kb_buf_history_top){
-            memcpy(kb_buf_history[kb_buf_history_top], kb_buf, 128);
+            memcpy(kb_buf_history[kb_buf_history_top], kb_buf, kb_buf_size);
             kb_buf_top_cached = kb_buf_top;
         }
         kb_buf_history_ptr--;
-        memcpy(kb_buf, kb_buf_history[kb_buf_history_ptr], 128);
+        memcpy(kb_buf, kb_buf_history[kb_buf_history_ptr], kb_buf_size);
         i = 0;
         clear_line();
         while(1){
@@ -28,7 +28,7 @@ void terminal_history_handler(){
         if(kb_buf_history_ptr == kb_buf_history_top){
             i = 0;
             clear_line();
-            memcpy(kb_buf, kb_buf_history[kb_buf_history_top], 128);
+            memcpy(kb_buf, kb_buf_history[kb_buf_history_top], kb_buf_size);
             kb_buf_top = kb_buf_top_cached;
             while(i < kb_buf_top_cached){
                 putc(kb_buf[i]);
@@ -36,7 +36,7 @@ void terminal_history_handler(){
             }
         }
         else{
-            memcpy(kb_buf, kb_buf_history[kb_buf_history_ptr], 128);
+            memcpy(kb_buf, kb_buf_history[kb_buf_history_ptr], kb_buf_size);
             i = 0;
             clear_line();
             while(1){
@@ -84,7 +84,7 @@ int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes){
         }
         // push current reads to history
         i = 0;
-        while(i < nbytes && kb_buf_top <= 128){
+        while(i < nbytes && kb_buf_top <= kb_buf_size){
             buf[i] = kb_buf[i];
             if(buf[i] == '\n' || buf[i] == '\r'){
                 i++;
@@ -94,7 +94,7 @@ int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes){
         }
         buf[nbytes - 1] = '\n';
         #if ENABLE_HISTORY
-        memcpy((kb_buf_history[kb_buf_history_top]), kb_buf, 128);
+        memcpy((kb_buf_history[kb_buf_history_top]), kb_buf, kb_buf_size);
         kb_buf_history_top++;
         #endif
         clear_kb_buf();

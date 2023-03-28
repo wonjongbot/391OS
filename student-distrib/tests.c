@@ -286,6 +286,15 @@ int rtc_functions_test() {
 
 char terminal_flag[] = "391OS>";
 
+/* Terminal readwrite test - delay
+ *
+ * Tests the behavior of two reads when there is delay between the two.
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: None
+ * Coverage: terminal
+ * Files: terminal.h/c
+ */
 void terminal_readwrite_test_Delay(){
     char buf [128];
     uint32_t fd = 0;
@@ -306,6 +315,16 @@ void terminal_readwrite_test_Delay(){
     ret = terminal_write(fd, (int8_t*)buf, (int32_t)ret);
     terminal_close(3);
 }
+
+/* Terminal_open_close test
+ *
+ * Tests the behavior of open and close of terminal
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: None
+ * Coverage: terminal
+ * Files: terminal.h/c
+ */
 int terminal_open_close(){
     int32_t fd = 0;
     if(terminal_close(fd) == -1 && terminal_open(fd) == -1){
@@ -314,6 +333,15 @@ int terminal_open_close(){
     return FAIL;
 }
 
+/* terminal_write_test
+ *
+ * Tests the behavior of writing characters bigger than 128 bytes and backspaces
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: None
+ * Coverage: terminal
+ * Files: terminal.h/c
+ */
 int terminal_write_test(){
     int8_t buf [200];
     uint32_t fd = 0;
@@ -339,7 +367,17 @@ int terminal_write_test(){
     return PASS;
 }
 
+/* terminal_read_of
+ *
+ * Tests the behavior of reading keyboard buffer where nbytes is greater than the size of kbd buf
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: None
+ * Coverage: terminal
+ * Files: terminal.h/c
+ */
 int terminal_read_of(){
+    // here, 500 is some arbitrary number that is greater than 128 (keyboard buffer size)
     int8_t buf [500];
     int32_t fd = 0;
     int ret;
@@ -356,8 +394,17 @@ int terminal_read_of(){
     return PASS;
 }
 
+/* terminal_readwrite_test_inf
+ *
+ * Generic test that echos terminal input to screen
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: None
+ * Coverage: terminal
+ * Files: terminal.h/c
+ */
 void terminal_readwrite_test_inf(){
-    char buf [128];
+    char buf [kb_buf_size];
     int ret;
     int32_t fd = 0;
     set_attrib(0x0b);
@@ -368,7 +415,7 @@ void terminal_readwrite_test_inf(){
     while(1){
         if(TERMINAL_PROMPT_MODE)
             terminal_write(fd, (int8_t*)terminal_flag, (int32_t)TERMINAL_PROMPT_LEN);
-        ret = terminal_read(fd, (int8_t*)buf, (int32_t)128);
+        ret = terminal_read(fd, (int8_t*)buf, (int32_t)kb_buf_size);
         set_attrib(0x0B);
         printf("[*] READ %d bytes\n", ret);
         set_attrib(0x07);
@@ -383,7 +430,15 @@ void terminal_readwrite_test_inf(){
     terminal_close(fd);
 }
 
-
+/* formatted_string_test
+ *
+ * Tests terminal write's ability to print special characters (\t, \b, \n)
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: None
+ * Coverage: terminal
+ * Files: terminal.h/c
+ */
 int formatted_string_test(){
     int32_t fd = 0;
     int ret;
@@ -398,6 +453,15 @@ int formatted_string_test(){
 
 }
 
+/* fish_string_test
+ *
+ * Fishy fishy time
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: None
+ * Coverage: terminal
+ * Files: terminal.h/c
+ */
 int fish_string_test(){
     int32_t fd = 0;
     int ret;
@@ -982,7 +1046,7 @@ void launch_tests() {
 //    for(i = 0; i < 600000000; i++);
 //    TEST_OUTPUT("Formatted string: fish", fish_string_test());
 //    terminal_readwrite_test_Delay();
-//    terminal_readwrite_test_inf();
+    terminal_readwrite_test_inf();
 
 //    TEST_OUTPUT("read_curr_dir_dentry_test", read_curr_dir_dentry_test());
 //    TEST_OUTPUT("read_very_long_file_test", read_too_long_file_dentry_test());

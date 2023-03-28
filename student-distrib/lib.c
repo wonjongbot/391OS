@@ -266,7 +266,7 @@ void scroll_screen(){
     // copy second line to first third to second... etc, then clear the last line
     int i = 0;
     for(i = 1; i < NUM_ROWS; i++){
-        memcpy(video_mem + ((NUM_COLS * (i - 1)) << 1), video_mem + ((NUM_COLS * (i)) << 1), 160);
+        memcpy(video_mem + ((NUM_COLS * (i - 1)) << 1), video_mem + ((NUM_COLS * (i)) << 1), line_bytes);
     }
     for (i = 0; i < NUM_COLS; i++) {
         *(uint8_t *)(video_mem + ((NUM_COLS * (NUM_ROWS - 1) + i) << 1)) = ' ';
@@ -315,7 +315,7 @@ void putc(uint8_t c) {
     }
     else if(c == '\t'){
         int i;
-        for(i = 0; i < 4; i++){
+        for(i = 0; i < TAB_SIZE; i++){
             putc(' ');
         }
         // screen_x += 4;
