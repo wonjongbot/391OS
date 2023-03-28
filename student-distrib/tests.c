@@ -361,6 +361,42 @@ int terminal_open_close() {
   return FAIL;
 }
 
+/* Terminal_null test
+ *
+ * Tests the behavior of nullcheck of terminal
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: None
+ * Coverage: terminal
+ * Files: terminal.h/c
+ */
+int terminal_null() {
+  TEST_HEADER;
+  int32_t fd = 0;
+  if (terminal_read(fd, (void*)0, 0) == -1 && terminal_write(fd, (void*)0, 0) == -1) {
+    return PASS;
+  }
+  return FAIL;
+}
+
+/* rtc_null test
+ *
+ * Tests the behavior nullcheck of rtc
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: None
+ * Coverage: terminal
+ * Files: terminal.h/c
+ */
+int rtc_null() {
+  TEST_HEADER;
+  int32_t fd = 0;
+  if (rtc_read(fd, (void*)0, 0) == -1 && rtc_write(fd, (void*)0, 0) == -1) {
+    return PASS;
+  }
+  return FAIL;
+}
+
 /* terminal_write_test
  *
  * Tests the behavior of writing characters bigger than 128 bytes and backspaces
@@ -1057,7 +1093,7 @@ void pretty_print_all() {
     #define cp1_paging_test 0
     #define cp1_exception_test 0
 
-#define cp2_tests 1
+#define cp2_tests 0
     #define cp2_rtc_test 1
     #define cp2_terminal_test 1
     #define cp2_filesys_test 1
@@ -1164,5 +1200,7 @@ void launch_tests() {
     #endif
     #endif
 ///////////////////////////////////////////////////////////////////////////////
+  TEST_OUTPUT("nullcheck rtc", rtc_null());
+  TEST_OUTPUT("nullcheck terminal", terminal_null());
 }
 
