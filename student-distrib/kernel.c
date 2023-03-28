@@ -154,6 +154,9 @@ void entry(unsigned long magic, unsigned long addr) {
     //init page
     init_paging();
 
+    //init terminal
+    terminal_init();
+
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
 
