@@ -320,6 +320,7 @@ char terminal_flag[] = "391OS>";
  * Files: terminal.h/c
  */
 void terminal_readwrite_test_Delay() {
+  TEST_HEADER;
   char buf[128];
   uint32_t fd = 0;
   terminal_open(3);
@@ -351,6 +352,7 @@ void terminal_readwrite_test_Delay() {
  * Files: terminal.h/c
  */
 int terminal_open_close() {
+  TEST_HEADER;
   int32_t fd = 0;
   if (terminal_close(fd) == -1 && terminal_open(fd) == -1) {
     return PASS;
@@ -368,6 +370,7 @@ int terminal_open_close() {
  * Files: terminal.h/c
  */
 int terminal_write_test() {
+  TEST_HEADER;
   int8_t buf[200];
   uint32_t fd = 0;
   int i;
@@ -402,6 +405,7 @@ int terminal_write_test() {
  * Files: terminal.h/c
  */
 int terminal_read_of() {
+  TEST_HEADER;
   // here, 500 is some arbitrary number that is greater than 128 (keyboard buffer size)
   int8_t buf[500];
   int32_t fd = 0;
@@ -429,6 +433,7 @@ int terminal_read_of() {
  * Files: terminal.h/c
  */
 void terminal_readwrite_test_inf() {
+  TEST_HEADER;
   char buf[kb_buf_size];
   int ret;
   int32_t fd = 0;
@@ -465,6 +470,7 @@ void terminal_readwrite_test_inf() {
  * Files: terminal.h/c
  */
 int formatted_string_test() {
+  TEST_HEADER;
   int32_t fd = 0;
   int ret;
   int8_t str[] = "Hello\n\n\tWorld!!\b\n";
@@ -488,6 +494,7 @@ int formatted_string_test() {
  * Files: terminal.h/c
  */
 int fish_string_test() {
+  TEST_HEADER;
   int32_t fd = 0;
   int ret;
   char* str = "/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\\n"
@@ -1041,22 +1048,24 @@ void pretty_print_all() {
 
 // set these macros to 1 to run tests
 // you would still need to set individual tests within groups
+// tabs represent hierarchy
 #define cp1_tests 0
-#define cp1_idt_test 0
-#define cp1_rtc_test 0
-#define cp1_paging_test 0
-#define cp1_exception_test 0 
+    #define cp1_idt_test 0
+    #define cp1_rtc_test 0
+    #define cp1_paging_test 0
+    #define cp1_exception_test 0 
 
-#define cp2_tests 0
-#define cp2_terminal_test 0
-#define cp2_rtc_test 0
-#define cp2_filesys_test 1
+#define cp2_tests 1
+    #define cp2_rtc_test 1
+    #define cp2_terminal_test 0
+    #define cp2_filesys_test 0
 /* Test suite entry point */
 void launch_tests() {
     clear();
     reset_text_cursor();
 
     /* TESTS FOR CP 1 */
+    #if cp1_tests
     // idt test
     #if cp1_idt_test
     TEST_OUTPUT("idt_test", idt_test());
@@ -1081,11 +1090,14 @@ void launch_tests() {
     #if cp1_exception_test
     divide_zero_test();
     #endif
+    #endif
 
 ///////////////////////////////////////////////////////////////////////////////
     /* TESTS FOR CP 2 */
+    #if cp2_tests
     #if cp2_rtc_test
     TEST_OUTPUT("rtc_freq_bounds_test", rtc_freq_bounds_test());
+    add_delay();
     clear();
     reset_text_cursor();
     TEST_OUTPUT("rtc_functions_test", rtc_functions_test());
@@ -1096,8 +1108,8 @@ void launch_tests() {
     TEST_OUTPUT("Terminal overflow: read", terminal_read_of());
     TEST_OUTPUT("Terminal test: write", terminal_write_test());
     TEST_OUTPUT("Formatted string", formatted_string_test());
-    add_delay()
-    add_delay()
+    add_delay();
+    add_delay();
     TEST_OUTPUT("Formatted string: fish", fish_string_test());
     terminal_readwrite_test_Delay();
     terminal_readwrite_test_inf();
@@ -1120,6 +1132,7 @@ void launch_tests() {
     // read_file_by_fd(2,  build_fdarray((uint8_t*)"pingpong",2));
     // read_dir_all();
     pretty_print_all();
+    #endif
     #endif
 ///////////////////////////////////////////////////////////////////////////////
 }
