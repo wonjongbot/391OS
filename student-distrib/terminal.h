@@ -23,7 +23,7 @@ int kb_buf_top_cached;
 
 void terminal_init();
 
-int32_t terminal_open();
+int32_t terminal_open(const uint8_t* filename);
 
 int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes);
 

@@ -100,7 +100,7 @@ void terminal_init(){
  * Return Value: -1
  * Function: returns -1 because terminal shouldn't be open in cp2
  */
-int32_t terminal_open(){
+int32_t terminal_open(const uint8_t* filename){
     return -1;
 }
 

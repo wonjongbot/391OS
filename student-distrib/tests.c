@@ -323,7 +323,7 @@ void terminal_readwrite_test_Delay() {
   TEST_HEADER;
   char buf[128];
   uint32_t fd = 0;
-  terminal_open(3);
+  terminal_open((uint8_t*)3);
   int i;
   int ret;
   set_attrib(0x0b);
@@ -354,7 +354,8 @@ void terminal_readwrite_test_Delay() {
 int terminal_open_close() {
   TEST_HEADER;
   int32_t fd = 0;
-  if (terminal_close(fd) == -1 && terminal_open(fd) == -1) {
+  uint8_t* file = 0x0;
+  if (terminal_close(fd) == -1 && terminal_open(file) == -1) {
     return PASS;
   }
   return FAIL;
@@ -436,12 +437,13 @@ void terminal_readwrite_test_inf() {
   TEST_HEADER;
   char buf[kb_buf_size];
   int ret;
+  uint8_t* file = 0x0;
   int32_t fd = 0;
   set_attrib(0x0b);
   printf("[*] Sandbox testing: Type `exit` to leave this test\n");
   set_attrib(0x07);
   char exit_flag[] = "exit\n";
-  terminal_open(3);
+  terminal_open(file);
   while (1) {
     if (TERMINAL_PROMPT_MODE)
       terminal_write(fd, (int8_t*) terminal_flag, (int32_t) TERMINAL_PROMPT_LEN);
