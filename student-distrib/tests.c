@@ -41,6 +41,17 @@ static inline void assertion_failure() {
   asm volatile("int $15");
 }
 
+/* add_delay
+ *
+ * helper function to add delay
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: adds delay
+ */
+void add_delay(){
+    int i = 0;
+    for (i = 0; i < 600000000; i++);
+}
 
 /* Checkpoint 1 tests */
 
@@ -1028,65 +1039,88 @@ void pretty_print_all() {
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 
+// set these macros to 1 to run tests
+// you would still need to set individual tests within groups
+#define cp1_tests 0
+#define cp1_idt_test 0
+#define cp1_rtc_test 0
+#define cp1_paging_test 0
+#define cp1_exception_test 0 
 
+#define cp2_tests 0
+#define cp2_terminal_test 0
+#define cp2_rtc_test 0
+#define cp2_filesys_test 1
 /* Test suite entry point */
 void launch_tests() {
-//  int i;
-  clear();
-  reset_text_cursor();
+    clear();
+    reset_text_cursor();
 
-  /* TESTS FOR CP 1 */
-  // launch your tests here
-  // idt test
-//    TEST_OUTPUT("idt_test", idt_test());
+    /* TESTS FOR CP 1 */
+    // idt test
+    #if cp1_idt_test
+    TEST_OUTPUT("idt_test", idt_test());
+    #endif
 
-  // rtc changing frequency test
-//    rtc_freq_test();
-  // TEST_OUTPUT("rtc_freq_bounds_test", rtc_freq_bounds_test());
-   clear();
-   reset_text_cursor();
-   TEST_OUTPUT("rtc_functions_test", rtc_functions_test());
+    // rtc changing frequency test
+    #if cp1_rtc_test
+    rtc_freq_test();
+    #endif
 
-  // paging tests
-//    TEST_OUTPUT("paging_struct_test", paging_struct_test());
-//    TEST_OUTPUT("paging_vga_test", paging_vga_test());
-//    TEST_OUTPUT("paging_kernel_test", paging_kernel_test());
-//    TEST_OUTPUT("paging upper and lower bound test", paging_check_bounds());
-//    page_overflow_test();
-//    page_fault_exception_test();
+    // paging tests
+    #if cp1_paging_tests
+    TEST_OUTPUT("paging_struct_test", paging_struct_test());
+    TEST_OUTPUT("paging_vga_test", paging_vga_test());
+    TEST_OUTPUT("paging_kernel_test", paging_kernel_test());
+    TEST_OUTPUT("paging upper and lower bound test", paging_check_bounds());
+    page_overflow_test();
+    page_fault_exception_test();
+    #endif
 
-  // zero-division exception
-//    divide_zero_test();
+    // zero-division exception
+    #if cp1_exception_test
+    divide_zero_test();
+    #endif
 
 ///////////////////////////////////////////////////////////////////////////////
-  /* TESTS FOR CP 2 */
-//  TEST_OUTPUT("Terminal open and close returns -1", terminal_open_close());
-//  TEST_OUTPUT("Terminal overflow: read", terminal_read_of());
-//  TEST_OUTPUT("Terminal test: write", terminal_write_test());
-//  TEST_OUTPUT("Formatted string", formatted_string_test());
-//  for (i = 0; i < 600000000; i++);
-//  for (i = 0; i < 600000000; i++);
-//  TEST_OUTPUT("Formatted string: fish", fish_string_test());
-//  terminal_readwrite_test_Delay();
-//  terminal_readwrite_test_inf();
+    /* TESTS FOR CP 2 */
+    #if cp2_rtc_test
+    TEST_OUTPUT("rtc_freq_bounds_test", rtc_freq_bounds_test());
+    clear();
+    reset_text_cursor();
+    TEST_OUTPUT("rtc_functions_test", rtc_functions_test());
+    #endif
 
-//    TEST_OUTPUT("read_curr_dir_dentry_test", read_curr_dir_dentry_test());
-//    TEST_OUTPUT("read_very_long_file_test", read_too_long_file_dentry_test());
-//    TEST_OUTPUT("read_very_long_file_test", read_long_file_dentry_test());
-//    TEST_OUTPUT("read_similar_file_1_dentry_test", read_similar_file_1_dentry_test());
-//    TEST_OUTPUT("read_similar_file_2_dentry_test", read_similar_file_2_dentry_test());
-//    TEST_OUTPUT("read_nonexistent_dentry_test", read_nonexistent_dentry_test());
-//    TEST_OUTPUT("read_curr_dir_by_index_test", read_curr_dir_by_index_test());
-//    TEST_OUTPUT("read_out_of_bounds_dir_by_index_test", read_out_of_bounds_dir_by_index_test());
-//    TEST_OUTPUT("read_file_test", read_file_test());
-//    TEST_OUTPUT("read_big_file_test", read_big_file_test());
-  //TEST_OUTPUT("read_exec_test", read_exec_test());
-  //read_file_by_name((uint8_t*)"pingpong");
-  //check_read_file_by_name((uint8_t*)"pingpong",100);
+    #if cp2_terminal_test
+    TEST_OUTPUT("Terminal open and close returns -1", terminal_open_close());
+    TEST_OUTPUT("Terminal overflow: read", terminal_read_of());
+    TEST_OUTPUT("Terminal test: write", terminal_write_test());
+    TEST_OUTPUT("Formatted string", formatted_string_test());
+    add_delay()
+    add_delay()
+    TEST_OUTPUT("Formatted string: fish", fish_string_test());
+    terminal_readwrite_test_Delay();
+    terminal_readwrite_test_inf();
+    #endif
 
-
-//    read_file_by_fd(2,  build_fdarray((uint8_t*)"pingpong",2));
-//    read_dir_all();
-//    pretty_print_all();
+    #if cp2_filesys_test
+    // TEST_OUTPUT("read_curr_dir_dentry_test", read_curr_dir_dentry_test());
+    //TEST_OUTPUT("read_very_long_file_test", read_too_long_file_dentry_test());
+    // TEST_OUTPUT("read_very_long_file_test", read_long_file_dentry_test());
+    // TEST_OUTPUT("read_similar_file_1_dentry_test", read_similar_file_1_dentry_test());
+    // TEST_OUTPUT("read_similar_file_2_dentry_test", read_similar_file_2_dentry_test());
+    // TEST_OUTPUT("read_nonexistent_dentry_test", read_nonexistent_dentry_test());
+    // TEST_OUTPUT("read_curr_dir_by_index_test", read_curr_dir_by_index_test());
+    // TEST_OUTPUT("read_out_of_bounds_dir_by_index_test", read_out_of_bounds_dir_by_index_test());
+    // TEST_OUTPUT("read_file_test", read_file_test());
+    // TEST_OUTPUT("read_big_file_test", read_big_file_test());
+    // TEST_OUTPUT("read_exec_test", read_exec_test());
+    // read_file_by_name((uint8_t*)"pingpong");
+    // check_read_file_by_name((uint8_t*)"pingpong",100);
+    // read_file_by_fd(2,  build_fdarray((uint8_t*)"pingpong",2));
+    // read_dir_all();
+    pretty_print_all();
+    #endif
+///////////////////////////////////////////////////////////////////////////////
 }
 
