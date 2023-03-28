@@ -49,7 +49,7 @@ void terminal_history_handler(){
             }
         }
         // if I don't clear both flags, it will ignore the key (or goes up and then down so it looks like
-        // if ignores key) when ptr is on the edge idk 
+        // if ignores key) when ptr is on the edge idk
         up_flag = 0;
         down_flag = 0;
     }
@@ -70,7 +70,7 @@ int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes){
         return -1;
     }
     else{
-        for(i = 0; i++; i<nbytes){
+        for(i = 0; i<nbytes; i++){
             buf[i] = 0;
         }
         i = 0;
