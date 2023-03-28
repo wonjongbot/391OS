@@ -1053,12 +1053,19 @@ void pretty_print_all() {
     #define cp1_idt_test 0
     #define cp1_rtc_test 0
     #define cp1_paging_test 0
-    #define cp1_exception_test 0 
+    #define cp1_exception_test 0
 
 #define cp2_tests 1
     #define cp2_rtc_test 1
     #define cp2_terminal_test 0
     #define cp2_filesys_test 0
+        #define cp2_filesys_test_1 1
+        #define cp2_filesys_test_2 0
+        #define cp2_filesys_test_3 0
+        #define cp2_filesys_test_4 0
+        #define cp2_filesys_test_5 0
+        #define cp2_filesys_test_6 0
+        #define cp2_filesys_test_7 0
 /* Test suite entry point */
 void launch_tests() {
     clear();
@@ -1116,22 +1123,42 @@ void launch_tests() {
     #endif
 
     #if cp2_filesys_test
-    // TEST_OUTPUT("read_curr_dir_dentry_test", read_curr_dir_dentry_test());
-    //TEST_OUTPUT("read_very_long_file_test", read_too_long_file_dentry_test());
-    // TEST_OUTPUT("read_very_long_file_test", read_long_file_dentry_test());
-    // TEST_OUTPUT("read_similar_file_1_dentry_test", read_similar_file_1_dentry_test());
-    // TEST_OUTPUT("read_similar_file_2_dentry_test", read_similar_file_2_dentry_test());
-    // TEST_OUTPUT("read_nonexistent_dentry_test", read_nonexistent_dentry_test());
-    // TEST_OUTPUT("read_curr_dir_by_index_test", read_curr_dir_by_index_test());
-    // TEST_OUTPUT("read_out_of_bounds_dir_by_index_test", read_out_of_bounds_dir_by_index_test());
-    // TEST_OUTPUT("read_file_test", read_file_test());
-    // TEST_OUTPUT("read_big_file_test", read_big_file_test());
-    // TEST_OUTPUT("read_exec_test", read_exec_test());
-    // read_file_by_name((uint8_t*)"pingpong");
-    // check_read_file_by_name((uint8_t*)"pingpong",100);
-    // read_file_by_fd(2,  build_fdarray((uint8_t*)"pingpong",2));
-    // read_dir_all();
+    #if cp2_filesys_test_1
+    TEST_OUTPUT("read_curr_dir_dentry_test", read_curr_dir_dentry_test());
+    TEST_OUTPUT("read_very_long_file_test", read_too_long_file_dentry_test());
+    TEST_OUTPUT("read_very_long_file_test", read_long_file_dentry_test());
+    TEST_OUTPUT("read_similar_file_1_dentry_test", read_similar_file_1_dentry_test());
+    TEST_OUTPUT("read_similar_file_2_dentry_test", read_similar_file_2_dentry_test());
+    TEST_OUTPUT("read_nonexistent_dentry_test", read_nonexistent_dentry_test());
+    TEST_OUTPUT("read_curr_dir_by_index_test", read_curr_dir_by_index_test());
+    TEST_OUTPUT("read_out_of_bounds_dir_by_index_test", read_out_of_bounds_dir_by_index_test());
+    #endif
+
+    #if cp2_filesys_test_2
+    TEST_OUTPUT("read_file_test", read_file_test());
+    #endif
+
+    #if cp2_filesys_test_3
+    TEST_OUTPUT("read_big_file_test", read_big_file_test());
+    TEST_OUTPUT("read_exec_test", read_exec_test());
+    #endif
+
+    #if cp2_filesys_test_4
+    read_file_by_name((uint8_t*)"pingpong");
+    check_read_file_by_name((uint8_t*)"pingpong",100);
+    #endif
+
+    #if cp2_filesys_test_5
+    read_file_by_fd(2,  build_fdarray((uint8_t*)"testprint",2));
+    #endif
+
+    #if cp2_filesys_test_6
+    read_dir_all();
+    #endif
+
+    #if cp2_filesys_test_7
     pretty_print_all();
+    #endif
     #endif
     #endif
 ///////////////////////////////////////////////////////////////////////////////
