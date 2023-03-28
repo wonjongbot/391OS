@@ -1059,8 +1059,8 @@ void pretty_print_all() {
 
 #define cp2_tests 1
     #define cp2_rtc_test 1
-    #define cp2_terminal_test 0
-    #define cp2_filesys_test 0
+    #define cp2_terminal_test 1
+    #define cp2_filesys_test 1
         #define cp2_filesys_test_1 1
         #define cp2_filesys_test_2 0
         #define cp2_filesys_test_3 0
