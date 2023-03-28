@@ -267,18 +267,19 @@ int rtc_freq_bounds_test() {
 int rtc_functions_test() {
     TEST_HEADER;
     int i, j;
-    uint16_t freq = 2;
-
+    unsigned freq = 1;
 	rtc_open(NULL); //freq set to 2hz
-
-	for(i = 0; i < 9; i++){ //increase frequency by power of 2 up to 1024(max)
-		clear();
+    printf("[*] Number of interrupts has ceil of 480 (6 lines)");
+	for(i = 0; i < 10; i++){ //increase frequency by power of 2 up to 1024(max)
 		freq *= 2;
+        printf("\n[*] FREQUENCY SET TO %d\n", freq);
 		rtc_write(NULL, &freq, NULL);   // Write in new freq value
-		for(j = 0; j < freq/2; j++){ // wait for freq/2 interrupts before updating
+		for(j = 0; j < freq*2 && j < 480; j++){ // wait for freq/2 interrupts before updating
 			rtc_read(NULL, NULL, NULL); //read waits until next interrupt
 		}
 	}
+    // disable rtc for later purposes
+    rtc_set_freq(0);
 	rtc_close(NULL);
     return PASS;
 };
@@ -1018,14 +1019,18 @@ void launch_tests() {
 //    int i;
     clear();
     reset_text_cursor();
+
+    /* TESTS FOR CP 1 */
     // launch your tests here
     // idt test
 //    TEST_OUTPUT("idt_test", idt_test());
 
     // rtc changing frequency test
 //    rtc_freq_test();
-//    TEST_OUTPUT("rtc_freq_bounds_test", rtc_freq_bounds_test());
-//    TEST_OUTPUT("rtc_functions_test", rtc_functions_test());
+    TEST_OUTPUT("rtc_freq_bounds_test", rtc_freq_bounds_test());
+    clear();
+    reset_text_cursor();
+    TEST_OUTPUT("rtc_functions_test", rtc_functions_test());
 
     // paging tests
 //    TEST_OUTPUT("paging_struct_test", paging_struct_test());
@@ -1037,7 +1042,10 @@ void launch_tests() {
 
     // zero-division exception
 //    divide_zero_test();
-    //terminal_readwrite_test();
+
+///////////////////////////////////////////////////////////////////////////////
+    /* TESTS FOR CP 2 */
+//    terminal_readwrite_test();
 //    TEST_OUTPUT("Terminal open and close returns -1", terminal_open_close());
 //    TEST_OUTPUT("Terminal overflow: read", terminal_read_of());
 //    TEST_OUTPUT("Terminal test: write", terminal_write_test());
@@ -1046,7 +1054,7 @@ void launch_tests() {
 //    for(i = 0; i < 600000000; i++);
 //    TEST_OUTPUT("Formatted string: fish", fish_string_test());
 //    terminal_readwrite_test_Delay();
-    terminal_readwrite_test_inf();
+//    terminal_readwrite_test_inf();
 
 //    TEST_OUTPUT("read_curr_dir_dentry_test", read_curr_dir_dentry_test());
 //    TEST_OUTPUT("read_very_long_file_test", read_too_long_file_dentry_test());
@@ -1065,6 +1073,6 @@ void launch_tests() {
 
 //    read_file_by_fd(2,  build_fdarray((uint8_t*)"pingpong",2));
 //    read_dir_all();
-    pretty_print_all();
+//    pretty_print_all();
 }
 
