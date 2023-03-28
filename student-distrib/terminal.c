@@ -4,24 +4,33 @@
  * Inputs: none;
  * Return Value: none
  * Function: handles terminal history functioanlity.
- *           up arrow shows previous terminal command and vice versa
+ *           up arrow shows previous terminal command and vice versa.
+ *           user can store up til 128 terminal history.
  */
 void terminal_history_handler(){
     int i;
+    // we can only access 128 histories 
     if(up_flag == 1 && kb_buf_history_top > 0 && kb_buf_history_ptr > 0){
+        // if up was pressed in the top of keyboard history, we copy
+        // what we have so far into the most recent history and save num chars
         if(kb_buf_history_ptr == kb_buf_history_top){
             memcpy(kb_buf_history[kb_buf_history_top], kb_buf, kb_buf_size);
             kb_buf_top_cached = kb_buf_top;
         }
+        // if current terminal argument is longer than screen width, delete stuff
+        // so that cursor is in the first line
         if(kb_buf_top > screen_w - 1){
             while(kb_buf_top > screen_w - 1){
                 putc('\b');
                 pop_kb_buf();
             }
         }
+        // point at next most recent history
         kb_buf_history_ptr--;
+        // copy contents of that history buffer to keyboard buffer
         memcpy(kb_buf, kb_buf_history[kb_buf_history_ptr], kb_buf_size);
         i = 0;
+        // print the saved buffer to screen, after clearing current line.
         clear_line();
         while(1){
             if(kb_buf[i] == '\n' || kb_buf[i] == '\r'){
@@ -42,6 +51,8 @@ void terminal_history_handler(){
                 pop_kb_buf();
             }
         }
+        // if we are printing the in-progress buffer, there is no newline char
+        // to terminate on. Use cached buffer length as a terminator.
         if(kb_buf_history_ptr == kb_buf_history_top){
             i = 0;
             clear_line();
@@ -53,6 +64,8 @@ void terminal_history_handler(){
             }
         }
         else{
+            // for other saved buffers you just print until newline after clearing line.
+            // same thing as above.
             memcpy(kb_buf, kb_buf_history[kb_buf_history_ptr], kb_buf_size);
             i = 0;
             clear_line();
@@ -99,10 +112,12 @@ int32_t terminal_open(){
  */
 int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes){
     uint32_t i = 0;
+    // check for nullptr
     if(buf == NULL){
         return -1;
     }
     else{
+        // flush the input buffer just in case
         for(i = 0; i<nbytes; i++){
             buf[i] = 0;
         }
@@ -110,12 +125,14 @@ int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes){
         #if ENABLE_HISTORY
         kb_buf_history_ptr = kb_buf_history_top;
         #endif
+        // wait for enter key or newline char to be entered.
         while(enter_flag == 0){
             #if ENABLE_HISTORY
             terminal_history_handler();
             #endif
         }
-        // push current reads to history
+        // copy whatever is in the keyboard buffer to the input buffer, nbytes number of 
+        // times. including newline character
         i = 0;
         while(i < nbytes && kb_buf_top <= kb_buf_size){
             buf[i] = kb_buf[i];
@@ -125,11 +142,14 @@ int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes){
             }
             i++;
         }
+        // for the case of read being stopped in the middle, insert newline char in the end of read
         buf[nbytes - 1] = '\n';
+        // copy what we have in keyboard buffer into most recent keyboard buffer
         #if ENABLE_HISTORY
         memcpy((kb_buf_history[kb_buf_history_top]), kb_buf, kb_buf_size);
         kb_buf_history_top++;
         #endif
+        // clear keyboard buffer for next read operation.
         clear_kb_buf();
         enter_flag = 0;
         return i;
@@ -148,6 +168,7 @@ int32_t terminal_write(int32_t fd, const int8_t* buf, int32_t nbytes){
         return -1;
     }
     else{
+        // write to screen nbytes amount of time.
         while(i < nbytes){
             putc(buf[i]);
             i++;

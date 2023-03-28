@@ -22,9 +22,11 @@
 void keyboard_init(){
     int i;
     enable_irq(0x1);
+    // set keyboard buffer to 0
     for(i = 0; i < kb_buf_size; i++){
         kb_buf[i] = 0;
     }
+    // reinitialize various variables
     kb_buf_top = 0;
     caps_flag = 0, shift_flag = 0, alt_flag = 0, ctrl_flag = 0, enter_flag = 0;
 }
@@ -68,10 +70,12 @@ int convert_case(uint8_t ascii){
     }
     else if(shift_flag){
         // for alphabetic characters and some other
+        // uppercase state of alphabetic keys are set by both shift and capslock -- mutually exclusive
         if(ascii >= ASCII_a && ascii <= ASCII_z && !caps_flag)
             ret = UPPERCASE(ascii);
         // for numbers
         else{
+            // switch cases for number keys
             switch(ascii){
                 case '0':
                     ret = ')';
@@ -217,6 +221,7 @@ void push_kb_buf(uint8_t ascii){
  *           top of stack variable
  */
 uint8_t pop_kb_buf(){
+    // remove most recent push and return that. if there is underflow, return null.
     if(kb_buf_top > 0){
         kb_buf_top--;
         return kb_buf[kb_buf_top];
@@ -246,18 +251,22 @@ void clear_kb_buf(){
  */
 void print_history(){
     int i, j, ctr;
+    // variable for history depth
     ctr = 0;
+    // set text to cyan with black bg
     set_attrib(0x0b);
     printf("Terminal History (%d most recent):\n", history_depth);
     for (i = kb_buf_history_top - 1; 0 <= i && ctr < history_depth; i--, ctr++){
         j = 0;
         printf("\t[*] ");
+        // print characters right until there is a newline character
         while(1){
             putc(kb_buf_history[i][j]);
             if(kb_buf_history[i][j] == '\n' || kb_buf_history[i][j] == '\r') break;
             j++;
         }
     }
+    // restore text color
     set_attrib(0x07);
 }
 
@@ -268,17 +277,20 @@ void print_history(){
  */
 void print_history_full(){
     int i, j;
+    // set text to cyan with black bg
     set_attrib(0x0b);
     printf("Terminal History (Full):\n");
     for (i = kb_buf_history_top - 1; 0 <= i; i--){
         j = 0;
         printf("\t[*] ");
+        // print characters right until there is a newline character
         while(1){
             putc(kb_buf_history[i][j]);
             if(kb_buf_history[i][j] == '\n' || kb_buf_history[i][j] == '\r') break;
             j++;
         }
     }
+    // restore text graphics
     set_attrib(0x07);
 }
 
@@ -294,15 +306,20 @@ void keyboard_handler(){
     int i;
     uint8_t scancode;
     uint8_t ascii;
+    // grab scancode from keyboard
     scancode = inb(KB_SCANCODE_PORT);
     set_special_flags(scancode);
     ascii = scancode_down[scancode];
+
+    // if scancode is a printable code, print on screen!
     if(scancode < DOWN_SIZE){
         if(is_printable(ascii)){
             ascii = convert_case(ascii);
             if(!(alt_flag || ctrl_flag)){
+                // if backspace we need to pop that from keyboard buffer
                 if(ascii == '\b'){
                     uint8_t tmp = pop_kb_buf();
+                    // if the popped key is tab key, we need to delete 4 characters
                     if(tmp == '\t'){
                         for(i = 0; i < TAB_SIZE; i++){
                             putc(ascii);
@@ -316,24 +333,29 @@ void keyboard_handler(){
                     if(ascii == '\n' || ascii == '\r'){
                         enter_flag = 1;
                     }
+                    // only print to screen and push to keyboard buffer up til 127th character
                     if(kb_buf_top < kb_buf_size - 1){
                         push_kb_buf(ascii);
                         putc(ascii);
                     }
+                    // 128th character is reserved for newline character
                     if(kb_buf_top == kb_buf_size - 1 && (ascii == '\n' || ascii == '\r')){
                         push_kb_buf(ascii);
                         putc(ascii);
                     }
                 }
             }
+            // ctrl-l is clearing screen and reset cursor location.
             if(ctrl_flag && (ascii == 'l' || ascii == 'L')){
                 clear();
                 reset_text_cursor();
             }
+            // ctrl-h prints user-set number of history
             if(ctrl_flag && (ascii == 'h')){
                 if(kb_buf_top==0)
                     print_history();
             }
+            // ctrl-H prints all history
             if(ctrl_flag && (ascii == 'H')){
                 if(kb_buf_top==0)
                     print_history_full();
