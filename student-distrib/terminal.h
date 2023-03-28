@@ -14,6 +14,7 @@
 #define TERMINAL_PROMPT_LEN 6
 #define kb_buf_size 128
 #define kb_history_size 128
+#define screen_w 80
 
 char kb_buf_history[kb_history_size][kb_buf_size];
 int kb_buf_history_ptr;

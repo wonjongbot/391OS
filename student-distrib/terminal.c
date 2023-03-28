@@ -8,6 +8,12 @@ void terminal_history_handler(){
             memcpy(kb_buf_history[kb_buf_history_top], kb_buf, kb_buf_size);
             kb_buf_top_cached = kb_buf_top;
         }
+        if(kb_buf_top > screen_w - 1){
+            while(kb_buf_top > screen_w - 1){
+                putc('\b');
+                pop_kb_buf();
+            }
+        }
         kb_buf_history_ptr--;
         memcpy(kb_buf, kb_buf_history[kb_buf_history_ptr], kb_buf_size);
         i = 0;
@@ -25,6 +31,12 @@ void terminal_history_handler(){
     }
     else if(down_flag == 1 && kb_buf_history_ptr < kb_buf_history_top && kb_buf_history_top < kb_history_size){
         kb_buf_history_ptr++;
+        if(kb_buf_top > screen_w - 1){
+            while(kb_buf_top > screen_w - 1){
+                putc('\b');
+                pop_kb_buf();
+            }
+        }
         if(kb_buf_history_ptr == kb_buf_history_top){
             i = 0;
             clear_line();
