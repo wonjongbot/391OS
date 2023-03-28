@@ -40,9 +40,6 @@ int32_t rtc_close (int32_t fd);
 
 /* Helper Functions */
 
-/* Gets rtc_target value */
-unsigned get_rtc_target();
-
 /* Check for power of 2 */
 int32_t pow_of_two(unsigned number);
 #endif

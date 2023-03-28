@@ -172,7 +172,3 @@ int32_t pow_of_two(unsigned number) {
     }
     return pow_of_two(number/2);
 }
-
-unsigned get_rtc_target() {
-    return rtc_target;
-}
