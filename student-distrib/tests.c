@@ -247,12 +247,24 @@ void rtc_freq_test() {
  * Files: rtc.h/c
  */
 int rtc_freq_bounds_test() {
-  TEST_HEADER;
-  if (rtc_set_freq(0) == -1 || rtc_set_freq(1) == -1 || rtc_set_freq(1025) == -1 || rtc_set_freq(11) == -1) {
-    return PASS;
-  } else {
-    return FAIL;
-  }
+    TEST_HEADER;
+    unsigned buf = 0;
+    int32_t ret;
+    ret = rtc_write(NULL, &buf, NULL);
+    buf = -1;
+    ret = rtc_write(NULL, &buf, NULL);
+    buf = 1;
+    ret = rtc_write(NULL, &buf, NULL);
+    buf = 11;
+    ret = rtc_write(NULL, &buf, NULL);
+    buf = 1025;
+    ret = rtc_write(NULL, &buf, NULL);
+
+    if (ret == -1) {
+        return PASS;
+    } else {
+        return FAIL;
+    }
 }
 
 /* RTC Frequency open, read, write, close functions Test

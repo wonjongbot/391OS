@@ -141,6 +141,9 @@ int32_t rtc_read (int32_t fd, void* buf, int32_t nbytes) {
  */
 int32_t rtc_write (int32_t fd, const void* buf, int32_t nbytes) {
     /* Sanity checks done in rtc_set_freq */
+    if(*(unsigned*)buf == 0){
+        return -1;
+    }
     return rtc_set_freq(*(unsigned*)buf);    // buf is the new frequency to be written
 
 }
