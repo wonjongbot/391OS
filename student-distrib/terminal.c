@@ -110,16 +110,17 @@ int32_t terminal_open(){
  * Function: reads from keyboard buffer to input buffer for nbytes of time 
  *              or up til 128 bytes. Last byte read is always newline char.
  */
-int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes){
+int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
     uint32_t i = 0;
+    int8_t* buf_c = (int8_t*) buf;
     // check for nullptr
-    if(buf == NULL){
+    if(buf_c == NULL){
         return -1;
     }
     else{
         // flush the input buffer just in case
         for(i = 0; i<nbytes; i++){
-            buf[i] = 0;
+            buf_c[i] = 0;
         }
         i = 0;
         #if ENABLE_HISTORY
@@ -135,15 +136,15 @@ int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes){
         // times. including newline character
         i = 0;
         while(i < nbytes && kb_buf_top <= kb_buf_size){
-            buf[i] = kb_buf[i];
-            if(buf[i] == '\n' || buf[i] == '\r'){
+            buf_c[i] = kb_buf[i];
+            if(buf_c[i] == '\n' || buf_c[i] == '\r'){
                 i++;
                 break;
             }
             i++;
         }
         // for the case of read being stopped in the middle, insert newline char in the end of read
-        buf[nbytes - 1] = '\n';
+        buf_c[nbytes - 1] = '\n';
         // copy what we have in keyboard buffer into most recent keyboard buffer
         #if ENABLE_HISTORY
         memcpy((kb_buf_history[kb_buf_history_top]), kb_buf, kb_buf_size);
@@ -162,15 +163,15 @@ int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes){
  * Function: reads from input buffer and displays that onto scren by copying
  *           nbytes of ascii data into vram. 
  */
-int32_t terminal_write(int32_t fd, const int8_t* buf, int32_t nbytes){
+int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
     uint32_t i = 0;
-    if(buf == NULL){
+    if((int8_t*)buf == NULL){
         return -1;
     }
     else{
         // write to screen nbytes amount of time.
         while(i < nbytes){
-            putc(buf[i]);
+            putc(*((int8_t*)buf+i));
             i++;
         }
         return i;

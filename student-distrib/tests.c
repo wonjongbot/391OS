@@ -1016,7 +1016,7 @@ void pretty_print_all() {
 
 /* Test suite entry point */
 void launch_tests() {
-//    int i;
+    int i;
     clear();
     reset_text_cursor();
 
@@ -1027,10 +1027,10 @@ void launch_tests() {
 
     // rtc changing frequency test
 //    rtc_freq_test();
-    TEST_OUTPUT("rtc_freq_bounds_test", rtc_freq_bounds_test());
-    clear();
-    reset_text_cursor();
-    TEST_OUTPUT("rtc_functions_test", rtc_functions_test());
+    // TEST_OUTPUT("rtc_freq_bounds_test", rtc_freq_bounds_test());
+    // clear();
+    // reset_text_cursor();
+    // TEST_OUTPUT("rtc_functions_test", rtc_functions_test());
 
     // paging tests
 //    TEST_OUTPUT("paging_struct_test", paging_struct_test());
@@ -1045,16 +1045,15 @@ void launch_tests() {
 
 ///////////////////////////////////////////////////////////////////////////////
     /* TESTS FOR CP 2 */
-//    terminal_readwrite_test();
-//    TEST_OUTPUT("Terminal open and close returns -1", terminal_open_close());
-//    TEST_OUTPUT("Terminal overflow: read", terminal_read_of());
-//    TEST_OUTPUT("Terminal test: write", terminal_write_test());
-//    TEST_OUTPUT("Formatted string", formatted_string_test());
-//    for(i = 0; i < 600000000; i++);
-//    for(i = 0; i < 600000000; i++);
-//    TEST_OUTPUT("Formatted string: fish", fish_string_test());
-//    terminal_readwrite_test_Delay();
-//    terminal_readwrite_test_inf();
+   TEST_OUTPUT("Terminal open and close returns -1", terminal_open_close());
+   TEST_OUTPUT("Terminal overflow: read", terminal_read_of());
+   TEST_OUTPUT("Terminal test: write", terminal_write_test());
+   TEST_OUTPUT("Formatted string", formatted_string_test());
+   for(i = 0; i < 600000000; i++);
+   for(i = 0; i < 600000000; i++);
+   TEST_OUTPUT("Formatted string: fish", fish_string_test());
+   terminal_readwrite_test_Delay();
+   terminal_readwrite_test_inf();
 
 //    TEST_OUTPUT("read_curr_dir_dentry_test", read_curr_dir_dentry_test());
 //    TEST_OUTPUT("read_very_long_file_test", read_too_long_file_dentry_test());
