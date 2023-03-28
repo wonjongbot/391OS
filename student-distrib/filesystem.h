@@ -29,10 +29,10 @@ typedef struct boot_block {
     dentry_t dentries[DENTRY_MAX];
 } boot_block;
 
-typedef struct inode {
+typedef struct inode_t {
     uint32_t length;
     uint32_t data_block_nums[DATA_BLOCK_MAX];
-} inode;
+} inode_t;
 
 typedef struct data_block {
     uint8_t data[_4kB];
@@ -52,7 +52,7 @@ typedef struct filed{
 }filed;
 
 boot_block _boot_block;
-inode* _inodes;
+inode_t* _inodes;
 data_block* _data_blocks;
 filed filearray[FILEARR_SIZE];
 
