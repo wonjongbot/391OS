@@ -284,13 +284,15 @@ void scroll_screen(){
  *  Function: Output a character to the console */
 void putc(uint8_t c) {
     if(c == '\n' || c == '\r') {
-        last_screenx[screen_y] = screen_x;
-        screen_y++;
-        screen_x = 0;
-        if(screen_y >= NUM_ROWS){
-            scroll_screen();
-            screen_y = NUM_ROWS - 1;
+        if(1){
             last_screenx[screen_y] = screen_x;
+            screen_y++;
+            screen_x = 0;
+            if(screen_y >= NUM_ROWS){
+                scroll_screen();
+                screen_y = NUM_ROWS - 1;
+                last_screenx[screen_y] = screen_x;
+            }
         }
     }
     // case for baskspace
@@ -307,7 +309,7 @@ void putc(uint8_t c) {
             }
             screen_x = last_screenx[screen_y];
         }
-        screen_x %= NUM_COLS;
+        //screen_x %= NUM_COLS;
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
     }
@@ -321,20 +323,20 @@ void putc(uint8_t c) {
         //     screen_x = NUM_COLS - 1;
     }
     else {
-        if(screen_x >= NUM_COLS - 1){
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+        screen_x++;
+        if(screen_x == NUM_COLS){
             last_screenx[screen_y] = NUM_COLS - 1;
             screen_y++;
-            if(screen_y >= NUM_ROWS){
+            if(screen_y == NUM_ROWS){
                 scroll_screen();
                 screen_y = NUM_ROWS - 1;
             }
             screen_x = 0;
         }
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
-        screen_x++;
-        screen_x %= NUM_COLS;
-        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        //screen_x %= NUM_COLS;
+        //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
     cursor_to_coord(screen_x, screen_y);
 }

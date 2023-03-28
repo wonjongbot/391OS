@@ -61,7 +61,7 @@ void terminal_init(){
 }
 
 int32_t terminal_open(){
-    return 0;
+    return -1;
 }
 
 int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes){
@@ -70,6 +70,10 @@ int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes){
         return -1;
     }
     else{
+        for(i = 0; i++; i<nbytes){
+            buf[i] = 0;
+        }
+        i = 0;
         #if ENABLE_HISTORY
         kb_buf_history_ptr = kb_buf_history_top;
         #endif
@@ -107,10 +111,6 @@ int32_t terminal_write(int32_t fd, const int8_t* buf, int32_t nbytes){
     else{
         while(i < nbytes){
             putc(buf[i]);
-            if(buf[i] == '\n' || buf[i] == '\r'){
-                i++;
-                break;
-            }
             i++;
         }
         return i;
