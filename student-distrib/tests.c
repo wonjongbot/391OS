@@ -3,6 +3,7 @@
 #include "lib.h"
 #include "paging.h"
 #include "rtc.h"
+#include "terminal.h"
 
 #define PASS 1
 #define FAIL 0
@@ -217,7 +218,6 @@ void divide_zero_test() {
 void rtc_freq_test() {
     unsigned i, j;
     clear();
-    
     for (i = 2; i < 1025; i = i * 2) {
         printf("FREQUENCY IS %dHz\n", i);
         rtc_set_freq(i);
@@ -266,10 +266,10 @@ int rtc_functions_test() {
     uint16_t freq = 2;
 
 	rtc_open(NULL); //freq set to 2hz
-    
+
 	for(i = 0; i < 9; i++){ //increase frequency by power of 2 up to 1024(max)
 		clear();
-		freq *= 2; 
+		freq *= 2;
 		rtc_write(NULL, &freq, NULL);   // Write in new freq value
 		for(j = 0; j < freq/2; j++){ // wait for freq/2 interrupts before updating
 			rtc_read(NULL, NULL, NULL); //read waits until next interrupt
@@ -279,6 +279,146 @@ int rtc_functions_test() {
 };
 
 
+char terminal_flag[] = "391OS>";
+
+void terminal_readwrite_test_Delay(){
+    char buf [128];
+    uint32_t fd = 0;
+    terminal_open(3);
+    int i;
+    int ret;
+    set_attrib(0x0b);
+    printf("[*] Type ECE\\n and then 391\\n right away.\n[*] You should be able to see 391 after delay without pressing enter again.\n");
+    set_attrib(0x07);
+    if(TERMINAL_PROMPT_MODE)
+        terminal_write(fd, (int8_t*)terminal_flag, (int32_t)TERMINAL_PROMPT_LEN);
+    ret = terminal_read(fd, (int8_t*)buf, (int32_t)128);
+    ret = terminal_write(fd,(int8_t*)buf, (int32_t)ret);
+    for(i = 0; i < 600000000; i++);
+    if(TERMINAL_PROMPT_MODE)
+        terminal_write(fd, (int8_t*)terminal_flag, (uint32_t)TERMINAL_PROMPT_LEN);
+    ret = terminal_read(fd, (int8_t*)buf, (int32_t)10);
+    ret = terminal_write(fd, (int8_t*)buf, (int32_t)ret);
+    terminal_close(3);
+}
+int terminal_open_close(){
+    int32_t fd = 0;
+    if(terminal_close(fd) == -1 && terminal_open(fd) == -1){
+        return PASS;
+    }
+    return FAIL;
+}
+
+int terminal_write_test(){
+    int8_t buf [200];
+    uint32_t fd = 0;
+    int i;
+    int ret;
+    for(i = 0; i < 200; i++){
+        buf[i] = '0';
+    }
+    ret = terminal_write(fd, buf, 200);
+    for(i = 0; i < 600000000; i++);
+    for(i = 0; i < 200; i++){
+        buf[i] = '\b';
+    }
+    ret = terminal_write(fd, buf, 200);
+    for(i = 0; i < 600000000; i++);
+    set_attrib(0x0b);
+    printf("\nWRITE %d bytes\n", ret);
+    printf("[*] If you don't see any `0`s on the terminal, you passed backspace test also.\n");
+    set_attrib(0x07);
+    if(ret != 200){
+        return FAIL;
+    }
+    return PASS;
+}
+
+int terminal_read_of(){
+    int8_t buf [500];
+    int32_t fd = 0;
+    int ret;
+    set_attrib(0x0b);
+    printf("[*] Type as much as possible\n");
+    set_attrib(0x07);
+    ret = terminal_read(fd, buf, 500);
+    set_attrib(0x0b);
+    printf("[*] READ %d bytes\n", ret);
+    set_attrib(0x07);
+    if(ret != 128){
+        return FAIL;
+    }
+    return PASS;
+}
+
+void terminal_readwrite_test_inf(){
+    char buf [128];
+    int ret;
+    int32_t fd = 0;
+    set_attrib(0x0b);
+    printf("[*] Sandbox testing: Type `exit` to leave this test\n");
+    set_attrib(0x07);
+    char exit_flag[] = "exit\n";
+    terminal_open(3);
+    while(1){
+        if(TERMINAL_PROMPT_MODE)
+            terminal_write(fd, (int8_t*)terminal_flag, (int32_t)TERMINAL_PROMPT_LEN);
+        ret = terminal_read(fd, (int8_t*)buf, (int32_t)128);
+        set_attrib(0x0B);
+        printf("[*] READ %d bytes\n", ret);
+        set_attrib(0x07);
+        ret = terminal_write(fd, (int8_t*)buf, (int32_t)ret);
+        set_attrib(0x0B);
+        printf("[*] WRITE %d bytes\n", ret);
+        set_attrib(0x07);
+        if(strncmp(buf, exit_flag, 4) == 0){
+            break;
+        }
+    }
+    terminal_close(fd);
+}
+
+
+int formatted_string_test(){
+    int32_t fd = 0;
+    int ret;
+    int8_t str[] = "Hello\n\n\tWorld!!\b\n";
+    int len = strlen(str);
+    ret = terminal_write(fd, str, len);
+    printf("If you see:\nHello\n\n\tWorld!\nThen you passed this test\n");
+    if(ret == len){
+        return PASS;
+    }
+    return FAIL;
+
+}
+
+int fish_string_test(){
+    int32_t fd = 0;
+    int ret;
+    char* str =      "/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\\n"
+                     "         o\n"
+                     "           o    o\n"
+                     "       o\n"
+                     "             o\n"
+                     "        o     O\n"
+                     "    _    \\\n"
+                     " |\\/.\\   | \\/  /  /\n"
+                     " |=  _>   \\|   \\ /\n"
+                     " |/\\_/    |/   |/\n"
+                     "----------M----M--------\n";
+    int len = strlen(str);
+    ret = terminal_write(fd, str, len);
+    printf("If you see fish then you passed this test :D\n");
+    set_attrib(0x0B);
+    printf("[*] WRITE %d bytes\n", ret);
+    set_attrib(0x07);
+    if(ret == len){
+        return PASS;
+    }
+    return FAIL;
+
+}
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -286,6 +426,7 @@ int rtc_functions_test() {
 
 /* Test suite entry point */
 void launch_tests() {
+    int i;
     clear();
     reset_text_cursor();
     // launch your tests here
@@ -307,5 +448,15 @@ void launch_tests() {
 
     // zero-division exception
 //    divide_zero_test();
+    //terminal_readwrite_test();
+    TEST_OUTPUT("Terminal open and close returns -1", terminal_open_close());
+    TEST_OUTPUT("Terminal overflow: read", terminal_read_of());
+    TEST_OUTPUT("Terminal test: write", terminal_write_test());
+    TEST_OUTPUT("Formatted string", formatted_string_test());
+    for(i = 0; i < 600000000; i++);
+    for(i = 0; i < 600000000; i++);
+    TEST_OUTPUT("Formatted string: fish", fish_string_test());
+    terminal_readwrite_test_Delay();
+    terminal_readwrite_test_inf();
 }
 

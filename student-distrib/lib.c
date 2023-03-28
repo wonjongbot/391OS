@@ -2,6 +2,8 @@
  * vim:ts=4 noexpandtab */
 
 #include "lib.h"
+#include "keyboard.h"
+#include "terminal.h"
 
 #define VIDEO       0xB8000
 #define NUM_COLS    80
@@ -32,6 +34,25 @@ void clear(void) {
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
     }
+}
+
+void clear_line(void) {
+    int32_t i;
+    if(TERMINAL_PROMPT_MODE){
+        for (i = TERMINAL_PROMPT_LEN; i < NUM_COLS; i++) {
+            *(uint8_t *)(video_mem + ((NUM_COLS * (screen_y) + i) << 1)) = ' ';
+            *(uint8_t *)(video_mem + ((NUM_COLS * (screen_y) + i)<< 1) + 1) = ATTRIB;
+        }
+        screen_x = TERMINAL_PROMPT_LEN;
+    }
+    else{
+        for (i = 0; i < NUM_COLS; i++) {
+            *(uint8_t *)(video_mem + ((NUM_COLS * (screen_y) + i) << 1)) = ' ';
+            *(uint8_t *)(video_mem + ((NUM_COLS * (screen_y) + i)<< 1) + 1) = ATTRIB;
+        }
+        screen_x = 0;
+    }
+    cursor_to_coord(screen_x, screen_y);
 }
 
 /* Standard printf().
@@ -186,14 +207,75 @@ void putc_rtc() {
     UIflag ^= 1;
 }
 
+void cursor_to_coord(int x, int y){
+    uint16_t pos = y * NUM_COLS + x;
+
+    outb(0x0f, 0x3d4);
+    outb((uint8_t) (pos & 0xff), 0x3d5);
+    outb(0x0e, 0x3d4);
+    outb((uint8_t)((pos >> 8) & 0xff), 0x3d5);
+}
+
+void handle_arrowkeys(uint8_t scancode){
+    switch(scancode){
+        case LEFT:
+            left_flag = 1;
+            break;
+        case KEY_UP(LEFT):
+            left_flag = 0;
+            break;
+        case RIGHT:
+            right_flag = 1;
+            break;
+        case KEY_UP(RIGHT):
+            right_flag = 0;
+            break;
+        case UP:
+            up_flag = 1;
+            break;
+        case KEY_UP(UP):
+            up_flag = 0;
+            break;
+        case DOWN:
+            down_flag = 1;
+            break;
+        case KEY_UP(DOWN):
+            down_flag = 0;
+            break;
+        default: break;
+    }
+}
+
 
 /* void putc(uint8_t c);
  * Inputs: none
  * Return Value: void
  *  Function: resets screen_x and screen_y so next putc is on top left*/
 void reset_text_cursor(void){
+    int i;
     screen_x = 0;
     screen_y = 0;
+    cursor_to_coord(screen_x, screen_x);
+    for (i = 0; i < NUM_ROWS; i++){
+        last_screenx[i] = 0;
+    }
+}
+
+#define line_bytes 160
+void scroll_screen(){
+    // copy second line to first third to second... etc, then clear the last line
+    int i = 0;
+    for(i = 1; i < NUM_ROWS; i++){
+        memcpy(video_mem + ((NUM_COLS * (i - 1)) << 1), video_mem + ((NUM_COLS * (i)) << 1), 160);
+    }
+    for (i = 0; i < NUM_COLS; i++) {
+        *(uint8_t *)(video_mem + ((NUM_COLS * (NUM_ROWS - 1) + i) << 1)) = ' ';
+        *(uint8_t *)(video_mem + ((NUM_COLS * (NUM_ROWS - 1) + i)<< 1) + 1) = ATTRIB;
+    }
+    for (i = 1; i < NUM_ROWS; i++){
+        last_screenx[i - 1] = last_screenx[i];
+    }
+    last_screenx[NUM_ROWS - 1] = 0;
 }
 
 /* void putc(uint8_t c);
@@ -202,42 +284,61 @@ void reset_text_cursor(void){
  *  Function: Output a character to the console */
 void putc(uint8_t c) {
     if(c == '\n' || c == '\r') {
-        screen_y++;
-        screen_x = 0;
+        if(1){
+            last_screenx[screen_y] = screen_x;
+            screen_y++;
+            screen_x = 0;
+            if(screen_y >= NUM_ROWS){
+                scroll_screen();
+                screen_y = NUM_ROWS - 1;
+                last_screenx[screen_y] = screen_x;
+            }
+        }
     }
     // case for baskspace
     else if(c == '\b'){
         if(screen_x > 0){
             screen_x--;
+            last_screenx[screen_y] = screen_x;
         }
         else{
-            screen_x = NUM_COLS - 1;
+            last_screenx[screen_y] = screen_x;
             screen_y--;
             if(screen_y < 0){
-                screen_y = NUM_ROWS - 1;
+                screen_y = 0;
             }
-            screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+            screen_x = last_screenx[screen_y];
         }
-        screen_x %= NUM_COLS;
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = 0x00;
+        //screen_x %= NUM_COLS;
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
     }
     else if(c == '\t'){
-        screen_x += 4;
-        if(screen_x >= NUM_COLS)
-            screen_x = NUM_COLS - 1;
+        int i;
+        for(i = 0; i < 4; i++){
+            putc(' ');
+        }
+        // screen_x += 4;
+        // if(screen_x >= NUM_COLS)
+        //     screen_x = NUM_COLS - 1;
     }
     else {
-        if(screen_x >= NUM_COLS - 1){
-            screen_x = 0;
-            screen_y++;
-        }
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
         screen_x++;
-        screen_x %= NUM_COLS;
-        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        if(screen_x == NUM_COLS){
+            last_screenx[screen_y] = NUM_COLS - 1;
+            screen_y++;
+            if(screen_y == NUM_ROWS){
+                scroll_screen();
+                screen_y = NUM_ROWS - 1;
+            }
+            screen_x = 0;
+        }
+        //screen_x %= NUM_COLS;
+        //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
+    cursor_to_coord(screen_x, screen_y);
 }
 
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
