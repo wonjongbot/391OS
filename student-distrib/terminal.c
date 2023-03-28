@@ -1,6 +1,11 @@
 #include "terminal.h"
 
-
+/* void terminal_history_handler();
+ * Inputs: none;
+ * Return Value: none
+ * Function: handles terminal history functioanlity.
+ *           up arrow shows previous terminal command and vice versa
+ */
 void terminal_history_handler(){
     int i;
     if(up_flag == 1 && kb_buf_history_top > 0 && kb_buf_history_ptr > 0){
@@ -67,15 +72,31 @@ void terminal_history_handler(){
     }
 }
 
+/* void terminal_init();
+ * Inputs: none;
+ * Return Value: none
+ * Function: initializes terminal history stack pointer and index to 0.
+ */
 void terminal_init(){
     kb_buf_history_ptr = 0;
     kb_buf_history_top = 0;
 }
 
+/* int32_t terminal_open();
+ * Inputs: none
+ * Return Value: -1
+ * Function: returns -1 because terminal shouldn't be open in cp2
+ */
 int32_t terminal_open(){
     return -1;
 }
 
+/* int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes);
+ * Inputs: int32_t fd, int8_t* buf, int32_t nbytes
+ * Return Value: -1 for invalid ptr, num bytes read if else
+ * Function: reads from keyboard buffer to input buffer for nbytes of time 
+ *              or up til 128 bytes. Last byte read is always newline char.
+ */
 int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes){
     uint32_t i = 0;
     if(buf == NULL){
@@ -115,6 +136,12 @@ int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes){
     }
 }
 
+/* int32_t terminal_write(int32_t fd, int8_t* buf, int32_t nbytes);
+ * Inputs: int32_t fd, int8_t* buf, int32_t nbytes
+ * Return Value: -1 for invalid ptr, num bytes written to screen if else
+ * Function: reads from input buffer and displays that onto scren by copying
+ *           nbytes of ascii data into vram. 
+ */
 int32_t terminal_write(int32_t fd, const int8_t* buf, int32_t nbytes){
     uint32_t i = 0;
     if(buf == NULL){
@@ -129,6 +156,11 @@ int32_t terminal_write(int32_t fd, const int8_t* buf, int32_t nbytes){
     }
 }
 
+/* int32_t terminal_close(int32_t fd);
+ * Inputs: none;
+ * Return Value: -1
+ * Function: terminal shouldn't be closed for cp2.
+ */
 int32_t terminal_close(int32_t fd){
     return -1;
 }

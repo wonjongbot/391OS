@@ -36,6 +36,11 @@ void clear(void) {
     }
 }
 
+/* void clear_line(void);
+ * Inputs:  none;
+ * Return Value: none
+ * Function: clears entire line screen_y is at.
+ */
 void clear_line(void) {
     int32_t i;
     if(TERMINAL_PROMPT_MODE){
@@ -207,6 +212,12 @@ void putc_rtc() {
     UIflag ^= 1;
 }
 
+
+/* void cursor_to_coord(int x, int y);
+ * Inputs:  x, y location of cursor
+ * Return Value: none
+ * Function: sets cursor location to coordinates specified
+ */
 void cursor_to_coord(int x, int y){
     uint16_t pos = y * NUM_COLS + x;
 
@@ -216,6 +227,11 @@ void cursor_to_coord(int x, int y){
     outb((uint8_t)((pos >> 8) & 0xff), 0x3d5);
 }
 
+/* void handle_arrowkeys(uint8_t scancode);
+ * Inputs: uint8_t scancode - input scancode from keyboard
+ * Return Value: none
+ * Function: sets arrow key flags based on scancode inputted from keyboard
+ */
 void handle_arrowkeys(uint8_t scancode){
     switch(scancode){
         case LEFT:
@@ -247,7 +263,7 @@ void handle_arrowkeys(uint8_t scancode){
 }
 
 
-/* void putc(uint8_t c);
+/* void reset_text_cursor(uint8_t c);
  * Inputs: none
  * Return Value: void
  *  Function: resets screen_x and screen_y so next putc is on top left*/
@@ -261,6 +277,11 @@ void reset_text_cursor(void){
     }
 }
 
+/* void putc(uint8_t c);
+ * Inputs: none
+ * Return Value: none
+ * Function: copies current line to line above and clears last line to scroll the screen
+ */
 #define line_bytes 160
 void scroll_screen(){
     // copy second line to first third to second... etc, then clear the last line

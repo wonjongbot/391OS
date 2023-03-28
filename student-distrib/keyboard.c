@@ -13,7 +13,12 @@
 //		- 0x4E: red background with yellow text
 //      - 0x2f: green background with white text
 
-
+/* void keyboard_init();
+ * Inputs: none
+ * Return Value: none
+ * Function: enables keyboard interrupt, flushes keyboard buffer, and initializes special
+ *           key flags to 0.
+ */
 void keyboard_init(){
     int i;
     enable_irq(0x1);
@@ -24,6 +29,12 @@ void keyboard_init(){
     caps_flag = 0, shift_flag = 0, alt_flag = 0, ctrl_flag = 0, enter_flag = 0;
 }
 
+/* int keyboard_init(uint8_t ascii);
+ * Inputs: uint8_t ascii
+ * Return Value: 1 if key is a printable key 0 if not
+ * Function: looks at the ascii code input and determines if this should be 
+ * printed on screen or not. Includes special characters
+ */
 int is_printable(uint8_t ascii){
     if((ascii >= ASCII_SPACE && ascii <= ASCII_TILDA) || ascii == '\t' || ascii == '\b' || ascii == '\n' || ascii == '\r')
         return 1;
@@ -31,7 +42,12 @@ int is_printable(uint8_t ascii){
         return 0;
 }
 
-// only changes alphabetic keys who are also affected by capslock
+/* int is_capsable(uint8_t ascii);
+ * Inputs: uint8_t ascii
+ * Return Value: 1 if key should be changed to uppercase when capslock is enabled, 0 if not
+ * Function: looks at the ascii code input and determines if this should be 
+ *           changed to upper case when caps lock is enabled. Basically checks if it is alphabet letter
+ */
 int is_capsable(uint8_t ascii){
     if(ascii >= ASCII_a && ascii <= ASCII_z)
         return 1;
@@ -39,6 +55,12 @@ int is_capsable(uint8_t ascii){
         return 0;
 }
 
+/* int convert_case(uint8_t ascii);
+ * Inputs: uint8_t ascii
+ * Return Value: ascii value of upper case version of input character, if applicable.
+ * Function: looks at the ascii code input and determines changes lower case letter to upper case letter.
+ *           also changes number keys into special characters
+ */
 int convert_case(uint8_t ascii){
     uint8_t ret = ascii;
     if ((caps_flag) && is_capsable(ascii) && !shift_flag){
@@ -132,6 +154,11 @@ char scancode_down [DOWN_SIZE] = {
 
 };
 
+/* void set_special_flags(uint8_t scancode);
+ * Inputs: uint8_t scancode -- scancode from keyboard
+ * Return Value: none.
+ * Function: sets special key's flag variables if applicable.
+ */
 void set_special_flags(uint8_t scancode){
     switch(scancode){
         case LSHIFT:
@@ -171,11 +198,24 @@ void set_special_flags(uint8_t scancode){
     }
 }
 
+/* void push_kb_buf(uint8_t ascii);
+ * Inputs: uint8_t ascii
+ * Return Value: none.
+ * Function: pushes the new ascii input character to keyboard buffer and update the
+ *           top of stack variable
+ */
 void push_kb_buf(uint8_t ascii){
     kb_buf[kb_buf_top] = ascii;
     kb_buf_top++;
 }
 
+
+/* uint8_t pop_kb_buf(uint8_t ascii);
+ * Inputs: none
+ * Return Value: ascii value of popped character.
+ * Function: popps the newest added ascii input character from keyboard buffer and update the
+ *           top of stack variable
+ */
 uint8_t pop_kb_buf(){
     if(kb_buf_top > 0){
         kb_buf_top--;
@@ -184,6 +224,11 @@ uint8_t pop_kb_buf(){
     return NULL;
 }
 
+/* void clear_kb_buf()
+ * Inputs: none
+ * Return Value: none
+ * Function: resets keyboard buffer to null characters.
+ */
 void clear_kb_buf(){
     int i;
     for(i = 0; i < kb_buf_size; i++){
@@ -194,6 +239,11 @@ void clear_kb_buf(){
 
 #define history_depth 5
 
+/* void print_history()
+ * Inputs: none
+ * Return Value: none
+ * Function: Grabs "history_depth" most recent terminal commands sent and prints to screen.
+ */
 void print_history(){
     int i, j, ctr;
     ctr = 0;
@@ -211,6 +261,11 @@ void print_history(){
     set_attrib(0x07);
 }
 
+/* void print_history()
+ * Inputs: none
+ * Return Value: none
+ * Function: Grabs all previous terminal commands sent and prints to screen.
+ */
 void print_history_full(){
     int i, j;
     set_attrib(0x0b);
@@ -230,6 +285,11 @@ void print_history_full(){
 
 #define KB_SCANCODE_PORT 0x60
 
+/* void keyboard_handler()
+ * Inputs: none
+ * Return Value: none
+ * Function: Keyboard interrupt handler that rules them all.
+ */
 void keyboard_handler(){
     int i;
     uint8_t scancode;
