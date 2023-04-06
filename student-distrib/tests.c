@@ -1081,7 +1081,40 @@ void pretty_print_all() {
   set_attrib(0x07);
 }
 
+
+
 /* Checkpoint 3 tests */
+/*
+ *   test if the syscall can work, basic for read write open close
+ *    (the rtc didn't test)
+ *
+ *   INPUTS: None
+ *   OUTPUTS: a file's fd, and what we read, final check if close
+ *   RETURN VALUE: none
+ *   SIDE EFFECTS: none
+ */
+void basic_syscall_print_read(){
+  static char buf[6000];
+  uint32_t fd;
+  fd=open((uint8_t*)"pingpong");
+  printf("fd is %d\n",fd);
+	read (fd ,buf ,6000);
+
+
+  int i;
+  for (i = 0; i < 6000; i++) {
+    // don't print null bytes
+    if (buf[i] != 0) {
+      //putc( buf[i]);
+      printf("%c", buf[i]);
+    }
+    //putc(buf[i]);
+  }
+  write (fd, buf, 6000);
+  close(fd);
+  printf("\n");
+  printf("the flag of this fd is %d",filearray[fd].flags);
+}
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 
@@ -1204,23 +1237,6 @@ void launch_tests() {
   //TEST_OUTPUT("nullcheck rtc", rtc_null());
   //TEST_OUTPUT("nullcheck terminal", terminal_null());
 
-  static char buf[6000];
-  uint32_t fd;
-  fd=open((uint8_t*)"pingpong");
-  printf("fd is %d\n",fd);
-	read (fd ,buf ,6000);
-
-
-  int i;
-  for (i = 0; i < 6000; i++) {
-    // don't print null bytes
-    if (buf[i] != 0) {
-      //putc( buf[i]);
-      printf("%c", buf[i]);
-    }
-    //putc(buf[i]);
-  }
-  write (fd, buf, 6000);
-  close(fd);
+  basic_syscall_print_read();
 }
 
