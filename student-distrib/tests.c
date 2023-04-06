@@ -1095,10 +1095,10 @@ void pretty_print_all() {
     #define cp1_exception_test 0
 
 #define cp2_tests 0
-    #define cp2_rtc_test 1
-    #define cp2_terminal_test 1
-    #define cp2_filesys_test 1
-        #define cp2_filesys_test_1 1
+    #define cp2_rtc_test 0
+    #define cp2_terminal_test 0
+    #define cp2_filesys_test 0
+        #define cp2_filesys_test_1 0
         #define cp2_filesys_test_2 0
         #define cp2_filesys_test_3 0
         #define cp2_filesys_test_4 0
@@ -1204,8 +1204,23 @@ void launch_tests() {
   //TEST_OUTPUT("nullcheck rtc", rtc_null());
   //TEST_OUTPUT("nullcheck terminal", terminal_null());
 
-  void* buf = NULL;
+  static char buf[6000];
+  uint32_t fd;
+  fd=open((uint8_t*)"pingpong");
+  printf("fd is %d\n",fd);
+	read (fd ,buf ,6000);
 
-	read (2 ,buf ,3);
+
+  int i;
+  for (i = 0; i < 6000; i++) {
+    // don't print null bytes
+    if (buf[i] != 0) {
+      //putc( buf[i]);
+      printf("%c", buf[i]);
+    }
+    //putc(buf[i]);
+  }
+  write (fd, buf, 6000);
+  close(fd);
 }
 

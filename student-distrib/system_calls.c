@@ -12,6 +12,12 @@
 #include "system_calls.h"
 #include "lib.h"
 #include "types.h"
+#include "filesystem.h"
+#include "rtc.h"
+
+static file_ops rtc_ops_list = {rtc_read, rtc_write, rtc_open, rtc_close};
+static file_ops dir_ops_list = {d_read, d_write, d_open, d_close};
+static file_ops file_ops_list = {f_read, f_write, f_open, f_close};
 
 /*  
  * sys_halt
@@ -22,6 +28,7 @@
  *   SIDE EFFECTS: none
  */
 int32_t syscall_halt (uint8_t status){
+    return 0;
 }
 
 /*  
@@ -34,7 +41,9 @@ int32_t syscall_halt (uint8_t status){
  *                 -1 if failed
  *   SIDE EFFECTS: none
  */
-int32_t syscall_execute(const uint8_t* command){}
+int32_t syscall_execute(const uint8_t* command){
+    return 0;
+}
 
 /* 
  * open
@@ -44,6 +53,43 @@ int32_t syscall_execute(const uint8_t* command){}
  * named file, allocate an unused file descriptor, and set up any data necessary to handle the given type of file (directory,RTC device, or regular file)
  */
 int32_t syscall_open (const uint8_t* filename) {
+    if(filename==NULL) return -1;
+    int32_t fd;
+    dentry_t dentry;
+
+    //find what we need to start file's fd
+    for(fd=2; ;fd++){
+        if(filearray[fd].flags == 0){
+            break;
+        }
+        if (fd==FILEARR_SIZE){
+            return -1;
+        }
+    }
+
+    if(read_dentry_by_name(filename, &dentry) == -1) return -1;
+
+    filed* filenew = &filearray[fd];
+    filenew->flags = 1;
+    filenew->file_position = 0;
+    filenew->inode_index = dentry.inode; 
+
+    if (dentry.file_type==0){
+        filenew->ops = &rtc_ops_list;    // 0 for RTC
+    }
+    else if (dentry.file_type==1){
+        filenew->ops = &dir_ops_list;    // 1 for dir
+    }
+    else if (dentry.file_type==2){
+        filenew->ops = &file_ops_list;    // 2 for file
+    }
+    else{ return -1;}
+
+    if(filenew->ops->open(filename) == -1) return -1;
+
+    //not sure if we return fd or 0
+    return fd;
+
     // If the named file does not exist or no descriptors are free, the call returns -1
     
     // find the directory entry corresponding to the named file
@@ -52,6 +98,22 @@ int32_t syscall_open (const uint8_t* filename) {
 }
 
 int32_t syscall_close (int32_t fd) {
+    if(fd>=8 || fd<0) return -1;    //0=<fd<8
+
+    filed* fileclose = &filearray[fd];
+    if(fileclose->flags == 0 || fileclose->ops==NULL) return -1;
+
+    uint32_t close_value=fileclose->ops->close(fd);
+
+    //free
+    fileclose->flags = 0;
+    fileclose->inode_index = -1;
+    fileclose->ops = NULL;
+    fileclose->file_position = 0;
+
+    //not sure what to return
+    return close_value;
+
 /*
 The close system call closes the specified file descriptor and makes it available for return from later calls to open.
 You should not allow the user to close the default descriptors (0 for input and 1 for output). Trying to close an invalid
@@ -60,9 +122,9 @@ descriptor should result in a return value of -1; successful closes should retur
 }
 
 int32_t syscall_read (int32_t fd, void* buf, int32_t nbytes) {
-    printf("%d",fd);
-    printf("%d",nbytes);
-    return 0;
+    if(fd>=8 || fd<0) return -1;    //0=<fd<8
+    if(filearray[fd].flags == 0) return -1;
+    return filearray[fd].ops->read(fd, buf, nbytes);
 /*
 The read system call reads data from the keyboard, a file, device (RTC), or directory. This call returns the number
 of bytes read. If the initial file position is at or beyond the end of file, 0 shall be returned (for normal files and the
@@ -79,6 +141,9 @@ should be inserted into the file array on the open system call (see below).
 }
 
 int32_t syscall_write (int32_t fd, const void* buf, int32_t nbytes) {
+    if(fd>=8 || fd<0) return -1;    //0=<fd<8
+    if(filearray[fd].flags == 0) return -1;
+    return filearray[fd].ops->write(fd, buf, nbytes);
 /*
 The write system call writes data to the terminal or to a device (RTC). In the case of the terminal, all data should
 be displayed to the screen immediately. In the case of the RTC, the system call should always accept only a 4-byte
