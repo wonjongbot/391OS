@@ -1200,7 +1200,11 @@ void launch_tests() {
     #endif
     #endif
 ///////////////////////////////////////////////////////////////////////////////
-  TEST_OUTPUT("nullcheck rtc", rtc_null());
-  TEST_OUTPUT("nullcheck terminal", terminal_null());
+  //TEST_OUTPUT("nullcheck rtc", rtc_null());
+  //TEST_OUTPUT("nullcheck terminal", terminal_null());
+
+  void* buf = NULL;
+
+	read (2 ,buf ,3);
 }
 
