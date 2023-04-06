@@ -1,5 +1,10 @@
 #define ASM 1
+#include "x86_desc.h"
+
+.text
 .globl SYSTEM_CALL_HANDLER
+system_call_jumptable:
+    .long 0x0, sys_halt, sys_execute, sys_read, sys_write, sys_open, sys_close
 
 
 SYSTEM_CALL_HANDLER:
@@ -100,6 +105,5 @@ close:
     ret
 
 
-system_call_jumptable:
-    .long 0x0, halt, execute, read, write, open, close
+
 

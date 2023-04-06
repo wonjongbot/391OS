@@ -13,6 +13,28 @@
 #include "lib.h"
 #include "types.h"
 
+/*  
+ * sys_halt
+ *   DESCRIPTION: syetem call: terminate a process
+ *   INPUTS: status :  return value to the parent 
+ *   OUTPUTS: none
+ *   RETURN VALUE: none
+ *   SIDE EFFECTS: none
+ */
+int32_t sys_halt (uint8_t status){
+}
+
+/*  
+ * sys_execute
+ *   DESCRIPTION: system call: load, set and execute a new program
+ *   INPUTS: const uint8_t* command -- the command to be executed
+ *   OUTPUTS: none
+ *   RETURN VALUE: 256 if occur exception
+ *                 0 to 255 if execute successfully
+ *                 -1 if failed
+ *   SIDE EFFECTS: none
+ */
+int32_t sys_execute(const uint8_t* command){}
 
 /* 
  * open
@@ -21,7 +43,7 @@
  * The open system call provides access to the file system. The call should find the directory entry corresponding to the
  * named file, allocate an unused file descriptor, and set up any data necessary to handle the given type of file (directory,RTC device, or regular file)
  */
-int32_t open (const uint8_t* filename) {
+int32_t sys_open (const uint8_t* filename) {
     // If the named file does not exist or no descriptors are free, the call returns -1
     
     // find the directory entry corresponding to the named file
@@ -29,7 +51,7 @@ int32_t open (const uint8_t* filename) {
     // Set up any data necessary to handle the given type of file (directory, RTC device, or regular file)
 }
 
-int32_t close (int32_t fd) {
+int32_t sys_close (int32_t fd) {
 /*
 The close system call closes the specified file descriptor and makes it available for return from later calls to open.
 You should not allow the user to close the default descriptors (0 for input and 1 for output). Trying to close an invalid
@@ -37,7 +59,7 @@ descriptor should result in a return value of -1; successful closes should retur
 */
 }
 
-int32_t read (int32_t fd, void* buf, int32_t nbytes) {
+int32_t sys_read (int32_t fd, void* buf, int32_t nbytes) {
 /*
 The read system call reads data from the keyboard, a file, device (RTC), or directory. This call returns the number
 of bytes read. If the initial file position is at or beyond the end of file, 0 shall be returned (for normal files and the
@@ -53,7 +75,7 @@ should be inserted into the file array on the open system call (see below).
 */
 }
 
-int32_t write (int32_t fd, const void* buf, int32_t nbytes) {
+int32_t sys_write (int32_t fd, const void* buf, int32_t nbytes) {
 /*
 The write system call writes data to the terminal or to a device (RTC). In the case of the terminal, all data should
 be displayed to the screen immediately. In the case of the RTC, the system call should always accept only a 4-byte
