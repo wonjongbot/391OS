@@ -5,6 +5,7 @@
 #include "rtc.h"
 #include "terminal.h"
 #include "filesystem.h"
+#include "system_calls.h"
 
 #define PASS 1
 #define FAIL 0
