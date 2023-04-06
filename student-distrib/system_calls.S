@@ -46,6 +46,59 @@ FINISH:
 
     iret
 
+# wrapper function (User Level)
+halt:
+    pushl %ebx      # callee saved
+    movl 8(%esp), %ebx      # move argument to the registers
+    movl $1, %eax
+    int $0x80       # access to the kernel
+    popl %ebx
+    ret
+
+execute:
+    pushl %ebx      # callee saved
+    movl 8(%esp), %ebx      # move argument to the registers
+    movl $2, %eax
+    int $0x80       # access to the kernel
+    popl %ebx
+    ret
+    
+read:
+    pushl %ebx      # callee saved
+    movl 8(%esp), %ebx      # move argument to the registers
+    movl 12(%esp), %ecx
+    movl 16(%esp), %edx
+    movl $3, %eax
+    int $0x80       # access to the kernel
+    popl %ebx
+    ret
+    
+write:
+    pushl %ebx      # callee saved
+    movl 8(%esp), %ebx      # move argument to the registers
+    movl 12(%esp), %ecx
+    movl 16(%esp), %edx
+    movl $4, %eax
+    int $0x80       # access to the kernel
+    popl %ebx
+    ret
+    
+open:
+    pushl %ebx      # callee saved
+    movl 8(%esp), %ebx      # move argument to the registers
+    movl $5, %eax
+    int $0x80       # access to the kernel
+    popl %ebx
+    ret
+
+close:
+    pushl %ebx      # callee saved
+    movl 8(%esp), %ebx      # move argument to the registers
+    movl $6, %eax
+    int $0x80       # access to the kernel
+    popl %ebx
+    ret
+
 
 system_call_jumptable:
     .long 0x0, halt, execute, read, write, open, close

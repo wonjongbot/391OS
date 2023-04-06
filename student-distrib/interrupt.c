@@ -509,14 +509,31 @@ static void init_interrupt(){
 static void init_syscall(){
     int i = 0x80;
     idt[i].seg_selector = KERNEL_CS;
+    idt[i].reserved4 = 0x0;
     idt[i].reserved3 = 0x1;
     idt[i].reserved2 = 0x1;
     idt[i].reserved1 = 0x1;
     idt[i].size = 0x1;
     idt[i].reserved0 = 0x0;
-    idt[i].dpl = 0x0;
-    idt[i].present=0x0;
+    idt[i].dpl = 0x3;
+    idt[i].present=0x1;
 }
+
+/* 
+ *   set_system_gate
+ *   DESCRIPTION: use to set the system gate in IDT 
+ *   INPUTS: n - the index of IDT entry
+ *           addr - the address of handler function
+ *   OUTPUTS: none 
+ *   RETURN VALUE: none
+ *   SIDE EFFECTS: will change the idt array
+ */
+void set_system_gate(int n, void* addr){
+    // Call SET_IDT_ENTRY macro to init offset
+    SET_IDT_ENTRY(idt[n], addr);
+
+}
+
 
 /*
  * init_idt()
@@ -634,8 +651,11 @@ void init_idt(){
     SET_IDT_ENTRY(idt[0x28], INT0x28_linker);
 
     // system call
-    SET_IDT_ENTRY(idt[0x80], INT0x80_linker);
+    SET_IDT_ENTRY(idt[0x80], SYSTEM_CALL_HANDLER);
     }
+
+    // Init System Call in IDT (vec 0x80 is system call)
+    //set_system_gate(0x80, SYSTEM_CALL_HANDLER);
 
     // set lidt
     lidt(idt_desc_ptr);
