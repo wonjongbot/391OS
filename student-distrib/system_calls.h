@@ -17,6 +17,8 @@
 
 #include "types.h"
 
+uint32_t set_virtual_memory(uint32_t pcb_pos);
+
 extern int32_t syscall_halt (uint8_t status);
 extern int32_t syscall_execute (const uint8_t* command);
 

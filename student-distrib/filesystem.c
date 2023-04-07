@@ -1,5 +1,6 @@
 #include "filesystem.h"
 #include "lib.h"
+#include "pcb.h"
 
 /*
  *   filesys_init
@@ -102,7 +103,7 @@ int32_t f_open(const uint8_t* filename) {
 /*
  *   d_open
  *   DESCRIPTION: open the directory
- *   INPUTS: fd -- file descriptor
+ *   INPUTS: filename
  *   OUTPUTS: none
  *   RETURN VALUE: 0
  *   SIDE EFFECTS: none
@@ -177,15 +178,15 @@ int32_t f_read(int32_t fd, void* buf, int32_t bytes) {
     if (buf == NULL || bytes < 0)
         return 0;
     //get the inode_idex and offset from the filearray acroding to fd
-    uint32_t inode_idx = filearray[fd].inode_index;
-    uint32_t offset = filearray[fd].file_position;
+    uint32_t inode_idx = current->filearray[fd].inode_index;
+    uint32_t offset = current->filearray[fd].file_position;
     //write into buffer
     uint32_t read_bytes = read_data(inode_idx, offset, buf, bytes);
     if (read_bytes == -1) {
         return -1;
     }
     //update the file_position
-    filearray[fd].file_position += read_bytes;
+    current->filearray[fd].file_position += read_bytes;
     return read_bytes;
 }
 
@@ -208,12 +209,12 @@ int32_t d_read(int32_t fd, void* buf, int32_t bytes) {
         return -1;
     }
     //check if read all file name in current fd
-    if (filearray[fd].file_position == _boot_block.dentry_count) {
+    if (current->filearray[fd].file_position == _boot_block.dentry_count) {
         return -1;
     }
 
     //read the diectory by the position of the file
-    if (read_dentry_by_index(filearray[fd].file_position, &dentry) != 0) {
+    if (read_dentry_by_index(current->filearray[fd].file_position, &dentry) != 0) {
         return -1;
     }
 
@@ -224,7 +225,7 @@ int32_t d_read(int32_t fd, void* buf, int32_t bytes) {
     //write into buffer
     strncpy((int8_t*) buf, (int8_t*) (&(dentry.name)), bytes);
     //update the file_position
-    filearray[fd].file_position += 1;
+    current->filearray[fd].file_position += 1;
 
     return strlen((int8_t*) (&(dentry.name)));
 }

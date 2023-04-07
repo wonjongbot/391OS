@@ -21,6 +21,7 @@
 #define KERNEL_ADDR              PAGE_4MB_VAL               // Kernel start at 4MB in physical memory
 #define VGA_TEXT_BUF_ADDR        0xB8000                    // VGA text mode starts at 0xB8000
 
+#define PROGRAM_START_VIRTUAL_ADDR 0x08048000
 /* if we are to create multiple pages for vga page switching, we would uncomment these lines */
 
 /*
@@ -81,4 +82,5 @@ PDE page_directory[PAGE_DIC_MAX] __attribute__((aligned (PAGE_4KB_VAL)));
 PTE page_table0[PAGE_TAB_MAX] __attribute__((aligned (PAGE_4KB_VAL)));
 
 void init_paging();
+inline void reload_tlb();
 

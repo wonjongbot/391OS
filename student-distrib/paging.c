@@ -71,5 +71,23 @@ void init_paging(){
         );
 }
 
+/* 
+ *   reload_tlb
+ *   DESCRIPTION: used to reload TLB
+ *   INPUTS: none
+ *   OUTPUTS: none 
+ *   RETURN VALUE: none
+ *   SIDE EFFECTS: will reload the cr3
+ */
+inline void reload_tlb(){
+    asm volatile(
+        "movl %%cr3, %%eax \n\t"        // reload cr3 to reload TLB
+        "movl %%eax, %%cr3 \n\t"
+        :   
+        :   
+        : "%eax"    
+    );
+}
+
 
 

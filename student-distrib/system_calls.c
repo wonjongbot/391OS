@@ -14,11 +14,36 @@
 #include "types.h"
 #include "filesystem.h"
 #include "rtc.h"
+#include "pcb.h"
+#include "paging.h"
+
+
 
 static file_ops rtc_ops_list = {rtc_read, rtc_write, rtc_open, rtc_close};
 static file_ops dir_ops_list = {d_read, d_write, d_open, d_close};
 static file_ops file_ops_list = {f_read, f_write, f_open, f_close};
 
+/*  
+ * sys_halt
+ *   DESCRIPTION: set the vitual memory by page for pcb
+ *   INPUTS: pcb position
+ *   OUTPUTS: 0
+ *   RETURN VALUE: none
+ *   SIDE EFFECTS: none
+ */
+uint32_t set_virtual_memory(uint32_t pcb_pos){
+    if(pcb_pos>=MAX_PROCESS_NUM) return -1;
+    uint32_t pde_index = dir_entry(PROGRAM_START_VIRTUAL_ADDR);
+    page_directory[pde_index].val = 0;
+    page_directory[pde_index].present = 1;
+    page_directory[pde_index].ps = 1;
+    page_directory[pde_index].rw = 1;
+    page_directory[pde_index].us = 1;
+    page_directory[pde_index].val |= ((uint32_t)((pcb_pos+2) * PAGE_4MB_VAL));
+    
+    reload_tlb();
+    return 0;
+}
 /*  
  * sys_halt
  *   DESCRIPTION: syetem call: terminate a process
@@ -59,7 +84,7 @@ int32_t syscall_open (const uint8_t* filename) {
 
     //find what we need to start file's fd
     for(fd=2; ;fd++){
-        if(filearray[fd].flags == 0){
+        if(current->filearray[fd].flags == 0){
             break;
         }
         if (fd==FILEARR_SIZE){
@@ -69,7 +94,7 @@ int32_t syscall_open (const uint8_t* filename) {
 
     if(read_dentry_by_name(filename, &dentry) == -1) return -1;
 
-    filed* filenew = &filearray[fd];
+    filed* filenew = &current->filearray[fd];
     filenew->flags = 1;
     filenew->file_position = 0;
     filenew->inode_index = dentry.inode; 
@@ -100,7 +125,7 @@ int32_t syscall_open (const uint8_t* filename) {
 int32_t syscall_close (int32_t fd) {
     if(fd>=8 || fd<0) return -1;    //0=<fd<8
 
-    filed* fileclose = &filearray[fd];
+    filed* fileclose = &current->filearray[fd];
     if(fileclose->flags == 0 || fileclose->ops==NULL) return -1;
 
     uint32_t close_value=fileclose->ops->close(fd);
@@ -123,8 +148,8 @@ descriptor should result in a return value of -1; successful closes should retur
 
 int32_t syscall_read (int32_t fd, void* buf, int32_t nbytes) {
     if(fd>=8 || fd<0) return -1;    //0=<fd<8
-    if(filearray[fd].flags == 0) return -1;
-    return filearray[fd].ops->read(fd, buf, nbytes);
+    if(current->filearray[fd].flags == 0) return -1;
+    return current->filearray[fd].ops->read(fd, buf, nbytes);
 /*
 The read system call reads data from the keyboard, a file, device (RTC), or directory. This call returns the number
 of bytes read. If the initial file position is at or beyond the end of file, 0 shall be returned (for normal files and the
@@ -142,8 +167,8 @@ should be inserted into the file array on the open system call (see below).
 
 int32_t syscall_write (int32_t fd, const void* buf, int32_t nbytes) {
     if(fd>=8 || fd<0) return -1;    //0=<fd<8
-    if(filearray[fd].flags == 0) return -1;
-    return filearray[fd].ops->write(fd, buf, nbytes);
+    if(current->filearray[fd].flags == 0) return -1;
+    return current->filearray[fd].ops->write(fd, buf, nbytes);
 /*
 The write system call writes data to the terminal or to a device (RTC). In the case of the terminal, all data should
 be displayed to the screen immediately. In the case of the RTC, the system call should always accept only a 4-byte
