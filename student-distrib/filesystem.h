@@ -38,14 +38,14 @@ typedef struct data_block {
     uint8_t data[_4kB];
 } data_block;
 
-typedef struct file_ops{
+typedef struct file_ops {
     int32_t (*read)(int32_t fd, void* buf, int32_t nbytes);
     int32_t (*write)(int32_t fd, const void* buf, int32_t nbytes);
     int32_t (*open)(const uint8_t *filename);
     int32_t (*close)(int32_t fd);
-}file_ops;
+} file_ops_t;
 typedef struct filed{
-    file_ops* ops;
+    file_ops_t* ops;
     uint32_t inode_index;
     uint32_t file_position;
     uint32_t flags;
@@ -54,7 +54,6 @@ typedef struct filed{
 boot_block _boot_block;
 inode_t* _inodes;
 data_block* _data_blocks;
-filed filearray[FILEARR_SIZE];
 
 void filesystem_init(const uint32_t fs_start);
 

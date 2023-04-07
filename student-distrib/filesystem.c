@@ -14,7 +14,6 @@ void filesystem_init(const uint32_t fs_start) {
     _boot_block = *(boot_block*) fs_start;
     _inodes = (inode_t*) (fs_start + sizeof(boot_block));
     _data_blocks = (data_block*) (fs_start + sizeof(boot_block) + _boot_block.inode_count * sizeof(inode_t));
-    //filearray[FILEARR_SIZE]  = (filed*)(fs_start + sizeof(boot_block) + _boot_block.inode_count * sizeof(inode));
 }
 
 /*

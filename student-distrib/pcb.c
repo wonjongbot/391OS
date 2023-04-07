@@ -8,13 +8,13 @@
 #include "filesystem.h"
 #include "pcb.h"
 
-static file_ops terminal_ops = {terminal_read, terminal_write, terminal_open, terminal_close};
+static file_ops_t terminal_ops = {terminal_read, terminal_write, terminal_open, terminal_close};
 //need to fix of keyboard function
-static file_ops keyboard_ops = {terminal_read, terminal_write, terminal_open, terminal_close};
+static file_ops_t keyboard_ops = {terminal_read, terminal_write, terminal_open, terminal_close};
 
 static int32_t process_using[MAX_PROCESS_NUM] = {0, 0, 0, 0, 0, 0};
 
-/* 
+/*
  * pid_alloc
  *   DESCRIPTION: allocate a pid for the process
  *   INPUTS: none
@@ -26,12 +26,12 @@ static int32_t process_using[MAX_PROCESS_NUM] = {0, 0, 0, 0, 0, 0};
 int32_t pid_alloc(){
     int i;
     for(i=0;i<MAX_PROCESS_NUM;i++){
-        if(process_using[i] == 0) return i;  
+        if(process_using[i] == 0) return i;
     }
     return -1;
 }
 
-/* 
+/*
  * current_thread_PCB
  *   DESCRIPTION: point to the current process
  *   INPUTS: none
@@ -39,37 +39,37 @@ int32_t pid_alloc(){
  *   RETURN VALUE: the pointer to the current process
  *   SIDE EFFECTS: none
  */
-inline PCB* current_thread_PCB()
+inline pcb_t* current_thread_PCB()
 {
-    uint32_t ptr = 0;
+    pcb_t* ptr = 0;
     asm volatile(
         "movl $-8192, %0        \n\t"
-        "andl %%esp, %0          \n\t"   
+        "andl %%esp, %0          \n\t"
         : "+r" (ptr)
-        : 
+        :
         : "cc"
     );
-    return (PCB*)ptr;
+    return ptr;
 }
 
-/* 
+/*
  * PCB_init
- *   DESCRIPTION: initialize the pcb. 
+ *   DESCRIPTION: initialize the pcb.
  *   INPUTS: none
  *   OUTPUTS: none
  *   RETURN VALUE: 0 if success
  *                 -1 if failure
  *   SIDE EFFECTS: none
  */
-int32_t PCB_init(PCB* pcb){
+int32_t PCB_init(pcb_t* pcb){
     if(pcb == NULL) return -1;
     pcb->pid = pid_alloc();     // assign a available pid
     pcb->status = 1;       //update the pcb's status
-    pcb->parent = NULL;         //initialize the pcb's parent
+    pcb->parent_id = NULL;         //initialize the pcb's parent
     pcb->argc = 0;
     pcb->shell_flag = 0;
 
-    
+
     //pcb->terminal = NULL; need to init terminal info
 
     int i;

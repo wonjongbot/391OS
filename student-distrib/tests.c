@@ -29,9 +29,9 @@
  * Outputs: None
  * Side Effects: adds delay
  */
-void add_delay(){
-    int i = 0;
-    for (i = 0; i < 600000000; i++);
+void add_delay() {
+  int i = 0;
+  for (i = 0; i < 600000000; i++);
 }
 
 /* Checkpoint 1 tests */
@@ -216,12 +216,12 @@ void divide_zero_test() {
  *   RETURN VALUE: none
  *   SIDE EFFECTS: none
  */
-void basic_syscall_print_read(){
+void basic_syscall_print_read() {
   static char buf[6000];
   uint32_t fd;
-  fd=open((uint8_t*)"pingpong");
-  printf("fd is %d\n",fd);
-	read (fd ,buf ,6000);
+  fd = open((uint8_t*) "pingpong");
+  printf("fd is %d\n", fd);
+  read(fd, buf, 6000);
 
 
   int i;
@@ -233,10 +233,10 @@ void basic_syscall_print_read(){
     }
     //putc(buf[i]);
   }
-  write (fd, buf, 6000);
+  write(fd, buf, 6000);
   close(fd);
   printf("\n");
-  printf("the flag of this fd is %d",filearray[fd].flags);
+  printf("the flag of this fd is %d", current->filearray[fd].flags);
 }
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -245,117 +245,119 @@ void basic_syscall_print_read(){
 // you would still need to set individual tests within groups
 // tabs represent hierarchy
 #define cp1_tests 0
-    #define cp1_idt_test 0
-    #define cp1_rtc_test 0
-    #define cp1_paging_test 0
-    #define cp1_exception_test 0
+#define cp1_idt_test 0
+#define cp1_rtc_test 0
+#define cp1_paging_test 0
+#define cp1_exception_test 0
 
 #define cp2_tests 0
-    #define cp2_rtc_test 0
-    #define cp2_terminal_test 0
-    #define cp2_filesys_test 0
-        #define cp2_filesys_test_1 0
-        #define cp2_filesys_test_2 0
-        #define cp2_filesys_test_3 0
-        #define cp2_filesys_test_4 0
-        #define cp2_filesys_test_5 0
-        #define cp2_filesys_test_6 0
-        #define cp2_filesys_test_7 0
+#define cp2_rtc_test 0
+#define cp2_terminal_test 0
+#define cp2_filesys_test 0
+#define cp2_filesys_test_1 0
+#define cp2_filesys_test_2 0
+#define cp2_filesys_test_3 0
+#define cp2_filesys_test_4 0
+#define cp2_filesys_test_5 0
+#define cp2_filesys_test_6 0
+#define cp2_filesys_test_7 0
+
 /* Test suite entry point */
 void launch_tests() {
-    clear();
-    reset_text_cursor();
+  clear();
+  reset_text_cursor();
 
-    /* TESTS FOR CP 1 */
-    #if cp1_tests
-    // idt test
-    #if cp1_idt_test
-    TEST_OUTPUT("idt_test", idt_test());
-    #endif
+  /* TESTS FOR CP 1 */
+#if cp1_tests
+  // idt test
+#if cp1_idt_test
+  TEST_OUTPUT("idt_test", idt_test());
+#endif
 
-    // rtc changing frequency test
-    #if cp1_rtc_test
-    rtc_freq_test();
-    #endif
+  // rtc changing frequency test
+#if cp1_rtc_test
+  rtc_freq_test();
+#endif
 
-    // paging tests
-    #if cp1_paging_tests
-    TEST_OUTPUT("paging_struct_test", paging_struct_test());
-    TEST_OUTPUT("paging_vga_test", paging_vga_test());
-    TEST_OUTPUT("paging_kernel_test", paging_kernel_test());
-    TEST_OUTPUT("paging upper and lower bound test", paging_check_bounds());
-    page_overflow_test();
-    page_fault_exception_test();
-    #endif
+  // paging tests
+#if cp1_paging_tests
+  TEST_OUTPUT("paging_struct_test", paging_struct_test());
+  TEST_OUTPUT("paging_vga_test", paging_vga_test());
+  TEST_OUTPUT("paging_kernel_test", paging_kernel_test());
+  TEST_OUTPUT("paging upper and lower bound test", paging_check_bounds());
+  page_overflow_test();
+  page_fault_exception_test();
+#endif
 
-    // zero-division exception
-    #if cp1_exception_test
-    divide_zero_test();
-    #endif
-    #endif
+  // zero-division exception
+#if cp1_exception_test
+  divide_zero_test();
+#endif
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
-    /* TESTS FOR CP 2 */
-    #if cp2_tests
-    #if cp2_rtc_test
-    TEST_OUTPUT("rtc_freq_bounds_test", rtc_freq_bounds_test());
-    add_delay();
-    clear();
-    reset_text_cursor();
-    TEST_OUTPUT("rtc_functions_test", rtc_functions_test());
-    #endif
+  /* TESTS FOR CP 2 */
+#if cp2_tests
+#if cp2_rtc_test
+  TEST_OUTPUT("rtc_freq_bounds_test", rtc_freq_bounds_test());
+  add_delay();
+  clear();
+  reset_text_cursor();
+  TEST_OUTPUT("rtc_functions_test", rtc_functions_test());
+  TEST_OUTPUT("nullcheck rtc", rtc_null());
+#endif
+#if cp2_terminal_test
+  TEST_OUTPUT("Terminal open and close returns -1", terminal_open_close());
+  TEST_OUTPUT("Terminal overflow: read", terminal_read_of());
+  TEST_OUTPUT("Terminal test: write", terminal_write_test());
+  TEST_OUTPUT("Formatted string", formatted_string_test());
+  add_delay();
+  add_delay();
+  TEST_OUTPUT("Formatted string: fish", fish_string_test());
+  TEST_OUTPUT("nullcheck terminal", terminal_null());
+  terminal_readwrite_test_Delay();
+  terminal_readwrite_test_inf();
+#endif
 
-    #if cp2_terminal_test
-    TEST_OUTPUT("Terminal open and close returns -1", terminal_open_close());
-    TEST_OUTPUT("Terminal overflow: read", terminal_read_of());
-    TEST_OUTPUT("Terminal test: write", terminal_write_test());
-    TEST_OUTPUT("Formatted string", formatted_string_test());
-    add_delay();
-    add_delay();
-    TEST_OUTPUT("Formatted string: fish", fish_string_test());
-    terminal_readwrite_test_Delay();
-    terminal_readwrite_test_inf();
-    #endif
+#if cp2_filesys_test
+#if cp2_filesys_test_1
+  TEST_OUTPUT("read_curr_dir_dentry_test", read_curr_dir_dentry_test());
+  TEST_OUTPUT("read_very_long_file_test", read_too_long_file_dentry_test());
+  TEST_OUTPUT("read_very_long_file_test", read_long_file_dentry_test());
+  TEST_OUTPUT("read_similar_file_1_dentry_test", read_similar_file_1_dentry_test());
+  TEST_OUTPUT("read_similar_file_2_dentry_test", read_similar_file_2_dentry_test());
+  TEST_OUTPUT("read_nonexistent_dentry_test", read_nonexistent_dentry_test());
+  TEST_OUTPUT("read_curr_dir_by_index_test", read_curr_dir_by_index_test());
+  TEST_OUTPUT("read_out_of_bounds_dir_by_index_test", read_out_of_bounds_dir_by_index_test());
+#endif
 
-    #if cp2_filesys_test
-    #if cp2_filesys_test_1
-    TEST_OUTPUT("read_curr_dir_dentry_test", read_curr_dir_dentry_test());
-    TEST_OUTPUT("read_very_long_file_test", read_too_long_file_dentry_test());
-    TEST_OUTPUT("read_very_long_file_test", read_long_file_dentry_test());
-    TEST_OUTPUT("read_similar_file_1_dentry_test", read_similar_file_1_dentry_test());
-    TEST_OUTPUT("read_similar_file_2_dentry_test", read_similar_file_2_dentry_test());
-    TEST_OUTPUT("read_nonexistent_dentry_test", read_nonexistent_dentry_test());
-    TEST_OUTPUT("read_curr_dir_by_index_test", read_curr_dir_by_index_test());
-    TEST_OUTPUT("read_out_of_bounds_dir_by_index_test", read_out_of_bounds_dir_by_index_test());
-    #endif
+#if cp2_filesys_test_2
+  TEST_OUTPUT("read_file_test", read_file_test());
+#endif
 
-    #if cp2_filesys_test_2
-    TEST_OUTPUT("read_file_test", read_file_test());
-    #endif
+#if cp2_filesys_test_3
+  TEST_OUTPUT("read_big_file_test", read_big_file_test());
+  TEST_OUTPUT("read_exec_test", read_exec_test());
+#endif
 
-    #if cp2_filesys_test_3
-    TEST_OUTPUT("read_big_file_test", read_big_file_test());
-    TEST_OUTPUT("read_exec_test", read_exec_test());
-    #endif
+#if cp2_filesys_test_4
+  read_file_by_name((uint8_t*)"pingpong");
+  check_read_file_by_name((uint8_t*)"pingpong",100);
+#endif
 
-    #if cp2_filesys_test_4
-    read_file_by_name((uint8_t*)"pingpong");
-    check_read_file_by_name((uint8_t*)"pingpong",100);
-    #endif
+#if cp2_filesys_test_5
+  read_file_by_fd(2,  build_fdarray((uint8_t*)"testprint",2));
+#endif
 
-    #if cp2_filesys_test_5
-    read_file_by_fd(2,  build_fdarray((uint8_t*)"testprint",2));
-    #endif
+#if cp2_filesys_test_6
+  read_dir_all();
+#endif
 
-    #if cp2_filesys_test_6
-    read_dir_all();
-    #endif
-
-    #if cp2_filesys_test_7
-    pretty_print_all();
-    #endif
-    #endif
-    #endif
+#if cp2_filesys_test_7
+  pretty_print_all();
+#endif
+#endif
+#endif
 ///////////////////////////////////////////////////////////////////////////////
 
   execute_test();

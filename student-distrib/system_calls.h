@@ -4,8 +4,8 @@
 - Set up some generic assembly linkage along lines of that used in Linux
 - Including syscall value checking, register save and restore, and a jump table to C functions taht implement system calls themselves
 
-    For this CP support system calls to run 
-    - testprint from shell:execute, halt, 
+    For this CP support system calls to run
+    - testprint from shell:execute, halt,
     - open/close/read/write for teminal and fs
 */
 

@@ -4,8 +4,8 @@
 - Set up some generic assembly linkage along lines of that used in Linux
 - Including syscall value checking, register save and restore, and a jump table to C functions taht implement system calls themselves
 
-    For this CP support system calls to run 
-    - testprint from shell:execute, halt, 
+    For this CP support system calls to run
+    - testprint from shell:execute, halt,
     - open/close/read/write for teminal and fs
 */
 
@@ -18,45 +18,45 @@
 #include "paging.h"
 
 
+static file_ops_t rtc_ops_list = {rtc_read, rtc_write, rtc_open, rtc_close};
+static file_ops_t dir_ops_list = {d_read, d_write, d_open, d_close};
+static file_ops_t file_ops_list = {f_read, f_write, f_open, f_close};
 
-static file_ops rtc_ops_list = {rtc_read, rtc_write, rtc_open, rtc_close};
-static file_ops dir_ops_list = {d_read, d_write, d_open, d_close};
-static file_ops file_ops_list = {f_read, f_write, f_open, f_close};
-
-/*  
+/*
  * sys_halt
  *   DESCRIPTION: set the vitual memory by page for pcb
  *   INPUTS: pcb position
- *   OUTPUTS: 0
- *   RETURN VALUE: none
+ *   OUTPUTS: None
+ *   RETURN VALUE: base address of new page
  *   SIDE EFFECTS: none
  */
-uint32_t set_virtual_memory(uint32_t pcb_pos){
-    if(pcb_pos>=MAX_PROCESS_NUM) return -1;
-    uint32_t pde_index = dir_entry(PROGRAM_START_VIRTUAL_ADDR);
-    page_directory[pde_index].val = 0;
-    page_directory[pde_index].present = 1;
-    page_directory[pde_index].ps = 1;
-    page_directory[pde_index].rw = 1;
-    page_directory[pde_index].us = 1;
-    page_directory[pde_index].val |= ((uint32_t)((pcb_pos+2) * PAGE_4MB_VAL));
-    
-    reload_tlb();
-    return 0;
+uint32_t set_virtual_memory(uint32_t pcb_id) {
+  if (pcb_id >= MAX_PROCESS_NUM) return -1;
+  uint32_t pde_index = dir_entry(PROGRAM_START_VIRTUAL_ADDR);
+  page_directory[pde_index].val = 0;
+  page_directory[pde_index].present = 1;
+  page_directory[pde_index].ps = 1;
+  page_directory[pde_index].rw = 1;
+  page_directory[pde_index].us = 1;
+  page_directory[pde_index].base_addr = ((uint32_t) ((pcb_id + 2) * PAGE_4MB_VAL)) >> 12;
+
+  reload_tlb();
+  return PROGRAM_START_VIRTUAL_ADDR;
 }
-/*  
+
+/*
  * sys_halt
  *   DESCRIPTION: syetem call: terminate a process
- *   INPUTS: status :  return value to the parent 
+ *   INPUTS: status :  return value to the parent
  *   OUTPUTS: none
  *   RETURN VALUE: none
  *   SIDE EFFECTS: none
  */
-int32_t syscall_halt (uint8_t status){
-    return 0;
+int32_t syscall_halt(uint8_t status) {
+  return 0;
 }
 
-/*  
+/*
  * sys_execute
  *   DESCRIPTION: system call: load, set and execute a new program
  *   INPUTS: const uint8_t* command -- the command to be executed
@@ -66,78 +66,107 @@ int32_t syscall_halt (uint8_t status){
  *                 -1 if failed
  *   SIDE EFFECTS: none
  */
-int32_t syscall_execute(const uint8_t* command){
-    return 0;
+int32_t syscall_execute(const uint8_t* command) {
+  if (command == NULL) return -1;
+
+  int32_t fd;
+  if ((fd = open(command)) == -1) return -1;
+
+  pcb_t* curr = current;
+
+
+  filed file = curr->filearray[fd];
+  uint32_t inode_idx = file.inode_index;
+  uint32_t file_size = _inodes[inode_idx].length;
+
+  set_virtual_memory(curr->pid);
+
+  uint8_t data[file_size];
+
+  if (read_data(inode_idx, 0, data, file_size) == -1) return -1;
+
+  uint32_t return_addr = (uint32_t) (uint32_t*) &data[24];
+
+  asm volatile(
+      "pushl %0 \n\t"
+      "pushl %%esp \n\t"
+      "pushfl \n\t"
+      "pushl %1 \n\t"
+      "pushl %2 \n\t"
+      "iret \n\t"
+      :
+      : "r" (USER_DS), "r" (USER_CS), "r" (return_addr)
+      : "memory"
+      );
+
+  return 0;
 }
 
-/* 
+/*
  * open
  * Input: filename
  * Output: -1 If the named file does not exist or no descriptors are free, 0 on Success
  * The open system call provides access to the file system. The call should find the directory entry corresponding to the
  * named file, allocate an unused file descriptor, and set up any data necessary to handle the given type of file (directory,RTC device, or regular file)
  */
-int32_t syscall_open (const uint8_t* filename) {
-    if(filename==NULL) return -1;
-    int32_t fd;
-    dentry_t dentry;
+int32_t syscall_open(const uint8_t* filename) {
+  if (filename == NULL) return -1;
+  int32_t fd;
+  dentry_t dentry;
 
-    //find what we need to start file's fd
-    for(fd=2; ;fd++){
-        if(current->filearray[fd].flags == 0){
-            break;
-        }
-        if (fd==FILEARR_SIZE){
-            return -1;
-        }
+  //find what we need to start file's fd
+  for (fd = 2;; fd++) {
+    if (current->filearray[fd].flags == 0) {
+      break;
     }
-
-    if(read_dentry_by_name(filename, &dentry) == -1) return -1;
-
-    filed* filenew = &current->filearray[fd];
-    filenew->flags = 1;
-    filenew->file_position = 0;
-    filenew->inode_index = dentry.inode; 
-
-    if (dentry.file_type==0){
-        filenew->ops = &rtc_ops_list;    // 0 for RTC
+    if (fd == FILEARR_SIZE) {
+      return -1;
     }
-    else if (dentry.file_type==1){
-        filenew->ops = &dir_ops_list;    // 1 for dir
-    }
-    else if (dentry.file_type==2){
-        filenew->ops = &file_ops_list;    // 2 for file
-    }
-    else{ return -1;}
+  }
 
-    if(filenew->ops->open(filename) == -1) return -1;
+  if (read_dentry_by_name(filename, &dentry) == -1) return -1;
 
-    //not sure if we return fd or 0
-    return fd;
+  filed* filenew = &current->filearray[fd];
+  filenew->flags = 1;
+  filenew->file_position = 0;
+  filenew->inode_index = dentry.inode;
 
-    // If the named file does not exist or no descriptors are free, the call returns -1
-    
-    // find the directory entry corresponding to the named file
-    // Allocate unused file descriptor
-    // Set up any data necessary to handle the given type of file (directory, RTC device, or regular file)
+  if (dentry.file_type == 0) {
+    filenew->ops = &rtc_ops_list;    // 0 for RTC
+  } else if (dentry.file_type == 1) {
+    filenew->ops = &dir_ops_list;    // 1 for dir
+  } else if (dentry.file_type == 2) {
+    filenew->ops = &file_ops_list;    // 2 for file
+  } else { return -1; }
+
+  if (filenew->ops->open(filename) == -1) return -1;
+
+  //not sure if we return fd or 0
+  return fd;
+
+  // If the named file does not exist or no descriptors are free, the call returns -1
+
+  // find the directory entry corresponding to the named file
+  // Allocate unused file descriptor
+  // Set up any data necessary to handle the given type of file (directory, RTC device, or regular file)
 }
 
-int32_t syscall_close (int32_t fd) {
-    if(fd>=8 || fd<0) return -1;    //0=<fd<8
+int32_t syscall_close(int32_t fd) {
+  if (fd >= 8 || fd < 0) return -1;    //0=<fd<8
 
-    filed* fileclose = &current->filearray[fd];
-    if(fileclose->flags == 0 || fileclose->ops==NULL) return -1;
+  filed* fileclose = &current->filearray[fd];
+  if (fileclose->flags == 0 || fileclose->ops == NULL) return -1;
 
-    uint32_t close_value=fileclose->ops->close(fd);
+  uint32_t close_value = fileclose->ops->close(fd);
 
-    //free
-    fileclose->flags = 0;
-    fileclose->inode_index = -1;
-    fileclose->ops = NULL;
-    fileclose->file_position = 0;
+  //free
+  fileclose->flags = 0;
+  fileclose->inode_index = -1;
+  fileclose->ops = NULL;
+  fileclose->file_position = 0;
 
-    //not sure what to return
-    return close_value;
+  //not sure what to return
+  return close_value;
 
 /*
 The close system call closes the specified file descriptor and makes it available for return from later calls to open.
@@ -146,10 +175,10 @@ descriptor should result in a return value of -1; successful closes should retur
 */
 }
 
-int32_t syscall_read (int32_t fd, void* buf, int32_t nbytes) {
-    if(fd>=8 || fd<0) return -1;    //0=<fd<8
-    if(current->filearray[fd].flags == 0) return -1;
-    return current->filearray[fd].ops->read(fd, buf, nbytes);
+int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes) {
+  if (fd >= 8 || fd < 0) return -1;    //0=<fd<8
+  if (current->filearray[fd].flags == 0) return -1;
+  return current->filearray[fd].ops->read(fd, buf, nbytes);
 /*
 The read system call reads data from the keyboard, a file, device (RTC), or directory. This call returns the number
 of bytes read. If the initial file position is at or beyond the end of file, 0 shall be returned (for normal files and the
@@ -165,10 +194,10 @@ should be inserted into the file array on the open system call (see below).
 */
 }
 
-int32_t syscall_write (int32_t fd, const void* buf, int32_t nbytes) {
-    if(fd>=8 || fd<0) return -1;    //0=<fd<8
-    if(current->filearray[fd].flags == 0) return -1;
-    return current->filearray[fd].ops->write(fd, buf, nbytes);
+int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes) {
+  if (fd >= 8 || fd < 0) return -1;    //0=<fd<8
+  if (current->filearray[fd].flags == 0) return -1;
+  return current->filearray[fd].ops->write(fd, buf, nbytes);
 /*
 The write system call writes data to the terminal or to a device (RTC). In the case of the terminal, all data should
 be displayed to the screen immediately. In the case of the RTC, the system call should always accept only a 4-byte

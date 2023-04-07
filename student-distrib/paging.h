@@ -1,4 +1,8 @@
+#ifndef PAGING_H
+#define PAGING_H
+
 #include "lib.h"
+#include "pcb.h"
 
 //the address in table start from the 12th b
 #define	TABLE_ADDRESS_SHIFT		12
@@ -84,3 +88,4 @@ PTE page_table0[PAGE_TAB_MAX] __attribute__((aligned (PAGE_4KB_VAL)));
 void init_paging();
 inline void reload_tlb();
 
+#endif
