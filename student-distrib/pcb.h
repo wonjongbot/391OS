@@ -46,5 +46,7 @@ int32_t pid_alloc();
 //point to the current process
 inline pcb_t* current_thread_PCB();
 
+int32_t PCB_init(pcb_t* pcb);
+
 
 #endif

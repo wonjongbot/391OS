@@ -16,6 +16,7 @@
 #include "rtc.h"
 #include "pcb.h"
 #include "paging.h"
+#include "terminal.h"
 
 
 static file_ops_t rtc_ops_list = {rtc_read, rtc_write, rtc_open, rtc_close};
@@ -39,6 +40,8 @@ uint32_t set_virtual_memory(uint32_t pcb_id) {
   page_directory[pde_index].rw = 1;
   page_directory[pde_index].us = 1;
   page_directory[pde_index].base_addr = ((uint32_t) ((pcb_id + 2) * PAGE_4MB_VAL)) >> 12;
+
+  printf("PCBID: %d\n", pcb_id);  
 
   reload_tlb();
   return PROGRAM_START_VIRTUAL_ADDR;
@@ -69,11 +72,22 @@ int32_t syscall_halt(uint8_t status) {
 int32_t syscall_execute(const uint8_t* command) {
   if (command == NULL) return -1;
 
-  int32_t fd;
-  if ((fd = open(command)) == -1) return -1;
-
   pcb_t* curr = current;
 
+  if(PCB_init(curr) == -1){
+    printf("PCB is werid\n");
+    return -1;
+  }
+
+  printf("CURRENT PCB ADDR: %x\n", curr);
+
+  // curr->filearray[0].flags = 1;
+  // curr->filearray[1].flags = 1;
+
+  int32_t fd;
+  if ((fd = open(command)) == -1) {
+    printf("Returning while opening command\n");
+    return -1;}
 
   filed file = curr->filearray[fd];
   uint32_t inode_idx = file.inode_index;
@@ -81,24 +95,60 @@ int32_t syscall_execute(const uint8_t* command) {
 
   set_virtual_memory(curr->pid);
 
+  printf("PID: %d\n", curr->pid);
+
   uint8_t data[file_size];
 
-  if (read_data(inode_idx, 0, data, file_size) == -1) return -1;
+  // for sanity check see if we can actually load in the user prog && check if it's executable
 
-  uint32_t return_addr = (uint32_t) (uint32_t*) &data[24];
+  // read into local buffer and do sanity check
+
+  // find out entry point is correct entry point is valid 
+
+  // also have to do TSS stuff
+
+  //copy to user space
+  if (read_data(inode_idx, 0, (uint8_t*)PROGRAM_START_VIRTUAL_ADDR, file_size) == -1) return -1;
+  
+  read_data(inode_idx, 0, data, file_size);
+
+  uint8_t return_addr[4];
+
+  int i;
+  for(i = 0; i < 100; i++){
+    printf("%c", *((uint8_t*)PROGRAM_START_VIRTUAL_ADDR + i));
+  }
+
+  printf("\n");
+
+  for(i = 0; i < 4; i++){
+    return_addr[i] = *((uint8_t*)PROGRAM_START_VIRTUAL_ADDR + 24 + i);
+  }
+
+  uint32_t ret;
+  ret = *(uint32_t*)return_addr;
+  printf("%x\n", ret);
+
+  printf("entry addr saved in user space%x\n", *(uint32_t*)ret);
+  printf("from data %x\n", *(uint32_t*)(data+24));
+  printf("%x\n", ret);
+
+  // uint32_t return_addr = (uint32_t) (uint32_t*) &data[24];
 
   asm volatile(
       "pushl %0 \n\t"
-      "pushl %%esp \n\t"
+      "pushl $0x83ffffc \n\t"
       "pushfl \n\t"
+      // "popl %%eax\n\t"
+      // "orl $0x200, %%eax \n\t"
+      // "pushl %%eax \n\t"
       "pushl %1 \n\t"
       "pushl %2 \n\t"
       "iret \n\t"
       :
-      : "r" (USER_DS), "r" (USER_CS), "r" (return_addr)
-      : "memory"
+      : "r" (USER_DS), "r" (USER_CS), "r" (ret)
+      : "cc", "memory"
       );
-
   return 0;
 }
 
@@ -195,9 +245,15 @@ should be inserted into the file array on the open system call (see below).
 }
 
 int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes) {
+ printf("SYSCALL WRITE on fd %d\n", fd);
+  printf("CURRENT PCB ADDR: %x\n", current);
   if (fd >= 8 || fd < 0) return -1;    //0=<fd<8
-  if (current->filearray[fd].flags == 0) return -1;
-  return current->filearray[fd].ops->write(fd, buf, nbytes);
+  if (current->filearray[fd].flags == 0){
+    printf("PCB: %d\nfirrarr_flag: %d\n", current->pid, current->filearray[fd].flags);
+    return -1;
+  }
+//   return current->filearray[fd].ops->write(fd, buf, nbytes);
+  //return terminal_write(fd, buf, nbytes);
 /*
 The write system call writes data to the terminal or to a device (RTC). In the case of the terminal, all data should
 be displayed to the screen immediately. In the case of the RTC, the system call should always accept only a 4-byte
