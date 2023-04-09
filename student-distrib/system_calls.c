@@ -59,6 +59,9 @@ int32_t syscall_halt(uint8_t status) {
   return 0;
 }
 
+#define MAGIC_NUM_SIZE 4
+#define MAGIC_NUM_EXE 0x464c457f
+
 /*
  * sys_execute
  *   DESCRIPTION: system call: load, set and execute a new program
@@ -74,28 +77,17 @@ int32_t syscall_execute(const uint8_t* command) {
 
   pcb_t* curr = current;
 
-  if(PCB_init(curr) == -1){
-    printf("PCB is werid\n");
-    return -1;
-  }
+  if(PCB_init(curr) == -1) return -1;
 
-  printf("CURRENT PCB ADDR: %x\n", curr);
-
-  // curr->filearray[0].flags = 1;
-  // curr->filearray[1].flags = 1;
 
   int32_t fd;
-  if ((fd = open(command)) == -1) {
-    printf("Returning while opening command\n");
-    return -1;}
+  if ((fd = open(command)) == -1) return -1;
 
   filed file = curr->filearray[fd];
   uint32_t inode_idx = file.inode_index;
   uint32_t file_size = _inodes[inode_idx].length;
 
   set_virtual_memory(curr->pid);
-
-  printf("PID: %d\n", curr->pid);
 
   // for sanity check see if we can actually load in the user prog && check if it's executable
 
@@ -105,16 +97,14 @@ int32_t syscall_execute(const uint8_t* command) {
 
   // also have to do TSS stuff
 
+  // sanity check if we are opening executable
+  uint8_t buf[MAGIC_NUM_SIZE];
+  if ((read_data(inode_idx, 0, buf, MAGIC_NUM_SIZE) == -1) || *(uint32_t*)buf != MAGIC_NUM_EXE) return -1;
+
   //copy to user space
   if (read_data(inode_idx, 0, (uint8_t*)PROGRAM_START_VIRTUAL_ADDR, file_size) == -1) return -1;
 
   uint32_t return_addr = *(uint32_t*) &(((uint8_t*) PROGRAM_START_VIRTUAL_ADDR)[24]);
-  printf("%x\n", return_addr);
-
-  printf("entry addr saved in user space%x\n", *(uint32_t*)return_addr);
-  printf("%x\n", return_addr);
-
-  // uint32_t return_addr = (uint32_t) (uint32_t*) &data[24];
 
   asm volatile(
       "pushl %0 \n\t"
@@ -231,12 +221,8 @@ int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes) {
 // printf("SYSCALL WRITE on fd %d\n", fd);
 //  printf("CURRENT PCB ADDR: %x\n", current);
   if (fd >= 8 || fd < 0) return -1;    //0=<fd<8
-  if (current->filearray[fd].flags == 0){
-//    printf("PCB: %d\nfirrarr_flag: %d\n", current->pid, current->filearray[fd].flags);
-    return -1;
-  }
+  if (current->filearray[fd].flags == 0) return -1;
    return current->filearray[fd].ops->write(fd, buf, nbytes);
-//  return terminal_write(fd, buf, nbytes);
 /*
 The write system call writes data to the terminal or to a device (RTC). In the case of the terminal, all data should
 be displayed to the screen immediately. In the case of the RTC, the system call should always accept only a 4-byte

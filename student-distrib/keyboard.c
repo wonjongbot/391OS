@@ -318,15 +318,17 @@ void keyboard_handler(){
             if(!(alt_flag || ctrl_flag)){
                 // if backspace we need to pop that from keyboard buffer
                 if(ascii == '\b'){
-                    uint8_t tmp = pop_kb_buf();
-                    // if the popped key is tab key, we need to delete 4 characters
-                    if(tmp == '\t'){
-                        for(i = 0; i < TAB_SIZE; i++){
+                    if(kb_buf_top > 0){
+                        uint8_t tmp = pop_kb_buf();
+                        // if the popped key is tab key, we need to delete 4 characters
+                        if(tmp == '\t'){
+                            for(i = 0; i < TAB_SIZE; i++){
+                                putc(ascii);
+                            }
+                        }
+                        else{
                             putc(ascii);
                         }
-                    }
-                    else{
-                        putc(ascii);
                     }
                 }
                 else{
@@ -350,6 +352,7 @@ void keyboard_handler(){
                 clear();
                 reset_text_cursor();
             }
+            #if ENABLE_HISTORY
             // ctrl-h prints user-set number of history
             if(ctrl_flag && (ascii == 'h')){
                 if(kb_buf_top==0)
@@ -360,6 +363,7 @@ void keyboard_handler(){
                 if(kb_buf_top==0)
                     print_history_full();
             }
+            #endif
         }
     }
     // handling arrow keys

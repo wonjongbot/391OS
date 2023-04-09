@@ -101,7 +101,6 @@ void terminal_init(){
  * Function: returns -1 because terminal shouldn't be open in cp2
  */
 int32_t terminal_open(const uint8_t* filename){
-    printf("TEMRINAL OPEN CALLED");
     return 0;
 }
 
@@ -112,7 +111,6 @@ int32_t terminal_open(const uint8_t* filename){
  *              or up til 128 bytes. Last byte read is always newline char.
  */
 int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
-    printf("TEMRINAL READ CALLED");
     uint32_t i = 0;
     int8_t* buf_c = (int8_t*) buf;
     // check for nullptr
