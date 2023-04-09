@@ -95,7 +95,7 @@ void rtc_handler(void) {
     if(rtc_counter == 0){
         //putc_rtc();
         interrupt_flag = 1;
-        putc('.');
+        //putc('.');
         //test_interrupts(); 
     }
     rtc_counter = (rtc_counter + 1)%rtc_target; 
@@ -111,6 +111,7 @@ void rtc_handler(void) {
  * Initializes RTC frequency to 2 HZ
  */
 int32_t rtc_open (const uint8_t* filename) {
+    printf("RTC FREQ SET TO 2\n");
     rtc_set_freq(2);    // Set frequency to 2 HZ
     return 0;
 }
@@ -132,7 +133,6 @@ int32_t rtc_read (int32_t fd, void* buf, int32_t nbytes) {
     while (interrupt_flag == 0);
 
     interrupt_flag = 0; // interrupt is off
-
     return 0;
 }
 
