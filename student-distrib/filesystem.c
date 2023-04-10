@@ -201,8 +201,9 @@ int32_t f_read(int32_t fd, void* buf, int32_t bytes) {
  *   SIDE EFFECTS: none
  */
 int32_t d_read(int32_t fd, void* buf, int32_t bytes) {
-
+    //printf("%d\n",bytes);
     dentry_t dentry;
+    //printf("called\n");
 
     //check
     if (fd < 2 || fd > 7) {
@@ -227,5 +228,13 @@ int32_t d_read(int32_t fd, void* buf, int32_t bytes) {
     //update the file_position
     current->filearray[fd].file_position += 1;
 
-    return strlen((int8_t*) (&(dentry.name)));
+    //int8_t* buffer=(int8_t*) buf;
+    //printf("%x\n",buffer[31]);
+    int32_t length=strlen((int8_t*) (&(dentry.name)));
+    if (length>32){
+        length=32;
+    }
+    //printf("name length is : %d",length);
+    
+    return length;
 }
