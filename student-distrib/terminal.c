@@ -9,7 +9,7 @@
  */
 void terminal_history_handler(){
     int i;
-    // we can only access 128 histories 
+    // we can only access 128 histories
     if(up_flag == 1 && kb_buf_history_top > 0 && kb_buf_history_ptr > 0){
         // if up was pressed in the top of keyboard history, we copy
         // what we have so far into the most recent history and save num chars
@@ -95,6 +95,7 @@ void terminal_init(){
     kb_buf_history_top = 0;
 }
 
+// TODO the header for this
 /* int32_t terminal_open();
  * Inputs: none
  * Return Value: -1
@@ -104,10 +105,26 @@ int32_t terminal_open(const uint8_t* filename){
     return 0;
 }
 
+int32_t stdin_read(int32_t fd, void* buf, int32_t nbytes) {
+  return terminal_read(fd, buf, nbytes);
+}
+
+int32_t stdout_write(int32_t fd, const void* buf, int32_t nbytes) {
+  return terminal_write(fd, buf, nbytes);
+}
+
+int32_t stdin_write(int32_t fd, const void* buf, int32_t nbytes) {
+  return -1;
+}
+
+int32_t stdout_read(int32_t fd, void* buf, int32_t nbytes) {
+  return -1;
+}
+
 /* int32_t terminal_read(int32_t fd, int8_t* buf, int32_t nbytes);
  * Inputs: int32_t fd, int8_t* buf, int32_t nbytes
  * Return Value: -1 for invalid ptr, num bytes read if else
- * Function: reads from keyboard buffer to input buffer for nbytes of time 
+ * Function: reads from keyboard buffer to input buffer for nbytes of time
  *              or up til 128 bytes. Last byte read is always newline char.
  */
 int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
@@ -132,7 +149,7 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
             terminal_history_handler();
             #endif
         }
-        // copy whatever is in the keyboard buffer to the input buffer, nbytes number of 
+        // copy whatever is in the keyboard buffer to the input buffer, nbytes number of
         // times. including newline character
         i = 0;
         while(i < nbytes && kb_buf_top <= kb_buf_size){
@@ -162,7 +179,7 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
  * Inputs: int32_t fd, int8_t* buf, int32_t nbytes
  * Return Value: -1 for invalid ptr, num bytes written to screen if else
  * Function: reads from input buffer and displays that onto scren by copying
- *           nbytes of ascii data into vram. 
+ *           nbytes of ascii data into vram.
  */
 int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
     uint32_t i = 0;
@@ -185,6 +202,5 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
  * Function: terminal shouldn't be closed for cp2.
  */
 int32_t terminal_close(int32_t fd){
-    printf("TEMRINAL OPNE CALLED");
     return 0;
 }

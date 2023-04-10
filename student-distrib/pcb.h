@@ -14,7 +14,6 @@
 
 typedef struct pcb {
   uint32_t pid;   // 0 to 5
-  uint32_t parent_id;
   filed filearray[FILEARR_SIZE]; // fd
   uint32_t status;
   uint32_t argc;
@@ -49,6 +48,7 @@ typedef struct pcb {
 int32_t pid_alloc();
 int32_t pid_peek();
 void pid_dealloc(int32_t pid);
+void unload(pcb_t* pcb);
 
 //point to the current process
 inline pcb_t* current_thread_PCB();

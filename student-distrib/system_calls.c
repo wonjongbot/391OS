@@ -42,8 +42,6 @@ uint32_t set_virtual_memory(uint32_t pcb_id) {
   page_directory[pde_index].us = 1;
   page_directory[pde_index].base_addr = ((uint32_t) ((pcb_id + 2) * PAGE_4MB_VAL)) >> 12;
 
-  printf("PCBID: %d\n", pcb_id);
-
   reload_tlb();
   return PROGRAM_START_VIRTUAL_ADDR;
 }
@@ -58,60 +56,48 @@ uint32_t set_virtual_memory(uint32_t pcb_id) {
  */
 int32_t syscall_halt(uint8_t status) {
   // How do we know if this is an exception call?
-  printf("RETURN STATUS: %d\n\n", status);
   pcb_t* curr = current;
   int i;
-  int32_t parent_pid = curr->parent_id;
-  printf("HALT ACTIVE CURRENT PID: %x\n", curr->pid);
-  printf("PARENT PID IS: %x\n", parent_pid);
+  // close all the file descriptor
+  for(i = 2; i < 8; i++){
+    syscall_close(i);
+  }
 
-  if(parent_pid == -1){
-    printf("trying to halt base shell");
-    // close all the files in fd array
-    // set pid 0 as inactive
-    // execute shell again
-    // retrun 0?
-    for(i = 2; i < 8; i++){
-      syscall_close(i);
-    }
+  if(curr->parent == NULL){
     curr->status = 0;
     pid_dealloc(curr->pid);
+    curr_pid = -1;
     syscall_execute((uint8_t*)"shell");
-    printf("YOU ARE HITTINGHERE");
   }
   else{
-    // close all the file descriptor
-    for(i = 2; i < 8; i++){
-      syscall_close(i);
-    }
     // set current pid as inactive
     curr->status = 0;
     pid_dealloc(curr->pid);
-    // unmap current paging / map parent's paging using physical_mem_start
-    set_virtual_memory(parent_pid);
-    curr_pid = parent_pid;
-    printf("PARENT PID: %d\n", parent_pid);
+
     // update tss to saved of parent
-    pcb_t* parent = (pcb_t*)((1<<23) - ((1<<13) * (parent_pid+ 1)));
+    pcb_t* parent = curr->parent;
+
+    curr_pid = parent->pid;
+
+    // unmap current paging / map parent's paging using physical_mem_start
+    set_virtual_memory(curr_pid);
 
     tss.ss0 = KERNEL_DS;
 
-    //NOT SURE WHAT THE VALUE HERE SHOULD BE    
-    tss.esp0 = (1<<23) - (1<13) * (parent_pid) - 4;
+    //NOT SURE WHAT THE VALUE HERE SHOULD BE
+    tss.esp0 = parent->save_esp;
 
-    //tss.esp0 = parent->save_esp;
-    printf("PARENT Pcb ADDR: %x\n", parent);
-    printf("current Pcb ADDR: %x\n", curr);
+    //tss.esp0 = curr->save_esp;
 
-    // set esp and ebp to parent's saved esp and ebp
+    // set esp and ebp to parent's saved esp and
     asm volatile(
-      "movl %0, %%esp        \n\t"
-      "movl %1, %%ebp        \n\t"
-      "movl %2, %%eax        \n\t"
-      :
-      : "r"(parent->save_esp), "r"(parent->save_ebp), "r"((int32_t)status)
-      : "cc"
-    );
+        "movl %0, %%esp        \n\t"
+        "movl %1, %%ebp        \n\t"
+        "movl %2, %%eax        \n\t"
+        :
+        : "r"(parent->save_esp), "r"(parent->save_ebp), "r"((int32_t)status)
+        : "cc"
+        );
 
   }
   return 0;
@@ -137,50 +123,49 @@ int32_t syscall_execute(const uint8_t* command) {
    if( pid_peek() == -1){
     return -1;
    }
+
+   int32_t fd;
+//  if ((fd = open(command)) == -1){
+//    return -1;
+//  }
+//  syscall_close(fd);
+
+  pcb_t* parent = NULL;
   pcb_t* curr;
   if(curr_pid == -1){
     curr = current;
   }
   else{
     // save ebp and esp
-    curr = current;
+    parent = current;
+
     register uint32_t ebp_tmp asm("ebp");
-    curr->save_ebp = ebp_tmp;
-    
+    parent->save_ebp = ebp_tmp;
+
     register uint32_t esp_tmp asm("esp");
-    curr->save_esp = esp_tmp;
+    parent->save_esp = esp_tmp;
     asm volatile(
       "addl $-8192, %%esp        \n\t"
       :
       :
-      : "cc", "esp"
+      : "cc"
     );
     curr = current;
   }
 
-  printf("pcb at %x\n", curr);
   if(PCB_init(curr) == -1) return -1;
-  printf("pcb at %x\n", curr);
-  curr->parent_id = curr_pid;
 
-  
+  curr->parent = parent;
 
-  curr_pid = curr->pid;
-
-  printf("Parent PID: %d\nCURRENT PID: %d\n", curr->parent_id, curr->pid);
-  
-  int32_t fd;
   if ((fd = open(command)) == -1){
-    pid_dealloc(curr->pid);
+    unload(curr);
     return -1;
   }
-
 
   filed file = curr->filearray[fd];
   uint32_t inode_idx = file.inode_index;
   uint32_t file_size = _inodes[inode_idx].length;
 
-  set_virtual_memory(curr->pid);
 
   // find out entry point is correct entry point is valid
 
@@ -189,27 +174,23 @@ int32_t syscall_execute(const uint8_t* command) {
   uint8_t buf[MAGIC_NUM_SIZE];
 
   if ((read_data(inode_idx, 0, buf, MAGIC_NUM_SIZE) == -1) || *(uint32_t*)buf != MAGIC_NUM_EXE){
-    pid_dealloc(curr->pid);
+    unload(curr);
     return -1;
   }
+  set_virtual_memory(curr->pid);
 
   //copy to user space
   if (read_data(inode_idx, 0, (uint8_t*)PROGRAM_START_VIRTUAL_ADDR, file_size) == -1){
-    pid_dealloc(curr->pid);
     return -1;
   }
 
+  curr_pid = curr->pid;
 
   tss.ss0 = KERNEL_DS;
-  printf("ESP0 will be: %x\n", (1<<23) - ((1<<13)*(curr_pid)) - 4);
   tss.esp0 = (1<<23) - ((1<<13)*(curr_pid)) - 4;
-  printf("ESP0 is : %x\n", tss.esp0);
 
   uint32_t return_addr = *(uint32_t*) &(((uint8_t*) PROGRAM_START_VIRTUAL_ADDR)[24]);
 
-  printf("%x\n", return_addr);
-  printf("%x\n", *(uint32_t*)return_addr);
-  
   asm volatile(
       "pushl %%eax \n\t"
       "pushl $0x83ffffc \n\t"
@@ -227,10 +208,9 @@ int32_t syscall_execute(const uint8_t* command) {
   asm volatile(
       "iret \n\t"
       :
-      : 
+      :
       : "memory"
       );
-
 
   return 0;
 }

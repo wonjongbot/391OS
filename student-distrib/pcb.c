@@ -8,9 +8,8 @@
 #include "filesystem.h"
 #include "pcb.h"
 
-static file_ops_t terminal_ops = {terminal_read, terminal_write, terminal_open, terminal_close};
-//need to fix of keyboard function
-static file_ops_t keyboard_ops = {terminal_read, terminal_write, terminal_open, terminal_close};
+static file_ops_t stdin_ops = {stdin_read, stdin_write, terminal_open, terminal_close};
+static file_ops_t stdout_ops = {stdout_read, stdout_write, terminal_open, terminal_close};
 
 static int32_t process_using[MAX_PROCESS_NUM] = {0, 0, 0, 0, 0, 0};
 
@@ -62,10 +61,30 @@ int32_t pid_peek(){
  *   SIDE EFFECTS: deallocate pid specified;
  */
 void pid_dealloc(int32_t pid){
-    if(pid > MAX_PROCESS_NUM){
+    if(pid >= MAX_PROCESS_NUM || pid < 0){
         return;
     }
     process_using[pid] = 0;
+}
+
+void unload(pcb_t* pcb) {
+  int i;
+  // close all the file descriptor
+  for(i = 2; i < 8; i++){
+    syscall_close(i);
+  }
+  pid_dealloc(pcb->pid);
+  pcb->status = 0;
+  if (pcb->parent != NULL) {
+    asm volatile(
+        "movl %0, %%esp        \n\t"
+        "movl %1, %%ebp        \n\t"
+        "movl %2, %%eax        \n\t"
+        :
+        : "r"(pcb->parent->save_esp), "r"(pcb->parent->save_ebp), "r"(-1)
+        : "cc"
+        );
+  }
 }
 
 /*
@@ -102,7 +121,7 @@ int32_t PCB_init(pcb_t* pcb){
     if(pcb == NULL) return -1;
     pcb->pid = pid_alloc();     // assign a available pid
     pcb->status = 1;       //update the pcb's status
-    pcb->parent_id = NULL;         //initialize the pcb's parent
+    pcb->parent = NULL;         //initialize the pcb's parent
     pcb->argc = 0;
     pcb->shell_flag = 0;
 
@@ -114,12 +133,12 @@ int32_t PCB_init(pcb_t* pcb){
     pcb->filearray[0].file_position = 0;
     pcb->filearray[0].flags = 1;
     pcb->filearray[0].inode_index = -1;
-    pcb->filearray[0].ops = &keyboard_ops;
+    pcb->filearray[0].ops = &stdin_ops;
     // init stdout
     pcb->filearray[1].file_position = 0;
     pcb->filearray[1].flags = 1;
     pcb->filearray[1].inode_index = -1;
-    pcb->filearray[1].ops = &terminal_ops;
+    pcb->filearray[1].ops = &stdout_ops;
     // init memory map
     pcb->physical_mem_start = 0;
     // init fd from 2-7

@@ -5,6 +5,7 @@
 #include "i8259.h"
 #include "keyboard.h"
 #include "rtc.h"
+#include "system_calls.h"
 
 // set_atrib function takes in 4 bits for foreground color and 4 bits for background color
 // colors we used are :
@@ -205,7 +206,8 @@ void INT0x0e(){
     set_attrib(0x4E);
     printf("[!] Interrupt 14:Page-Fault Exception (#PF) \n");
     set_attrib(0x7);
-    while(1);
+//    while(1);
+    syscall_halt(-0x0e);
 }
 
 /*
@@ -518,12 +520,12 @@ static void init_syscall(){
     idt[i].present=0x1;
 }
 
-/* 
+/*
  *   set_system_gate
- *   DESCRIPTION: use to set the system gate in IDT 
+ *   DESCRIPTION: use to set the system gate in IDT
  *   INPUTS: n - the index of IDT entry
  *           addr - the address of handler function
- *   OUTPUTS: none 
+ *   OUTPUTS: none
  *   RETURN VALUE: none
  *   SIDE EFFECTS: will change the idt array
  */
