@@ -27,6 +27,11 @@ typedef struct pcb {
   uint32_t esp;
   uint32_t ebp;
   uint32_t eip;
+
+  // saved values for halt
+  uint32_t save_ebp;
+  uint32_t save_esp;
+
   // Memory Map
   uint32_t physical_mem_start;
   // Shell

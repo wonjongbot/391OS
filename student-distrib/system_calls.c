@@ -57,6 +57,25 @@ uint32_t set_virtual_memory(uint32_t pcb_id) {
  *   SIDE EFFECTS: none
  */
 int32_t syscall_halt(uint8_t status) {
+  // How do we know if this is an exception call?
+  pcb_t* curr = current;
+  printf("CURRENT PID: %x\n", curr->pid);
+
+  if(curr->pid == 0){
+    printf("trying to halt base shell");
+    // close all the files in fd array
+    // set pid 0 as inactive
+    // execute shell again
+    // retrun 0?
+  }
+  else{
+    // close all the file descriptor
+    // set current pid as inactive
+    // unmap current paging / map parent's paging using physical_mem_start
+    // update tss to saved of parent
+    // do iret sequence: stack should look like
+      // Not sure what the return address of this would be?
+  }
   return 0;
 }
 
@@ -74,18 +93,36 @@ int32_t syscall_halt(uint8_t status) {
  *   SIDE EFFECTS: none
  */
 int32_t syscall_execute(const uint8_t* command) {
-  cli();
   if (command == NULL) return -1;
 
 // // if there is no process (first shell), we want to set up PCB in current stack
    if(curr_pid == 5){
     return -1;
    }
+  pcb_t* curr;
+  if(curr_pid == -1){
+    curr = current;
+    }
+  else{
+    // save ebp and esp
+    curr = current;
+    register uint32_t ebp_tmp asm("ebp");
+    curr->save_ebp = ebp_tmp;
+    
+    register uint32_t esp_tmp asm("esp");
+    curr->save_esp = esp_tmp;
+    asm volatile(
+      "addl $-8192, %%esp        \n\t"
+      :
+      :
+      : "cc"
+    );
+    curr = current;
+  }
 
-  pcb_t* curr = current;
-
+  printf("pcb at %x\n", curr);
   if(PCB_init(curr) == -1) return -1;
-
+  printf("pcb at %x\n", curr);
   curr->parent_id = curr_pid;
 
   curr_pid = curr->pid;
@@ -138,20 +175,27 @@ int32_t syscall_execute(const uint8_t* command) {
   uint32_t return_addr = *(uint32_t*) &(((uint8_t*) PROGRAM_START_VIRTUAL_ADDR)[24]);
 
   printf("%x\n", return_addr);
+  printf("%x\n", *(uint32_t*)return_addr);
   
   asm volatile(
-      "pushl %0 \n\t"
+      "pushl %%eax \n\t"
       "pushl $0x83ffffc \n\t"
       "pushfl \n\t"
       "popl %%eax\n\t"    // set interrupt flag
       "orl $0x200, %%eax \n\t"
       "pushl %%eax \n\t"
-      "pushl %1 \n\t"
-      "pushl %2 \n\t"
+      "pushl %%ebx \n\t"
+      "pushl %%ecx \n\t"
+      :
+      : "a" (USER_DS), "b" (USER_CS), "c" (return_addr)
+      : "cc", "memory"
+      );
+
+  asm volatile(
       "iret \n\t"
       :
-      : "r" (USER_DS), "r" (USER_CS), "r" (return_addr)
-      : "cc", "memory"
+      : 
+      : "memory"
       );
 
 

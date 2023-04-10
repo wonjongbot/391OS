@@ -470,7 +470,7 @@ static void init_exception(){
     int i;
     for(i = 0; i < 0x20; i++){
         idt[i].seg_selector = KERNEL_CS;
-        idt[i].reserved3 = 0x0;
+        idt[i].reserved3 = 0x1;
         idt[i].reserved2 = 0x1;
         idt[i].reserved1 = 0x1;
         idt[i].size = 0x1;
@@ -509,7 +509,6 @@ static void init_interrupt(){
 static void init_syscall(){
     int i = 0x80;
     idt[i].seg_selector = KERNEL_CS;
-    idt[i].reserved4 = 0x0;
     idt[i].reserved3 = 0x1;
     idt[i].reserved2 = 0x1;
     idt[i].reserved1 = 0x1;
