@@ -264,7 +264,7 @@ void basic_syscall_print_read() {
  	        return;
  	    }
 // 		//according to the file ame read the data of the file
- 		read_dentry_by_name((int8_t*)buf, &dentry);
+ 		read_dentry_by_name((uint8_t*)buf, &dentry);
  		uint32_t length=strlen((int8_t*)buf);
  		uint32_t field_length = 35;
  		uint32_t i =0;
