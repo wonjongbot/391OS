@@ -32,6 +32,7 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
     uint32_t size = strlen((char*) fname);
     if (size > 32) return -1; // Max name size
     for (i = 0; i < _boot_block.dentry_count; i++) {
+        size = strlen((char*) _boot_block.dentries[i].name);
         if (strncmp((char*) fname, (char*) _boot_block.dentries[i].name, size) == 0) {
             *dentry = _boot_block.dentries[i];
             return 0;

@@ -26,9 +26,27 @@ static int32_t process_using[MAX_PROCESS_NUM] = {0, 0, 0, 0, 0, 0};
 int32_t pid_alloc(){
     int i;
     for(i=0;i<MAX_PROCESS_NUM;i++){
-        if(process_using[i] == 0) return i;
+        if(process_using[i] == 0){
+            process_using[i] = 1;
+            return i;
+        }
     }
     return -1;
+}
+
+/*
+ * pid_dealloc
+ *   DESCRIPTION: deallocate a pid for the process
+ *   INPUTS: none
+ *   OUTPUTS: none
+ *   RETURN VALUE: none
+ *   SIDE EFFECTS: deallocate pid specified;
+ */
+void pid_dealloc(int32_t pid){
+    if(pid >= MAX_PROCESS_NUM){
+        return;
+    }
+    process_using[pid] = 0;
 }
 
 /*

@@ -138,6 +138,7 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
         while(i < nbytes && kb_buf_top <= kb_buf_size){
             buf_c[i] = kb_buf[i];
             if(buf_c[i] == '\n' || buf_c[i] == '\r'){
+                buf_c[i] = '\n';
                 i++;
                 break;
             }

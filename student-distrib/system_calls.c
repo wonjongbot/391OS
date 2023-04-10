@@ -18,6 +18,7 @@
 #include "paging.h"
 #include "terminal.h"
 
+int32_t curr_pid = -1;
 
 static file_ops_t rtc_ops_list = {rtc_read, rtc_write, rtc_open, rtc_close};
 static file_ops_t dir_ops_list = {d_read, d_write, d_open, d_close};
@@ -73,15 +74,37 @@ int32_t syscall_halt(uint8_t status) {
  *   SIDE EFFECTS: none
  */
 int32_t syscall_execute(const uint8_t* command) {
+  cli();
   if (command == NULL) return -1;
+
+// // if there is no process (first shell), we want to set up PCB in current stack
+   if(curr_pid == 5){
+    return -1;
+   }
 
   pcb_t* curr = current;
 
   if(PCB_init(curr) == -1) return -1;
 
+  curr->parent_id = curr_pid;
 
+  curr_pid = curr->pid;
+
+  // printf("FILED ARR: ");
+  // int i;
+  // for( i = 0; i < FILEARR_SIZE; i++){
+  //     printf("%d ", curr->filearray[i].flags);
+  // }
+  // printf("\n");
+
+  printf("Parent PID: %d\nCURRENT PID: %d\n", curr->parent_id, curr->pid);
+  
   int32_t fd;
-  if ((fd = open(command)) == -1) return -1;
+  if ((fd = open(command)) == -1){
+    pid_dealloc(curr->pid);
+    return -1;
+  }
+
 
   filed file = curr->filearray[fd];
   uint32_t inode_idx = file.inode_index;
@@ -89,30 +112,40 @@ int32_t syscall_execute(const uint8_t* command) {
 
   set_virtual_memory(curr->pid);
 
-  // for sanity check see if we can actually load in the user prog && check if it's executable
-
-  // read into local buffer and do sanity check
-
   // find out entry point is correct entry point is valid
 
   // also have to do TSS stuff
 
-  // sanity check if we are opening executable
   uint8_t buf[MAGIC_NUM_SIZE];
-  if ((read_data(inode_idx, 0, buf, MAGIC_NUM_SIZE) == -1) || *(uint32_t*)buf != MAGIC_NUM_EXE) return -1;
+
+  if ((read_data(inode_idx, 0, buf, MAGIC_NUM_SIZE) == -1) || *(uint32_t*)buf != MAGIC_NUM_EXE){
+    pid_dealloc(curr->pid);
+    return -1;
+  }
 
   //copy to user space
-  if (read_data(inode_idx, 0, (uint8_t*)PROGRAM_START_VIRTUAL_ADDR, file_size) == -1) return -1;
+  if (read_data(inode_idx, 0, (uint8_t*)PROGRAM_START_VIRTUAL_ADDR, file_size) == -1){
+    pid_dealloc(curr->pid);
+    return -1;
+  }
+
+
+  tss.ss0 = KERNEL_DS;
+  printf("ESP0 will be: %x\n", (1<<23) - ((1<<13)*(curr_pid)) - 4);
+  tss.esp0 = (1<<23) - ((1<<13)*(curr_pid)) - 4;
+  printf("ESP0 is : %x\n", tss.esp0);
 
   uint32_t return_addr = *(uint32_t*) &(((uint8_t*) PROGRAM_START_VIRTUAL_ADDR)[24]);
 
+  printf("%x\n", return_addr);
+  
   asm volatile(
       "pushl %0 \n\t"
       "pushl $0x83ffffc \n\t"
       "pushfl \n\t"
-      // "popl %%eax\n\t"
-      // "orl $0x200, %%eax \n\t"
-      // "pushl %%eax \n\t"
+      "popl %%eax\n\t"    // set interrupt flag
+      "orl $0x200, %%eax \n\t"
+      "pushl %%eax \n\t"
       "pushl %1 \n\t"
       "pushl %2 \n\t"
       "iret \n\t"

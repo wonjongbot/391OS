@@ -17,3 +17,8 @@
 - **(3/28/23)** rtc write wasn't working because the flags werent set correctly. Had to make the flag volatile and reset when target coutner is met.
 - **(3/28/23)** terminal history had a bug that you had to press arrow keys twice when you are on the edge of the history buffer. Had to reset up_arrow_flag and down_arrow_flag after each history handler call
 - **(3/28/23)** terminal_write couldn't handle formatted string with `\n` in the middle because it is terminated on newline character. Had to print nbytes regardless of buffer content.
+
+
+## Checkpoint 3
+
+- today: syscall open's string length depended on the input fname instead of directory's name. User's string will always be longer (due to \n) so size of comparison had to be set to length of current dentry object's name.

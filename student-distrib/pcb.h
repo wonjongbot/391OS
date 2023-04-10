@@ -43,6 +43,8 @@ typedef struct pcb {
 
 int32_t pid_alloc();
 
+void pid_dealloc(int32_t pid);
+
 //point to the current process
 inline pcb_t* current_thread_PCB();
 
