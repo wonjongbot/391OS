@@ -210,7 +210,7 @@ int32_t d_read(int32_t fd, void* buf, int32_t bytes) {
     }
     //check if read all file name in current fd
     if (current->filearray[fd].file_position == _boot_block.dentry_count) {
-        return -1;
+        return 0;
     }
 
     //read the diectory by the position of the file

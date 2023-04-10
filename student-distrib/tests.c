@@ -238,6 +238,50 @@ void basic_syscall_print_read() {
   printf("\n");
   printf("the flag of this fd is %d", current->filearray[fd].flags);
 }
+
+// /* 
+//  *   test_ls
+//  *   DESCRIPTION: list all files in the file system 
+//  * 				  includes file_name, file_type, file_size
+//  *   INPUTS: none
+//  *   OUTPUTS: file name; file type; file size
+//  *   RETURN VALUE: none
+//  *   SIDE EFFECTS: none
+//  */
+ void test_ls(){
+ 	TEST_HEADER;
+ 	int32_t fd, cnt;
+ 	uint8_t buf[33];
+ 	dentry_t dentry;
+
+ 	buf[32] = '\0';
+ 	fd = open((uint8_t*)".");
+	
+ 	while (0 != (cnt = read (fd, buf, 32))) {
+// 		check if read the name of dentry successfully
+         if (-1 == cnt) {
+ 	        printf ((int8_t*)"directory entry read failed\n");
+ 	        return;
+ 	    }
+// 		//according to the file ame read the data of the file
+ 		read_dentry_by_name((int8_t*)buf, &dentry);
+ 		uint32_t length=strlen((int8_t*)buf);
+ 		uint32_t field_length = 35;
+ 		uint32_t i =0;
+ 		//print relevant information
+ 		printf("filename: ");
+ 		for(i = 0; i<field_length-length; i++){
+ 		 	printf(" ");
+ 		 }
+		
+ 		printf("%s, file_type: %d  \n",buf,dentry.file_type);
+
+
+     }
+
+ 	return;
+
+ }
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 
@@ -359,9 +403,9 @@ void launch_tests() {
 #endif
 #endif
 ///////////////////////////////////////////////////////////////////////////////
-
+  test_ls();
   execute_test();
 
-  basic_syscall_print_read();
+  //basic_syscall_print_read();
 }
 
