@@ -35,6 +35,25 @@ int32_t pid_alloc(){
 }
 
 /*
+ * pid_peek
+ *   DESCRIPTION: see if process can be allocated
+ *   INPUTS: none
+ *   OUTPUTS: none
+ *   RETURN VALUE: the process id,  if successful
+ *                 -1 if fail to allocate
+ *   SIDE EFFECTS: none
+ */
+int32_t pid_peek(){
+    int i;
+    for(i=0;i<MAX_PROCESS_NUM;i++){
+        if(process_using[i] == 0){
+            return i;
+        }
+    }
+    return -1;
+}
+
+/*
  * pid_dealloc
  *   DESCRIPTION: deallocate a pid for the process
  *   INPUTS: none
@@ -43,7 +62,7 @@ int32_t pid_alloc(){
  *   SIDE EFFECTS: deallocate pid specified;
  */
 void pid_dealloc(int32_t pid){
-    if(pid >= MAX_PROCESS_NUM){
+    if(pid > MAX_PROCESS_NUM){
         return;
     }
     process_using[pid] = 0;

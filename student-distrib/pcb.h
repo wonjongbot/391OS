@@ -47,7 +47,7 @@ typedef struct pcb {
 } pcb_t;
 
 int32_t pid_alloc();
-
+int32_t pid_peek();
 void pid_dealloc(int32_t pid);
 
 //point to the current process

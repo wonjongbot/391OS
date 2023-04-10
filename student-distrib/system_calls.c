@@ -58,20 +58,28 @@ uint32_t set_virtual_memory(uint32_t pcb_id) {
  */
 int32_t syscall_halt(uint8_t status) {
   // How do we know if this is an exception call?
+  printf("RETURN STATUS: %d\n\n", status);
   pcb_t* curr = current;
+  int i;
   int32_t parent_pid = curr->parent_id;
   printf("HALT ACTIVE CURRENT PID: %x\n", curr->pid);
+  printf("PARENT PID IS: %x\n", parent_pid);
 
-  if(curr->pid == 0){
+  if(parent_pid == -1){
     printf("trying to halt base shell");
     // close all the files in fd array
     // set pid 0 as inactive
     // execute shell again
     // retrun 0?
+    for(i = 2; i < 8; i++){
+      syscall_close(i);
+    }
+    curr->status = 0;
+    pid_dealloc(curr->pid);
+    syscall_execute((uint8_t*)"shell");
     printf("YOU ARE HITTINGHERE");
   }
   else{
-    int i;
     // close all the file descriptor
     for(i = 2; i < 8; i++){
       syscall_close(i);
@@ -84,7 +92,7 @@ int32_t syscall_halt(uint8_t status) {
     curr_pid = parent_pid;
     printf("PARENT PID: %d\n", parent_pid);
     // update tss to saved of parent
-    pcb_t* parent = (pcb_t*)((1<<23) - ((1<<13) * (parent_pid + 1)));
+    pcb_t* parent = (pcb_t*)((1<<23) - ((1<<13) * (parent_pid+ 1)));
 
     tss.ss0 = KERNEL_DS;
 
@@ -92,20 +100,21 @@ int32_t syscall_halt(uint8_t status) {
     tss.esp0 = (1<<23) - (1<13) * (parent_pid) - 4;
 
     //tss.esp0 = parent->save_esp;
-    printf("PARENT PID ADDR: %x\n", parent);
-    printf("current PID ADDR: %x\n", curr);
+    printf("PARENT Pcb ADDR: %x\n", parent);
+    printf("current Pcb ADDR: %x\n", curr);
 
     // set esp and ebp to parent's saved esp and ebp
     asm volatile(
       "movl %0, %%esp        \n\t"
       "movl %1, %%ebp        \n\t"
+      "movl %2, %%eax        \n\t"
       :
-      : "r" (parent->save_esp), "r" (parent->save_ebp)
+      : "r"(parent->save_esp), "r"(parent->save_ebp), "r"((int32_t)status)
       : "cc"
     );
 
   }
-  return status;
+  return 0;
 }
 
 #define MAGIC_NUM_SIZE 4
@@ -125,13 +134,13 @@ int32_t syscall_execute(const uint8_t* command) {
   if (command == NULL) return -1;
 
 // // if there is no process (first shell), we want to set up PCB in current stack
-   if(curr_pid == 5){
+   if( pid_peek() == -1){
     return -1;
    }
   pcb_t* curr;
   if(curr_pid == -1){
     curr = current;
-    }
+  }
   else{
     // save ebp and esp
     curr = current;
@@ -144,7 +153,7 @@ int32_t syscall_execute(const uint8_t* command) {
       "addl $-8192, %%esp        \n\t"
       :
       :
-      : "cc"
+      : "cc", "esp"
     );
     curr = current;
   }
@@ -154,14 +163,9 @@ int32_t syscall_execute(const uint8_t* command) {
   printf("pcb at %x\n", curr);
   curr->parent_id = curr_pid;
 
-  curr_pid = curr->pid;
+  
 
-  // printf("FILED ARR: ");
-  // int i;
-  // for( i = 0; i < FILEARR_SIZE; i++){
-  //     printf("%d ", curr->filearray[i].flags);
-  // }
-  // printf("\n");
+  curr_pid = curr->pid;
 
   printf("Parent PID: %d\nCURRENT PID: %d\n", curr->parent_id, curr->pid);
   
