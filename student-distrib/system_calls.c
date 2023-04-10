@@ -59,7 +59,8 @@ uint32_t set_virtual_memory(uint32_t pcb_id) {
 int32_t syscall_halt(uint8_t status) {
   // How do we know if this is an exception call?
   pcb_t* curr = current;
-  printf("CURRENT PID: %x\n", curr->pid);
+  int32_t parent_pid = curr->parent_id;
+  printf("HALT ACTIVE CURRENT PID: %x\n", curr->pid);
 
   if(curr->pid == 0){
     printf("trying to halt base shell");
@@ -67,16 +68,44 @@ int32_t syscall_halt(uint8_t status) {
     // set pid 0 as inactive
     // execute shell again
     // retrun 0?
+    printf("YOU ARE HITTINGHERE");
   }
   else{
+    int i;
     // close all the file descriptor
+    for(i = 2; i < 8; i++){
+      syscall_close(i);
+    }
     // set current pid as inactive
+    curr->status = 0;
+    pid_dealloc(curr->pid);
     // unmap current paging / map parent's paging using physical_mem_start
+    set_virtual_memory(parent_pid);
+    curr_pid = parent_pid;
+    printf("PARENT PID: %d\n", parent_pid);
     // update tss to saved of parent
-    // do iret sequence: stack should look like
-      // Not sure what the return address of this would be?
+    pcb_t* parent = (pcb_t*)((1<<23) - ((1<<13) * (parent_pid + 1)));
+
+    tss.ss0 = KERNEL_DS;
+
+    //NOT SURE WHAT THE VALUE HERE SHOULD BE    
+    tss.esp0 = (1<<23) - (1<13) * (parent_pid) - 4;
+
+    //tss.esp0 = parent->save_esp;
+    printf("PARENT PID ADDR: %x\n", parent);
+    printf("current PID ADDR: %x\n", curr);
+
+    // set esp and ebp to parent's saved esp and ebp
+    asm volatile(
+      "movl %0, %%esp        \n\t"
+      "movl %1, %%ebp        \n\t"
+      :
+      : "r" (parent->save_esp), "r" (parent->save_ebp)
+      : "cc"
+    );
+
   }
-  return 0;
+  return status;
 }
 
 #define MAGIC_NUM_SIZE 4
