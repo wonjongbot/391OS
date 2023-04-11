@@ -526,6 +526,6 @@ void launch_tests() {
   //garbage_input_test_cp3();
 
   //basic_syscall_print_read();
-  execute("shell");
+  execute((uint8_t*)"shell");
 }
 
