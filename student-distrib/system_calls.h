@@ -27,6 +27,11 @@ extern int32_t syscall_close (int32_t fd);
 extern int32_t syscall_read (int32_t fd, void* buf, int32_t nbytes);
 extern int32_t syscall_write (int32_t fd, const void* buf, int32_t nbytes);
 
+extern int32_t syscall_getargs(uint8_t* buf, int32_t nbytes);
+extern int32_t syscall_vidmap(uint8_t** screen_start);
+extern int32_t syscall_set_handler(int32_t signum, void* handler_address);
+extern int32_t syscall_sigreturn(void);
+
 // User Level Wrapper
 extern int32_t halt (uint8_t status);
 extern int32_t execute (const uint8_t* command);

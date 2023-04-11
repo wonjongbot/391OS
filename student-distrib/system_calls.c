@@ -217,8 +217,8 @@ int32_t syscall_execute(const uint8_t* command) {
   tss.esp0 = (1<<23) - ((1<<13)*(curr_pid)) - 4;
 
   uint32_t return_addr = *(uint32_t*) &(((uint8_t*) PROGRAM_START_VIRTUAL_ADDR)[24]);
-  
-  // JIANLIN: LOOK HERE 
+
+  // JIANLIN: LOOK HERE
   // I close this because I don't want to open executable in child process
   syscall_close(fd);
   asm volatile(
@@ -354,4 +354,28 @@ integer specifying the interrupt rate in Hz, and should set the rate of periodic
 files should always return -1 to indicate failure since the file system is read-only. The call returns the number of bytes
 written, or -1 on failure.
 */
+}
+
+// Unimplemented stub
+// TODO
+int32_t syscall_getargs(uint8_t* buf, int32_t bytes) {
+  return -1;
+}
+
+// Unimplemented stub
+// TODO
+int32_t syscall_vidmap(uint8_t** screen_start) {
+  return -1;
+}
+
+// Unimplemented stub
+// TODO
+int32_t syscall_set_handler(int32_t signum, void* handler_address) {
+  return -1;
+}
+
+// Unimplemented stub
+// TODO
+int32_t syscall_sigreturn(void) {
+  return -1;
 }

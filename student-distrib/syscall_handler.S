@@ -3,9 +3,9 @@
 
 .text
 .globl SYSTEM_CALL_HANDLER
-.global halt, execute, read, write, open, close
+.global halt, execute, read, write, open, close, getargs, vidmap, set_handler, sigreturn
 system_call_jumptable:
-    .long 0x0, syscall_halt, syscall_execute, syscall_read, syscall_write, syscall_open, syscall_close
+    .long 0x0, syscall_halt, syscall_execute, syscall_read, syscall_write, syscall_open, syscall_close, syscall_getargs, syscall_vidmap, syscall_set_handler, syscall_sigreturn
 
 
 SYSTEM_CALL_HANDLER:
@@ -40,7 +40,7 @@ FINISH:
     popl %ebx
     popl %ecx
     popl %edx
-    
+
     popfl
     popl %esp
     popl %ebp
@@ -68,7 +68,7 @@ execute:
     int $0x80       # access to the kernel
     popl %ebx
     ret
-    
+
 read:
     pushl %ebx      # callee saved
     movl 8(%esp), %ebx      # move argument to the registers
@@ -78,7 +78,7 @@ read:
     int $0x80       # access to the kernel
     popl %ebx
     ret
-    
+
 write:
     pushl %ebx      # callee saved
     movl 8(%esp), %ebx      # move argument to the registers
@@ -88,7 +88,7 @@ write:
     int $0x80       # access to the kernel
     popl %ebx
     ret
-    
+
 open:
     pushl %ebx      # callee saved
     movl 8(%esp), %ebx      # move argument to the registers
@@ -105,6 +105,35 @@ close:
     popl %ebx
     ret
 
+getargs:
+    pushl %ebx      # callee saved
+    movl 8(%esp), %ebx      # move argument to the registers
+    movl 12(%esp), %ecx
+    movl $7, %eax
+    int $0x80       # access to the kernel
+    popl %ebx
+    ret
 
+vidmap:
+    pushl %ebx      # callee saved
+    movl 8(%esp), %ebx      # move argument to the registers
+    movl $8, %eax
+    int $0x80       # access to the kernel
+    popl %ebx
+    ret
 
+set_handler:
+    pushl %ebx      # callee saved
+    movl 8(%esp), %ebx      # move argument to the registers
+    movl 12(%esp), %ecx
+    movl $9, %eax
+    int $0x80       # access to the kernel
+    popl %ebx
+    ret
 
+sigreturn:
+    pushl %ebx      # callee saved
+    movl $10, %eax
+    int $0x80       # access to the kernel
+    popl %ebx
+    ret
