@@ -21,7 +21,7 @@
 int32_t curr_pid = -1;
 
 // current executing EXE's fd # in parent process.
-int32_t opened_exe_fd = 0;
+// int32_t opened_exe_fd = 0;
 
 static file_ops_t rtc_ops_list = {rtc_read, rtc_write, rtc_open, rtc_close};
 static file_ops_t dir_ops_list = {d_read, d_write, d_open, d_close};
@@ -66,7 +66,17 @@ int32_t syscall_halt(uint8_t status) {
     syscall_close(i);
   }
 
+  // printf("STATUS: %d\n", (int8_t)status);
+  if((int8_t)status < 0){
+    set_attrib(0x4E);
+    printf("[!] User program terminated due to exception\n");
+    set_attrib(0x7);
+  }
+
   if(curr->parent == NULL){
+    set_attrib(0x4E);
+    printf("[!] Base shell cannot be closed! Re-executing shell...\n");
+    set_attrib(0x7);
     curr->status = 0;
     pid_dealloc(curr->pid);
     curr_pid = -1;
@@ -103,7 +113,7 @@ int32_t syscall_halt(uint8_t status) {
         );
 
   }
-  syscall_close(opened_exe_fd);
+  // syscall_close(opened_exe_fd);
   return 0;
 }
 
@@ -129,12 +139,13 @@ int32_t syscall_execute(const uint8_t* command) {
    }
 
    int32_t fd;
-   // open it in the current process before spawning child process
- if ((fd = open(command)) == -1){
-   return -1;
- }
- opened_exe_fd = fd;
-//  syscall_close(fd);
+   // open it in the current process before spawning child process // edit, no need to do this anymore
+   // since peizhe told us that executables shouldn't be in fd array
+//  if ((fd = open(command)) == -1){
+//    return -1;
+//  }
+//  opened_exe_fd = fd;
+// //  syscall_close(fd);
 
   pcb_t* parent = NULL;
   pcb_t* curr;
@@ -231,11 +242,11 @@ int32_t syscall_execute(const uint8_t* command) {
  * named file, allocate an unused file descriptor, and set up any data necessary to handle the given type of file (directory,RTC device, or regular file)
  */
 int32_t syscall_open(const uint8_t* filename) {
-  int i;
-  for(i = 0; i < FILEARR_SIZE; i++){
-    printf("%d ", current->filearray[i].flags);
-  }
-  printf("\n");
+  // int i;
+  // for(i = 0; i < FILEARR_SIZE; i++){
+  //   printf("%d ", current->filearray[i].flags);
+  // }
+  // printf("\n");
   if (filename == NULL) return -1;
   int32_t fd;
   dentry_t dentry;
