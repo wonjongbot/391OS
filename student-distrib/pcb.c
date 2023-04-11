@@ -117,13 +117,14 @@ inline pcb_t* current_thread_PCB()
  *                 -1 if failure
  *   SIDE EFFECTS: none
  */
-int32_t PCB_init(pcb_t* pcb){
-    if(pcb == NULL) return -1;
-    pcb->pid = pid_alloc();     // assign a available pid
-    pcb->status = 1;       //update the pcb's status
-    pcb->parent = NULL;         //initialize the pcb's parent
-    pcb->argc = 0;
-    pcb->shell_flag = 0;
+int32_t PCB_init(pcb_t* pcb) {
+  if (pcb == NULL) return -1;
+  pcb->pid = pid_alloc();     // assign a available pid
+  pcb->status = 1;       //update the pcb's status
+  pcb->parent = NULL;         //initialize the pcb's parent
+  pcb->argc = 0;
+  memset(pcb->argv, '\0', ARGV_MAX_LEN + 1);
+  pcb->shell_flag = 0;
 
 
     //pcb->terminal = NULL; need to init terminal info

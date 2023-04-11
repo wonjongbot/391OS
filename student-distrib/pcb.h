@@ -5,9 +5,10 @@
 #include "system_calls.h"
 #include "filesystem.h"
 #include "lib.h"
+#include "terminal.h"
 
 #define MAX_THREAD_FOR_PCB 2
-#define ARGV_MAX_LEN 100
+#define ARGV_MAX_LEN (kb_buf_size - 3) // keyboard buf length - 2 for hypothetical 1 char filename + space + null/newline char
 #define MAX_PROCESS_NUM 6
 
 #define current current_thread_PCB()
@@ -46,8 +47,11 @@ typedef struct pcb {
 } pcb_t;
 
 int32_t pid_alloc();
+
 int32_t pid_peek();
+
 void pid_dealloc(int32_t pid);
+
 void unload(pcb_t* pcb);
 
 //point to the current process

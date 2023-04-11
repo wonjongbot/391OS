@@ -184,7 +184,24 @@ int32_t syscall_execute(const uint8_t* command) {
 
   curr->parent = parent;
 
-  if ((fd = open(command)) == -1){
+  uint32_t command_size = strlen((int8_t*) command);
+  uint32_t name_size = 0;
+  while (name_size < command_size && command[++name_size] != ' ');
+
+  uint8_t program[name_size + 1];
+  memcpy(program, command, name_size);
+  program[name_size] = '\0';
+
+  memset(curr->argv, '\0', ARGV_MAX_LEN + 1);
+
+  // Remove any extra whitespace after program name
+  if (command_size > name_size) {
+    while (name_size < command_size && command[++name_size] == ' ');
+    memcpy(curr->argv, &command[name_size], command_size - name_size);
+  }
+
+  int32_t fd;
+  if ((fd = open(program)) == -1) {
     unload(curr);
     return -1;
   }
@@ -358,8 +375,14 @@ written, or -1 on failure.
 
 // Unimplemented stub
 // TODO
-int32_t syscall_getargs(uint8_t* buf, int32_t bytes) {
-  return -1;
+int32_t syscall_getargs(uint8_t* buf, int32_t nbytes) {
+  if (buf == NULL) return -1;
+  pcb_t * curr = current;
+  int32_t n = strlen((int8_t*) curr->argv);
+  if (n + 1 > nbytes || n == 0) return -1;
+
+  memcpy(buf, curr->argv, n + 1);
+  return 0;
 }
 
 // Unimplemented stub

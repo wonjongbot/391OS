@@ -55,7 +55,7 @@ FINISH:
 # wrapper function (User Level)
 halt:
     pushl %ebx      # callee saved
-    movl 8(%esp), %ebx      # move argument to the registers
+    movb 8(%esp), %bl      # move argument to the registers
     movl $1, %eax
     int $0x80       # access to the kernel
     popl %ebx
