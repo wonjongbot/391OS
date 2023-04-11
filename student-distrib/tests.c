@@ -239,9 +239,9 @@ void basic_syscall_print_read() {
   printf("the flag of this fd is %d\n", current->filearray[fd].flags);
 }
 
-// /* 
+// /*
 //  *   test_ls
-//  *   DESCRIPTION: list all files in the file system 
+//  *   DESCRIPTION: list all files in the file system
 //  * 				  includes file_name, file_type, file_size
 //  *   INPUTS: none
 //  *   OUTPUTS: file name; file type; file size
@@ -256,7 +256,7 @@ void basic_syscall_print_read() {
 
  	buf[32] = '\0';
  	fd = open((uint8_t*)".");
-	
+
  	while (0 != (cnt = read (fd, buf, 32))) {
 // 		check if read the name of dentry successfully
          if (-1 == cnt) {
@@ -273,7 +273,7 @@ void basic_syscall_print_read() {
  		for(i = 0; i<field_length-length; i++){
  		 	printf(" ");
  		 }
-		
+
  		printf("%s, file_type: %d  \n",buf,dentry.file_type);
 
 
@@ -283,7 +283,7 @@ void basic_syscall_print_read() {
 
  }
 
-// /* 
+// /*
 //  *   garbage_input_test_cp3
 //  *   DESCRIPTION: test the invalid input of our functions
 //  *   INPUTS: none
@@ -291,20 +291,20 @@ void basic_syscall_print_read() {
 //  *   RETURN VALUE: none
 //  *   SIDE EFFECTS: none
 //  */
-  void garbage_input_test_cp3(){ // garbage input 
+  void garbage_input_test_cp3(){ // garbage input
 
  	if(PCB_init(NULL) == -1) printf("garbage_input_test for PCB_init passed! \n");
- 	
+
  	if(syscall_execute(NULL) == -1) printf("garbage_input_test for sys_execute passed! \n");
  	if(syscall_read(10,NULL,0) == -1) printf("garbage_input_test for sys_read passed! \n");
  	if(syscall_write(-1,NULL,0) == -1) printf("garbage_input_test for sys_write passed! \n");
  	if(syscall_open(NULL) == -1) printf("garbage_input_test for sys_open passed! \n");
  	if(syscall_close(-1) == -1) printf("garbage_input_test for sys_close passed! \n");
- 
+
 
  }
 
- // /* 
+ // /*
 //  *   print_exe_file
 //  *   DESCRIPTION: read the data and print on the screen , test "read exe"
 //  *   INPUTS: none
@@ -344,10 +344,10 @@ void basic_syscall_print_read() {
  	printf("\n");
  	printf("file_name: ls");
  	close(fd_cur);
-	
+
  }
 
- // /* 
+ // /*
 //  *   syscall_open_test
 //  *   DESCRIPTION: open file and print on the screen , test "syscall_open"
 //  *   INPUTS: none
@@ -363,14 +363,14 @@ void basic_syscall_print_read() {
   }
 }
 
- // /* 
+ // /*
 //  *   syscall_close_test
 //  *   DESCRIPTION: close file and print on the screen , test "syscall_close
 //  *   OUTPUTS: pass or fail
 //  *   RETURN VALUE: none
 //  *   SIDE EFFECTS: none
 //  */
-void syscall_close_test() { 
+void syscall_close_test() {
   int32_t fd = syscall_open((uint8_t*)"frame0.txt");
   if (syscall_close(fd) == -1) {
     printf("syscall_close_test failed! \n");
@@ -379,7 +379,7 @@ void syscall_close_test() {
   }
 }
 
- // /* 
+ // /*
 //  *   syscall_read_write_test
 //  *   DESCRIPTION: read file and write to terminal print on the screen , test "syscall_read, syscall_write"
 //  *   INPUTS: none
@@ -523,6 +523,9 @@ void launch_tests() {
   // execute_test();
   // garbage_input_test_cp3();
   // basic_syscall_print_read();
+  syscall_open_test();
+  syscall_close_test();
+  syscall_read_write_test();
 
   set_attrib(0x0B);
   printf("Manual tests:\n1. Run syserr test 0. \n\t* This tests invaid open and close system call.\n");
