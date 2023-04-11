@@ -21,7 +21,8 @@
 
 ## Checkpoint 3
 
-- **(3/10/23)** syscall open's string length depended on the input fname instead of directory's name. User's string will always be longer (due to \n) so size of comparison had to be set to length of current dentry object's name.
-- **(3/10/23)** matching the starting chars of a dentry was matching it...
-- **(3/10/23)** exiting the base shell was executing with the wrong parent pid
-- **(3/10/23)** halt skips to pid 0 no matter what. esp0 was not being set correctly.
+- **(4/10/23)** syscall open's string length depended on the input fname instead of directory's name. User's string will always be longer (due to \n) so size of comparison had to be set to length of current dentry object's name.
+- **(4/10/23)** matching the starting chars of a dentry was matching it...
+- **(4/10/23)** exiting the base shell was executing with the wrong parent pid
+- **(4/10/23)** halt skips to pid 0 no matter what. esp0 was not being set correctly (should be saved TOS of kernel instead of bottom of kernel stack).
+- **(4/10/23)** was failing syserr test 3 and 5, basically testing behavior of incorrect file open and close. We failed this because we were opneing the exe in child's process instead of parent's process. So we had 1 less spot for new files to be open, and 1 more extra file to be closed wihtout error. We fixed this by closing the fd right after we use it to gain user space return address and copying to user space in the child's kernel stack. We also open the exe in parent kernel stack before switching the stack and close the opened exe after kernel is switched back to parent during halt.

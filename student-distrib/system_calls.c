@@ -20,6 +20,9 @@
 
 int32_t curr_pid = -1;
 
+// current executing EXE's fd # in parent process.
+int32_t opened_exe_fd = 0;
+
 static file_ops_t rtc_ops_list = {rtc_read, rtc_write, rtc_open, rtc_close};
 static file_ops_t dir_ops_list = {d_read, d_write, d_open, d_close};
 static file_ops_t file_ops_list = {f_read, f_write, f_open, f_close};
@@ -100,6 +103,7 @@ int32_t syscall_halt(uint8_t status) {
         );
 
   }
+  syscall_close(opened_exe_fd);
   return 0;
 }
 
@@ -129,6 +133,7 @@ int32_t syscall_execute(const uint8_t* command) {
  if ((fd = open(command)) == -1){
    return -1;
  }
+ opened_exe_fd = fd;
 //  syscall_close(fd);
 
   pcb_t* parent = NULL;
@@ -238,11 +243,9 @@ int32_t syscall_open(const uint8_t* filename) {
   //find what we need to start file's fd
   for (fd = 2;; fd++) {
     if (fd == FILEARR_SIZE) {
-      printf("SEX\n");
       return -1;
     }
     if (current->filearray[fd].flags == 0) {
-      printf("BReAKING at fd %d\n", fd);
       break;
     }
   }
