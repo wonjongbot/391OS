@@ -236,7 +236,7 @@ void basic_syscall_print_read() {
   write(fd, buf, 6000);
   close(fd);
   printf("\n");
-  printf("the flag of this fd is %d", current->filearray[fd].flags);
+  printf("the flag of this fd is %d\n", current->filearray[fd].flags);
 }
 
 // /* 
@@ -520,12 +520,18 @@ void launch_tests() {
 #endif
 #endif
 ///////////////////////////////////////////////////////////////////////////////
-  //test_ls();
-  //print_exe_file();
-  //execute_test();
-  //garbage_input_test_cp3();
+  // execute_test();
+  // garbage_input_test_cp3();
+  // basic_syscall_print_read();
 
-  //basic_syscall_print_read();
+  set_attrib(0x0B);
+  printf("Manual tests:\n1. Run syserr test 0. \n\t* This tests invaid open and close system call.\n");
+  printf("2. Try to execute unimplemented systemcalls.\n\t* Try fish and see if it returns abnormal termination.\n");
+  printf("3. Open RTC from shell.\n\t* This should return no such command.\n");
+  printf("4. Test exception squashing\n\t* Try sigtest 0. Does it return to parent shell?\n");
+  printf("\t* Enable SQUASH_TEST macro in rtc.h and try to execute pingpong.\n\t  Does it return to parent shell?\n");
+  set_attrib(0x07);
+
   execute((uint8_t*)"shell");
 }
 

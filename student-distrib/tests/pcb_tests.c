@@ -7,7 +7,7 @@
 void execute_test(){
   int ret;
   printf("Opening executable pingpong\n");
-  ret = execute((uint8_t*)"shell");
+  ret = execute((uint8_t*)"pingpong");
   if(ret >= 0 && ret < 256){
     printf("Success: Executable opened\n");
   }
