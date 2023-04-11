@@ -193,6 +193,8 @@ int32_t syscall_execute(const uint8_t* command) {
 
   memset(curr->argv, '\0', ARGV_MAX_LEN + 1);
 
+  if (name_size == strlen("rtc") && strncmp((int8_t*) program, "rtc", strlen("rtc")) == 0) return -1;
+
   // Remove any extra whitespace after program name
   if (command_size > name_size) {
     while (name_size < command_size && command[++name_size] == ' ');
