@@ -303,6 +303,49 @@ void basic_syscall_print_read() {
  
 
  }
+
+ // /* 
+//  *   print_exe_file
+//  *   DESCRIPTION: read the data and print on the screen , test "read exe"
+//  *   INPUTS: none
+//  *   OUTPUTS: the data in this file
+//  *   RETURN VALUE: none
+//  *   SIDE EFFECTS: none
+//  */
+ void print_exe_file() {
+ 	TEST_HEADER;
+ 	uint8_t buf[6000];
+ 	uint32_t j;
+ 	for(j = 0; j < 6000; j++){
+          ((int8_t*)buf)[j] = '\0';
+     } // clear the buffer
+ 	int32_t fd_cur,i,result;
+ 	i = 0;
+ 	//open the file
+ 	fd_cur = open((uint8_t*)"ls");
+ 	if(fd_cur ==-1){
+ 		printf("fail opening ls\n");
+ 		return;
+ 	}
+ 	//read the data into the buffer
+ 	read(fd_cur,buf,6000);
+ 	//print the buffer
+ 	for(i = 0 ; i<6000;i++){
+ 		// don't print null bytes
+ 		if(buf[i]!=0){
+ 			putc(buf[i]);
+ 		}
+ 		 //putc(buf[i]);
+ 	}
+ 	result=write(fd_cur, buf, 6000);
+ 	if(result!=-1){
+ 		printf("gg");
+ 	}
+ 	printf("\n");
+ 	printf("file_name: ls");
+ 	close(fd_cur);
+	
+ }
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 
@@ -425,9 +468,11 @@ void launch_tests() {
 #endif
 ///////////////////////////////////////////////////////////////////////////////
   //test_ls();
-  execute_test();
+  //print_exe_file();
+  //execute_test();
   //garbage_input_test_cp3();
 
   //basic_syscall_print_read();
+  execute("shell");
 }
 
