@@ -346,6 +346,59 @@ void basic_syscall_print_read() {
  	close(fd_cur);
 	
  }
+
+ // /* 
+//  *   syscall_open_test
+//  *   DESCRIPTION: open file and print on the screen , test "syscall_open"
+//  *   INPUTS: none
+//  *   OUTPUTS: pass or fail
+//  *   RETURN VALUE: none
+//  *   SIDE EFFECTS: none
+//  */
+ void syscall_open_test() {
+  if (syscall_open((uint8_t*)"pingpong") > 1) {
+    printf("syscall_open_test passed! \n");
+  } else {
+    printf("syscall_open_test failed! \n");
+  }
+}
+
+ // /* 
+//  *   syscall_close_test
+//  *   DESCRIPTION: close file and print on the screen , test "syscall_close
+//  *   OUTPUTS: pass or fail
+//  *   RETURN VALUE: none
+//  *   SIDE EFFECTS: none
+//  */
+void syscall_close_test() { 
+  int32_t fd = syscall_open((uint8_t*)"frame0.txt");
+  if (syscall_close(fd) == -1) {
+    printf("syscall_close_test failed! \n");
+  } else {
+    printf("syscall_close_test passed! \n");
+  }
+}
+
+ // /* 
+//  *   syscall_read_write_test
+//  *   DESCRIPTION: read file and write to terminal print on the screen , test "syscall_read, syscall_write"
+//  *   INPUTS: none
+//  *   OUTPUTS: pass or fail
+//  *   RETURN VALUE: none
+//  *   SIDE EFFECTS: none
+//  */
+void syscall_read_write_test() {
+  int32_t fd = syscall_open((uint8_t*)"frame0.txt");
+  char buf[200];
+  if (syscall_read(fd, buf, 200) == -1) {
+    printf("syscall_read_write_test failed! \n");
+  }
+  buf[199] = '\0';
+  (void)syscall_write(1, buf, strlen(buf));
+
+  printf("syscall_read_write_test passed! \n");
+}
+
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 
