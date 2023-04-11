@@ -135,7 +135,7 @@ int32_t rtc_read (int32_t fd, void* buf, int32_t nbytes) {
     while (interrupt_flag == 0);
 
     // Testing user program squashing on exception
-    #if SQUAH_TEST
+    #if SQUASH_TEST
     int a;
     a = 0;
     a = 3 / a;
