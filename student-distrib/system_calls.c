@@ -69,14 +69,16 @@ int32_t syscall_halt(uint8_t status) {
   // printf("STATUS: %d\n", (int8_t)status);
   if((int8_t)status < 0){
     set_attrib(0x4E);
-    printf("[!] User program terminated due to exception\n");
+    printf("[!] User program terminated due to exception");
     set_attrib(0x7);
+    printf("\n");
   }
 
   if(curr->parent == NULL){
     set_attrib(0x4E);
-    printf("[!] Base shell cannot be closed! Re-executing shell...\n");
+    printf("[!] Base shell cannot be closed! Restarting shell...");
     set_attrib(0x7);
+    printf("\n");
     curr->status = 0;
     pid_dealloc(curr->pid);
     curr_pid = -1;
@@ -135,6 +137,10 @@ int32_t syscall_execute(const uint8_t* command) {
 
 // // if there is no process (first shell), we want to set up PCB in current stack
    if( pid_peek() == -1){
+    set_attrib(0x4E);
+    printf("[!] Maximum number of process opened! Close programs to allocate more...");
+    set_attrib(0x7);
+    printf("\n");
     return -1;
    }
 
