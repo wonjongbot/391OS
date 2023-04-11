@@ -113,7 +113,7 @@ void rtc_handler(void) {
  * Initializes RTC frequency to 2 HZ
  */
 int32_t rtc_open (const uint8_t* filename) {
-    printf("RTC FREQ SET TO 2\n");
+    // printf("RTC FREQ SET TO 2\n");
     rtc_set_freq(2);    // Set frequency to 2 HZ
     return 0;
 }

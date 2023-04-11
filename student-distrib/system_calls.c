@@ -49,6 +49,7 @@ uint32_t set_virtual_memory(uint32_t pcb_id) {
   return PROGRAM_START_VIRTUAL_ADDR;
 }
 
+#define abnormal_ret 0xff
 int32_t halt_ret;
 /*
  * sys_halt
@@ -69,7 +70,7 @@ int32_t syscall_halt(uint8_t status) {
   }
 
   // -0x1f is the smallest exception number in uint8_t scale
-  if(halt_ret > (uint8_t)-0x1f){
+  if(halt_ret > (uint8_t)-0x1f && halt_ret != abnormal_ret){
     set_attrib(0x4E);
     printf("[!] User program terminated by exception");
     set_attrib(0x7);

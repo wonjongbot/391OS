@@ -26,7 +26,7 @@ void INT0x00(){
     set_attrib(0x7);
     // while(1);
     // returning -1 or else it's going to consider it as normal exit
-    syscall_halt(-0x1);
+    syscall_halt(-0x2);
 }
 
 /*
@@ -40,7 +40,7 @@ void INT0x01(){
     printf("[!] Interrupt 1:Debug Exception (#DB)\n");
     set_attrib(0x7);
     // while(1);
-    syscall_halt(-0x1);
+    syscall_halt(-0x2);
 }
 
 /*
