@@ -148,7 +148,6 @@ int32_t syscall_execute(const uint8_t* command) {
     return -1;
    }
 
-   int32_t fd;
    // open it in the current process before spawning child process // edit, no need to do this anymore
    // since peizhe told us that executables shouldn't be in fd array
 //  if ((fd = open(command)) == -1){
