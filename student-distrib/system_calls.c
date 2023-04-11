@@ -125,9 +125,10 @@ int32_t syscall_execute(const uint8_t* command) {
    }
 
    int32_t fd;
-//  if ((fd = open(command)) == -1){
-//    return -1;
-//  }
+   // open it in the current process before spawning child process
+ if ((fd = open(command)) == -1){
+   return -1;
+ }
 //  syscall_close(fd);
 
   pcb_t* parent = NULL;
@@ -190,7 +191,10 @@ int32_t syscall_execute(const uint8_t* command) {
   tss.esp0 = (1<<23) - ((1<<13)*(curr_pid)) - 4;
 
   uint32_t return_addr = *(uint32_t*) &(((uint8_t*) PROGRAM_START_VIRTUAL_ADDR)[24]);
-
+  
+  // JIANLIN: LOOK HERE 
+  // I close this because I don't want to open executable in child process
+  syscall_close(fd);
   asm volatile(
       "pushl %%eax \n\t"
       "pushl $0x83ffffc \n\t"
@@ -211,7 +215,6 @@ int32_t syscall_execute(const uint8_t* command) {
       :
       : "memory"
       );
-
   return 0;
 }
 
@@ -223,17 +226,24 @@ int32_t syscall_execute(const uint8_t* command) {
  * named file, allocate an unused file descriptor, and set up any data necessary to handle the given type of file (directory,RTC device, or regular file)
  */
 int32_t syscall_open(const uint8_t* filename) {
+  int i;
+  for(i = 0; i < FILEARR_SIZE; i++){
+    printf("%d ", current->filearray[i].flags);
+  }
+  printf("\n");
   if (filename == NULL) return -1;
   int32_t fd;
   dentry_t dentry;
 
   //find what we need to start file's fd
   for (fd = 2;; fd++) {
-    if (current->filearray[fd].flags == 0) {
-      break;
-    }
     if (fd == FILEARR_SIZE) {
+      printf("SEX\n");
       return -1;
+    }
+    if (current->filearray[fd].flags == 0) {
+      printf("BReAKING at fd %d\n", fd);
+      break;
     }
   }
 
@@ -265,7 +275,7 @@ int32_t syscall_open(const uint8_t* filename) {
 }
 
 int32_t syscall_close(int32_t fd) {
-  if (fd >= 8 || fd < 0) return -1;    //0=<fd<8
+  if (fd >= 8 || fd < 2) return -1;    //2=<fd<8
 
   filed* fileclose = &current->filearray[fd];
   if (fileclose->flags == 0 || fileclose->ops == NULL) return -1;
