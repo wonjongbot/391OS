@@ -282,6 +282,27 @@ void basic_syscall_print_read() {
  	return;
 
  }
+
+// /* 
+//  *   garbage_input_test_cp3
+//  *   DESCRIPTION: test the invalid input of our functions
+//  *   INPUTS: none
+//  *   OUTPUTS: none
+//  *   RETURN VALUE: none
+//  *   SIDE EFFECTS: none
+//  */
+  void garbage_input_test_cp3(){ // garbage input 
+
+ 	if(PCB_init(NULL) == -1) printf("garbage_input_test for PCB_init passed! \n");
+ 	
+ 	if(syscall_execute(NULL) == -1) printf("garbage_input_test for sys_execute passed! \n");
+ 	if(syscall_read(10,NULL,0) == -1) printf("garbage_input_test for sys_read passed! \n");
+ 	if(syscall_write(-1,NULL,0) == -1) printf("garbage_input_test for sys_write passed! \n");
+ 	if(syscall_open(NULL) == -1) printf("garbage_input_test for sys_open passed! \n");
+ 	if(syscall_close(-1) == -1) printf("garbage_input_test for sys_close passed! \n");
+ 
+
+ }
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 
@@ -403,8 +424,9 @@ void launch_tests() {
 #endif
 #endif
 ///////////////////////////////////////////////////////////////////////////////
-  test_ls();
+  //test_ls();
   execute_test();
+  //garbage_input_test_cp3();
 
   //basic_syscall_print_read();
 }
