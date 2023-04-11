@@ -49,6 +49,7 @@ uint32_t set_virtual_memory(uint32_t pcb_id) {
   return PROGRAM_START_VIRTUAL_ADDR;
 }
 
+int32_t halt_ret;
 /*
  * sys_halt
  *   DESCRIPTION: syetem call: terminate a process
@@ -60,18 +61,20 @@ uint32_t set_virtual_memory(uint32_t pcb_id) {
 int32_t syscall_halt(uint8_t status) {
   // How do we know if this is an exception call?
   pcb_t* curr = current;
+  halt_ret = (int32_t)status;
   int i;
   // close all the file descriptor
   for(i = 2; i < 8; i++){
     syscall_close(i);
   }
 
-  // printf("STATUS: %d\n", (int8_t)status);
-  if((int8_t)status < 0){
+  // -0x1f is the smallest exception number in uint8_t scale
+  if(halt_ret > (uint8_t)-0x1f){
     set_attrib(0x4E);
-    printf("[!] User program terminated due to exception");
+    printf("[!] User program terminated by exception");
     set_attrib(0x7);
     printf("\n");
+    halt_ret = 256;
   }
 
   if(curr->parent == NULL){
@@ -110,13 +113,14 @@ int32_t syscall_halt(uint8_t status) {
         "movl %1, %%ebp        \n\t"
         "movl %2, %%eax        \n\t"
         :
-        : "r"(parent->save_esp), "r"(parent->save_ebp), "r"((int32_t)status)
+        : "r"(parent->save_esp), "r"(parent->save_ebp), "r"(halt_ret)
         : "cc"
         );
 
   }
   // syscall_close(opened_exe_fd);
-  return 0;
+  // printf("STATUS: %d\n", halt_ret);
+  return halt_ret;
 }
 
 #define MAGIC_NUM_SIZE 4
