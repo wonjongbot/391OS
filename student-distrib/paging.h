@@ -27,6 +27,7 @@
 
 //#define PROGRAM_START_VIRTUAL_ADDR 0x08048000
 #define PROGRAM_START_VIRTUAL_ADDR 0x08048000
+#define VIDMAP_START_VIRTUAL_ADDR  0x0C000000
 /* if we are to create multiple pages for vga page switching, we would uncomment these lines */
 
 /*

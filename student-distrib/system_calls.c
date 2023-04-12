@@ -35,8 +35,8 @@ static file_ops_t file_ops_list = {f_read, f_write, f_open, f_close};
  *   RETURN VALUE: base address of new page
  *   SIDE EFFECTS: none
  */
-uint32_t set_virtual_memory(uint32_t pcb_id) {
-  if (pcb_id >= MAX_PROCESS_NUM) return -1;
+void set_virtual_memory(uint32_t pcb_id) {
+  if (pcb_id >= MAX_PROCESS_NUM) return;
   uint32_t pde_index = dir_entry(PROGRAM_START_VIRTUAL_ADDR);
   page_directory[pde_index].val = 0;
   page_directory[pde_index].present = 1;
@@ -46,7 +46,27 @@ uint32_t set_virtual_memory(uint32_t pcb_id) {
   page_directory[pde_index].base_addr = ((uint32_t) ((pcb_id + 2) * PAGE_4MB_VAL)) >> 12;
 
   reload_tlb();
-  return PROGRAM_START_VIRTUAL_ADDR;
+}
+
+void set_vidmap(uint32_t pcb_id) {
+  if (pcb_id >= MAX_PROCESS_NUM) return;
+  uint32_t pde_index = dir_entry(VIDMAP_START_VIRTUAL_ADDR);
+  page_directory[pde_index].val = 0;
+  page_directory[pde_index].present = 1;
+  page_directory[pde_index].ps = 0;
+  page_directory[pde_index].rw = 1;
+  page_directory[pde_index].us = 1;
+  page_directory[pde_index].base_addr=((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+
+  uint32_t pte_index = page_entry(VIDMAP_START_VIRTUAL_ADDR);
+  page_table0[pte_index].val = 0;
+  page_table0[pte_index].present = 1;
+  page_table0[pte_index].ps = 0;
+  page_table0[pte_index].rw = 1;
+  page_table0[pte_index].us = 1;
+  page_table0[pte_index].base_addr = (VGA_TEXT_BUF_ADDR & ALIGNED_ADDR_MASK) >> TABLE_ADDRESS_SHIFT;
+
+  reload_tlb();
 }
 
 #define abnormal_ret 0xff
@@ -233,6 +253,8 @@ int32_t syscall_execute(const uint8_t* command) {
     return -1;
   }
 
+  set_vidmap(curr->pid);
+
   curr_pid = curr->pid;
 
   tss.ss0 = KERNEL_DS;
@@ -393,7 +415,10 @@ int32_t syscall_getargs(uint8_t* buf, int32_t nbytes) {
 // Unimplemented stub
 // TODO
 int32_t syscall_vidmap(uint8_t** screen_start) {
-  return -1;
+  if ((uint32_t) screen_start < 0x08000000 || (uint32_t) screen_start > 0x0B000000) return -1;
+  *screen_start = (uint8_t*) VIDMAP_START_VIRTUAL_ADDR;
+
+  return 0;
 }
 
 // Unimplemented stub
