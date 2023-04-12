@@ -415,7 +415,7 @@ int32_t syscall_getargs(uint8_t* buf, int32_t nbytes) {
 // Unimplemented stub
 // TODO
 int32_t syscall_vidmap(uint8_t** screen_start) {
-  if ((uint32_t) screen_start < 0x08000000 || (uint32_t) screen_start > 0x0B000000) return -1;
+  if ((uint32_t) screen_start < 0x08000000 || (uint32_t) screen_start >= 0x0B000000) return -1;
   *screen_start = (uint8_t*) VIDMAP_START_VIRTUAL_ADDR;
 
   return 0;
