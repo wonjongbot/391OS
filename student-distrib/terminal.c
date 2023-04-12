@@ -10,7 +10,7 @@
 void terminal_history_handler(){
     int i;
     // we can only access 128 histories
-    if(up_flag == 1 && kb_buf_history_top > 0 && kb_buf_history_ptr > 0){
+    if(kb_buf_top == 0 &&(up_flag == 1 && kb_buf_history_top > 0 && kb_buf_history_ptr > 0)){
         // if up was pressed in the top of keyboard history, we copy
         // what we have so far into the most recent history and save num chars
         if(kb_buf_history_ptr == kb_buf_history_top){
@@ -32,6 +32,7 @@ void terminal_history_handler(){
         i = 0;
         // print the saved buffer to screen, after clearing current line.
         clear_line();
+        //terminal_write(1, (void*)"391OS> ",7);
         while(1){
             if(kb_buf[i] == '\n' || kb_buf[i] == '\r'){
                 break;
@@ -56,6 +57,7 @@ void terminal_history_handler(){
         if(kb_buf_history_ptr == kb_buf_history_top){
             i = 0;
             clear_line();
+            // terminal_write(1, (void*)"391OS> ",7);
             memcpy(kb_buf, kb_buf_history[kb_buf_history_top], kb_buf_size);
             kb_buf_top = kb_buf_top_cached;
             while(i < kb_buf_top_cached){
@@ -69,6 +71,7 @@ void terminal_history_handler(){
             memcpy(kb_buf, kb_buf_history[kb_buf_history_ptr], kb_buf_size);
             i = 0;
             clear_line();
+            // terminal_write(1, (void*)"391OS> ",7);
             while(1){
                 if(kb_buf[i] == '\n' || kb_buf[i] == '\r'){
                     kb_buf_top = ++i;
