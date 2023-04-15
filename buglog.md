@@ -29,3 +29,9 @@
 - **(4/10/23)** was returning 0 from halt all the time, so no matter the reason for halt, the OS thinks it halted due to normal reasons. Had to do some special formatting since our interrupt handlers return negative of its exception numbers.
 - **(4/9/23)** when runing ls.c in shell, after print the file name that longer than 32,the page fault. This is because when the file name longer than 32, in d-read, the return value will larger than 32 which is wrong, so fix all the return value longer than 32 to 32
 - **(4/9/23)** status input of halt can't distinguish abnormal termination or eception because both can be 255. We set it so that exception cannot return 255, so only abnormal crash generates status of 255 (0xff, -1, whatever u like).
+
+
+# Checkpoint 4
+
+- **(4/15/23)** vidmap page was always enabled whenever execute is done. Changed so that vidmap page's present bit is set to 1 only when syscall_vidmap is called by user
+- **(4/15/23)** `cat rtc` should terminate after some time (because it opens rtc and waits until rtc_read returns), but it returned immediately. Issue was that our counter to virtualize the rtc is set to 0, which is the condition rtc_read considers to be interrupt. So we had to set the rtc_open's starting counter value as 1 to avoid this.
