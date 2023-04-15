@@ -148,10 +148,11 @@ int32_t syscall_halt(uint8_t status) {
     tss.ss0 = KERNEL_DS;
 
     //NOT SURE WHAT THE VALUE HERE SHOULD BE
-    tss.esp0 = parent->save_esp;
+    // tss.esp0 = parent->save_esp;
+    tss.esp0 = (1<<23) - ((1<<13)*(curr_pid)) - 4;
 
     //tss.esp0 = curr->save_esp;
-
+    // printf("PID: %d\n", curr_pid);
     // set esp and ebp to parent's saved esp and
     asm volatile(
         "movl %0, %%esp        \n\t"
@@ -289,6 +290,7 @@ int32_t syscall_execute(const uint8_t* command) {
   // JIANLIN: LOOK HERE
   // I close this because I don't want to open executable in child process
   syscall_close(fd);
+  // printf("PID: %d\n", curr_pid);
   asm volatile(
       "pushl %%eax \n\t"
       "pushl $0x83ffffc \n\t"
@@ -393,6 +395,7 @@ descriptor should result in a return value of -1; successful closes should retur
 int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes) {
   if (fd >= 8 || fd < 0) return -1;    //0=<fd<8
   if (current->filearray[fd].flags == 0) return -1;
+  sti();
   return current->filearray[fd].ops->read(fd, buf, nbytes);
 /*
 The read system call reads data from the keyboard, a file, device (RTC), or directory. This call returns the number
