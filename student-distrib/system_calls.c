@@ -60,7 +60,29 @@ void set_vidmap(uint32_t pcb_id) {
 
   uint32_t pte_index = page_entry(VIDMAP_START_VIRTUAL_ADDR);
   page_table0[pte_index].val = 0;
-  page_table0[pte_index].present = 1;
+  page_table0[pte_index].present = 0;
+  page_table0[pte_index].ps = 0;
+  page_table0[pte_index].rw = 1;
+  page_table0[pte_index].us = 1;
+  page_table0[pte_index].base_addr = (VGA_TEXT_BUF_ADDR & ALIGNED_ADDR_MASK) >> TABLE_ADDRESS_SHIFT;
+
+  reload_tlb();
+}
+
+
+void set_vidmap_present(uint32_t pcb_id, uint32_t present) {
+  if (pcb_id >= MAX_PROCESS_NUM) return;
+  uint32_t pde_index = dir_entry(VIDMAP_START_VIRTUAL_ADDR);
+  page_directory[pde_index].val = 0;
+  page_directory[pde_index].present = 1;
+  page_directory[pde_index].ps = 0;
+  page_directory[pde_index].rw = 1;
+  page_directory[pde_index].us = 1;
+  page_directory[pde_index].base_addr=((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+
+  uint32_t pte_index = page_entry(VIDMAP_START_VIRTUAL_ADDR);
+  page_table0[pte_index].val = 0;
+  page_table0[pte_index].present = present;
   page_table0[pte_index].ps = 0;
   page_table0[pte_index].rw = 1;
   page_table0[pte_index].us = 1;
@@ -97,6 +119,8 @@ int32_t syscall_halt(uint8_t status) {
     printf("\n");
     halt_ret = 256;
   }
+
+  set_vidmap_present(current->pid, 0);
 
   if(curr->parent == NULL){
     set_attrib(0x4E);
@@ -417,7 +441,7 @@ int32_t syscall_getargs(uint8_t* buf, int32_t nbytes) {
 int32_t syscall_vidmap(uint8_t** screen_start) {
   if ((uint32_t) screen_start < 0x08000000 || (uint32_t) screen_start >= 0x0B000000) return -1;
   *screen_start = (uint8_t*) VIDMAP_START_VIRTUAL_ADDR;
-
+  set_vidmap_present(current->pid, 1);
   return 0;
 }
 
