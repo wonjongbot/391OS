@@ -35,3 +35,4 @@
 
 - **(4/15/23)** vidmap page was always enabled whenever execute is done. Changed so that vidmap page's present bit is set to 1 only when syscall_vidmap is called by user
 - **(4/15/23)** `cat rtc` should terminate after some time (because it opens rtc and waits until rtc_read returns), but it returned immediately. Issue was that our counter to virtualize the rtc is set to 0, which is the condition rtc_read considers to be interrupt. So we had to set the rtc_open's starting counter value as 1 to avoid this.
+- **(4/18/23)** vidmap created some weird pages mapped at 0x0 - 0x1000, and 0xcb8000-cb9000. Issue was that we used the same page table as previous checkpoints, which caused pages to overlap and duplicated. So we created a new page table for vidmap to fix this
