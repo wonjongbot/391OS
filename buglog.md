@@ -18,7 +18,6 @@
 - **(3/28/23)** terminal history had a bug that you had to press arrow keys twice when you are on the edge of the history buffer. Had to reset up_arrow_flag and down_arrow_flag after each history handler call
 - **(3/28/23)** terminal_write couldn't handle formatted string with `\n` in the middle because it is terminated on newline character. Had to print nbytes regardless of buffer content.
 
-
 ## Checkpoint 3
 
 - **(4/10/23)** syscall open's string length depended on the input fname instead of directory's name. User's string will always be longer (due to \n) so size of comparison had to be set to length of current dentry object's name.
@@ -30,8 +29,7 @@
 - **(4/9/23)** when runing ls.c in shell, after print the file name that longer than 32,the page fault. This is because when the file name longer than 32, in d-read, the return value will larger than 32 which is wrong, so fix all the return value longer than 32 to 32
 - **(4/9/23)** status input of halt can't distinguish abnormal termination or eception because both can be 255. We set it so that exception cannot return 255, so only abnormal crash generates status of 255 (0xff, -1, whatever u like).
 
-
-# Checkpoint 4
+## Checkpoint 4
 
 - **(4/15/23)** vidmap page was always enabled whenever execute is done. Changed so that vidmap page's present bit is set to 1 only when syscall_vidmap is called by user
 - **(4/15/23)** `cat rtc` should terminate after some time (because it opens rtc and waits until rtc_read returns), but it returned immediately. Issue was that our counter to virtualize the rtc is set to 0, which is the condition rtc_read considers to be interrupt. So we had to set the rtc_open's starting counter value as 1 to avoid this.
