@@ -20,6 +20,8 @@
 #define VIRTUAL_DIR_OFF          22                         // offset of page directory in virtual address
 #define VIRTUAL_PAG_OFF          12                         // offset of page table in virtual address
 
+#define VALUE_128MB              0x8000000                  // 128 mb
+#define VALUE_132MB              0x8400000  
 
 // Addrs
 #define KERNEL_ADDR              PAGE_4MB_VAL               // Kernel start at 4MB in physical memory

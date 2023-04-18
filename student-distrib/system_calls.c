@@ -72,6 +72,7 @@ void set_vidmap(uint32_t pcb_id) {
 
 void set_vidmap_present(uint32_t pcb_id, uint32_t present) {
   if (pcb_id >= MAX_PROCESS_NUM) return;
+
   uint32_t pde_index = dir_entry(VIDMAP_START_VIRTUAL_ADDR);
   page_directory[pde_index].val = 0;
   page_directory[pde_index].present = 1;
@@ -427,10 +428,21 @@ written, or -1 on failure.
 */
 }
 
-// Unimplemented stub
-// TODO
+/*
+ * syscall_getargs
+ * DESCRIPTION: system call: returns the argument saved before
+ *
+ *  Inputs: buffer-- stores the argument
+ *          nbytes: number of bytes in the buffer
+ *
+ *  Returns: -1: if failed
+ *            0: if success
+ *
+ *  Side effects: none
+ *
+ */
 int32_t syscall_getargs(uint8_t* buf, int32_t nbytes) {
-  if (buf == NULL) return -1;
+  if (buf == NULL ) return -1;
   pcb_t * curr = current;
   int32_t n = strlen((int8_t*) curr->argv);
   if (n + 1 > nbytes || n == 0) return -1;
@@ -439,12 +451,30 @@ int32_t syscall_getargs(uint8_t* buf, int32_t nbytes) {
   return 0;
 }
 
-// Unimplemented stub
-// TODO
+/*  
+ * syscall_vidmap
+ *   DESCRIPTION: system call: map the text-mode video memory into user-space virtual address
+ *   INPUTS: screen_start
+ *   OUTPUTS: none
+ *  Returns: -1: if failed
+ *            0: if success
+ *   SIDE EFFECTS: none
+ */
 int32_t syscall_vidmap(uint8_t** screen_start) {
-  if ((uint32_t) screen_start < 0x08000000 || (uint32_t) screen_start >= 0x0B000000) return -1;
+  printf("okkkk\n");
+  //uint32_t flags;
+  if ((uint32_t) screen_start < VALUE_128MB || (uint32_t) screen_start >= VALUE_132MB) return -1;
+  printf("gg\n");
+
+  //cli_and_save(flags);
   *screen_start = (uint8_t*) VIDMAP_START_VIRTUAL_ADDR;
+  printf("ok1");
+  
+  uint32_t test=current->pid;
+  printf("ok2");
   set_vidmap_present(current->pid, 1);
+  //restore_flags(flags);
+
   return 0;
 }
 
