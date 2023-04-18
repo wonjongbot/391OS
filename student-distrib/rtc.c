@@ -69,9 +69,9 @@ int32_t rtc_set_freq(unsigned frequency){
         return -1;
     }
     else{
-        rtc_set_rate(6);
+        // rtc_set_rate(6);
         // reset the counter
-        rtc_counter = 0;
+        rtc_counter = 1;
         // set counter target
         rtc_target = (float)(1024) / (float)frequency;  // Gives number of interrupts. 1024 Hz
     }
@@ -93,7 +93,6 @@ void rtc_handler(void) {
 
     outb(REG_C, RTC);	// select register C
     inb(CMOS);		    // just throw away contents
-    send_eoi(RTC_IRQ);
     if(rtc_counter == 0){
         //putc_rtc();
         interrupt_flag = 1;
@@ -101,6 +100,7 @@ void rtc_handler(void) {
         //test_interrupts(); 
     }
     rtc_counter = (rtc_counter + 1)%rtc_target; 
+    send_eoi(RTC_IRQ);
     restore_flags(flags);
     return;
 }
@@ -113,7 +113,6 @@ void rtc_handler(void) {
  * Initializes RTC frequency to 2 HZ
  */
 int32_t rtc_open (const uint8_t* filename) {
-    // printf("RTC FREQ SET TO 2\n");
     rtc_set_freq(2);    // Set frequency to 2 HZ
     return 0;
 }
@@ -131,7 +130,7 @@ int32_t rtc_read (int32_t fd, void* buf, int32_t nbytes) {
     if(buf == NULL){
         return -1;
     }
-    interrupt_flag = 0; 
+    interrupt_flag = 0;
     while (interrupt_flag == 0);
 
     // Testing user program squashing on exception

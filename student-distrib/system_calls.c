@@ -35,8 +35,8 @@ static file_ops_t file_ops_list = {f_read, f_write, f_open, f_close};
  *   RETURN VALUE: base address of new page
  *   SIDE EFFECTS: none
  */
-uint32_t set_virtual_memory(uint32_t pcb_id) {
-  if (pcb_id >= MAX_PROCESS_NUM) return -1;
+void set_virtual_memory(uint32_t pcb_id) {
+  if (pcb_id >= MAX_PROCESS_NUM) return;
   uint32_t pde_index = dir_entry(PROGRAM_START_VIRTUAL_ADDR);
   page_directory[pde_index].val = 0;
   page_directory[pde_index].present = 1;
@@ -46,7 +46,50 @@ uint32_t set_virtual_memory(uint32_t pcb_id) {
   page_directory[pde_index].base_addr = ((uint32_t) ((pcb_id + 2) * PAGE_4MB_VAL)) >> 12;
 
   reload_tlb();
-  return PROGRAM_START_VIRTUAL_ADDR;
+}
+
+void set_vidmap(uint32_t pcb_id) {
+  if (pcb_id >= MAX_PROCESS_NUM) return;
+  uint32_t pde_index = dir_entry(VIDMAP_START_VIRTUAL_ADDR);
+  page_directory[pde_index].val = 0;
+  page_directory[pde_index].present = 1;
+  page_directory[pde_index].ps = 0;
+  page_directory[pde_index].rw = 1;
+  page_directory[pde_index].us = 1;
+  page_directory[pde_index].base_addr=((uint32_t)page_table1 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+
+  uint32_t pte_index = page_entry(VIDMAP_START_VIRTUAL_ADDR);
+  page_table1[pte_index].val = 0;
+  page_table1[pte_index].present = 0;
+  page_table1[pte_index].ps = 0;
+  page_table1[pte_index].rw = 1;
+  page_table1[pte_index].us = 1;
+  page_table1[pte_index].base_addr = (VGA_TEXT_BUF_ADDR & ALIGNED_ADDR_MASK) >> TABLE_ADDRESS_SHIFT;
+
+  reload_tlb();
+}
+
+
+void set_vidmap_present(uint32_t pcb_id, uint32_t present) {
+  if (pcb_id >= MAX_PROCESS_NUM) return;
+
+  uint32_t pde_index = dir_entry(VIDMAP_START_VIRTUAL_ADDR);
+  page_directory[pde_index].val = 0;
+  page_directory[pde_index].present = 1;
+  page_directory[pde_index].ps = 0;
+  page_directory[pde_index].rw = 1;
+  page_directory[pde_index].us = 1;
+  page_directory[pde_index].base_addr=((uint32_t)page_table1 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+
+  uint32_t pte_index = page_entry(VIDMAP_START_VIRTUAL_ADDR);
+  page_table1[pte_index].val = 0;
+  page_table1[pte_index].present = present;
+  page_table1[pte_index].ps = 0;
+  page_table1[pte_index].rw = 1;
+  page_table1[pte_index].us = 1;
+  page_table1[pte_index].base_addr = (VGA_TEXT_BUF_ADDR & ALIGNED_ADDR_MASK) >> TABLE_ADDRESS_SHIFT;
+
+  reload_tlb();
 }
 
 #define abnormal_ret 0xff
@@ -78,6 +121,8 @@ int32_t syscall_halt(uint8_t status) {
     halt_ret = 256;
   }
 
+  set_vidmap_present(current->pid, 0);
+
   if(curr->parent == NULL){
     set_attrib(0x4E);
     printf("[!] Base shell cannot be closed! Restarting shell...");
@@ -104,10 +149,11 @@ int32_t syscall_halt(uint8_t status) {
     tss.ss0 = KERNEL_DS;
 
     //NOT SURE WHAT THE VALUE HERE SHOULD BE
-    tss.esp0 = parent->save_esp;
+    // tss.esp0 = parent->save_esp;
+    tss.esp0 = (1<<23) - ((1<<13)*(curr_pid)) - 4;
 
     //tss.esp0 = curr->save_esp;
-
+    // printf("PID: %d\n", curr_pid);
     // set esp and ebp to parent's saved esp and
     asm volatile(
         "movl %0, %%esp        \n\t"
@@ -233,6 +279,8 @@ int32_t syscall_execute(const uint8_t* command) {
     return -1;
   }
 
+  set_vidmap(curr->pid);
+
   curr_pid = curr->pid;
 
   tss.ss0 = KERNEL_DS;
@@ -243,6 +291,7 @@ int32_t syscall_execute(const uint8_t* command) {
   // JIANLIN: LOOK HERE
   // I close this because I don't want to open executable in child process
   syscall_close(fd);
+  // printf("PID: %d\n", curr_pid);
   asm volatile(
       "pushl %%eax \n\t"
       "pushl $0x83ffffc \n\t"
@@ -347,6 +396,7 @@ descriptor should result in a return value of -1; successful closes should retur
 int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes) {
   if (fd >= 8 || fd < 0) return -1;    //0=<fd<8
   if (current->filearray[fd].flags == 0) return -1;
+  sti();
   return current->filearray[fd].ops->read(fd, buf, nbytes);
 /*
 The read system call reads data from the keyboard, a file, device (RTC), or directory. This call returns the number
@@ -378,10 +428,21 @@ written, or -1 on failure.
 */
 }
 
-// Unimplemented stub
-// TODO
+/*
+ * syscall_getargs
+ * DESCRIPTION: system call: returns the argument saved before
+ *
+ *  Inputs: buffer-- stores the argument
+ *          nbytes: number of bytes in the buffer
+ *
+ *  Returns: -1: if failed
+ *            0: if success
+ *
+ *  Side effects: none
+ *
+ */
 int32_t syscall_getargs(uint8_t* buf, int32_t nbytes) {
-  if (buf == NULL) return -1;
+  if (buf == NULL ) return -1;
   pcb_t * curr = current;
   int32_t n = strlen((int8_t*) curr->argv);
   if (n + 1 > nbytes || n == 0) return -1;
@@ -390,10 +451,25 @@ int32_t syscall_getargs(uint8_t* buf, int32_t nbytes) {
   return 0;
 }
 
-// Unimplemented stub
-// TODO
+/*  
+ * syscall_vidmap
+ *   DESCRIPTION: system call: map the text-mode video memory into user-space virtual address
+ *   INPUTS: screen_start
+ *   OUTPUTS: none
+ *  Returns: -1: if failed
+ *            0: if success
+ *   SIDE EFFECTS: none
+ */
 int32_t syscall_vidmap(uint8_t** screen_start) {
-  return -1;
+  //uint32_t flags;
+  if ((uint32_t) screen_start < VALUE_128MB || (uint32_t) screen_start >= VALUE_132MB) return -1;
+
+  //cli_and_save(flags);
+  *screen_start = (uint8_t*) VIDMAP_START_VIRTUAL_ADDR;
+  set_vidmap_present(current->pid, 1);
+  //restore_flags(flags);
+
+  return 0;
 }
 
 // Unimplemented stub

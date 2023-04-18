@@ -8,6 +8,7 @@
 #include "lib.h"
 #include "types.h"
 #include "terminal.h"
+#include "system_calls.h"
 
 
 // macro for special keys. DOWN keys by default

@@ -283,26 +283,7 @@ void basic_syscall_print_read() {
 
  }
 
-// /*
-//  *   garbage_input_test_cp3
-//  *   DESCRIPTION: test the invalid input of our functions
-//  *   INPUTS: none
-//  *   OUTPUTS: none
-//  *   RETURN VALUE: none
-//  *   SIDE EFFECTS: none
-//  */
-  void garbage_input_test_cp3(){ // garbage input
 
- 	if(PCB_init(NULL) == -1) printf("garbage_input_test for PCB_init passed! \n");
-
- 	if(syscall_execute(NULL) == -1) printf("garbage_input_test for sys_execute passed! \n");
- 	if(syscall_read(10,NULL,0) == -1) printf("garbage_input_test for sys_read passed! \n");
- 	if(syscall_write(-1,NULL,0) == -1) printf("garbage_input_test for sys_write passed! \n");
- 	if(syscall_open(NULL) == -1) printf("garbage_input_test for sys_open passed! \n");
- 	if(syscall_close(-1) == -1) printf("garbage_input_test for sys_close passed! \n");
-
-
- }
 
  // /*
 //  *   print_exe_file
@@ -400,6 +381,68 @@ void syscall_read_write_test() {
 }
 
 /* Checkpoint 4 tests */
+// /*
+//  *   garbage_input_test
+//  *   DESCRIPTION: test the invalid input of our functions
+//  *   INPUTS: none
+//  *   OUTPUTS: none
+//  *   RETURN VALUE: none
+//  *   SIDE EFFECTS: none
+//  */
+  void garbage_input_test(){ // garbage input
+
+ 	if(PCB_init(NULL) == -1) printf("garbage_input_test for PCB_init passed! \n");
+
+ 	if(syscall_execute(NULL) == -1) printf("garbage_input_test for sys_execute passed! \n");
+ 	if(syscall_read(10,NULL,0) == -1) printf("garbage_input_test for sys_read passed! \n");
+ 	if(syscall_write(-1,NULL,0) == -1) printf("garbage_input_test for sys_write passed! \n");
+ 	if(syscall_open(NULL) == -1) printf("garbage_input_test for sys_open passed! \n");
+ 	if(syscall_close(-1) == -1) printf("garbage_input_test for sys_close passed! \n");
+  if(syscall_getargs(NULL,0) == -1) printf("garbage_input_test for sys_getargs passed! \n");
+
+ }
+
+//  *   vidmap_test
+//  *   DESCRIPTION: test vidmap
+//  *   OUTPUTS: none
+//  *   RETURN VALUE: none
+//  *   SIDE EFFECTS: none
+//  */
+void vidmap_test(){
+ uint8_t** screen_start = (uint8_t**)(VALUE_128MB+1);
+ if (vidmap (screen_start)!=-1){
+  printf("vidmap test pass\n");
+ }
+}
+
+//  *   getargs_vidmap_test
+//  *   DESCRIPTION: test getargs/vidmap
+//  *   OUTPUTS: none
+//  *   RETURN VALUE: none
+//  *   SIDE EFFECTS: none
+//  */
+void getargs_vidmap_test(){
+  uint8_t* commandC;
+ uint8_t** screen_start = NULL;
+	void* buf = NULL;
+	execute (commandC);
+  printf("execute system call pass\n");
+	read (2 ,buf ,3);
+  printf("read system call pass\n");
+	write (2, buf, 3);
+  printf("write system call pass\n");
+	open ( commandC);
+  printf("open system call pass\n");
+	close (2);
+  printf("close system call pass\n");
+	getargs (buf, 3);
+  printf("getargs system call pass\n");
+  vidmap (screen_start);
+  printf("vidmap system call pass\n");
+  
+}
+
+
 /* Checkpoint 5 tests */
 
 // set these macros to 1 to run tests
@@ -521,19 +564,21 @@ void launch_tests() {
 #endif
 ///////////////////////////////////////////////////////////////////////////////
   // execute_test();
-  // garbage_input_test_cp3();
-  // basic_syscall_print_read();
-  syscall_open_test();
-  syscall_close_test();
-  syscall_read_write_test();
+   garbage_input_test();
+   getargs_vidmap_test();
 
-  set_attrib(0x0B);
-  printf("Manual tests:\n1. Run syserr test 0. \n\t* This tests invaid open and close system call.\n");
-  printf("2. Try to execute unimplemented systemcalls.\n\t* Try fish and see if it returns abnormal termination.\n");
-  printf("3. Open RTC from shell.\n\t* This should return no such command.\n");
-  printf("4. Test exception squashing\n\t* Try sigtest 0. Does it return to parent shell?\n");
-  printf("\t* Enable SQUASH_TEST macro in rtc.h and try to execute pingpong.\n\t  Does it return to parent shell?\n");
-  set_attrib(0x07);
+  // basic_syscall_print_read();
+//  syscall_open_test();
+//  syscall_close_test();
+//  syscall_read_write_test();
+//
+//  set_attrib(0x0B);
+//  printf("Manual tests:\n1. Run syserr test 0. \n\t* This tests invaid open and close system call.\n");
+//  printf("2. Try to execute unimplemented systemcalls.\n\t* Try fish and see if it returns abnormal termination.\n");
+//  printf("3. Open RTC from shell.\n\t* This should return no such command.\n");
+//  printf("4. Test exception squashing\n\t* Try sigtest 0. Does it return to parent shell?\n");
+//  printf("\t* Enable SQUASH_TEST macro in rtc.h and try to execute pingpong.\n\t  Does it return to parent shell?\n");
+//  set_attrib(0x07);
 
   execute((uint8_t*)"shell");
 }

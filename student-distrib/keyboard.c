@@ -255,6 +255,7 @@ void print_history(){
     ctr = 0;
     // set text to cyan with black bg
     set_attrib(0x0b);
+    clear_line();
     printf("Terminal History (%d most recent):\n", history_depth);
     for (i = kb_buf_history_top - 1; 0 <= i && ctr < history_depth; i--, ctr++){
         j = 0;
@@ -268,6 +269,7 @@ void print_history(){
     }
     // restore text color
     set_attrib(0x07);
+    terminal_write(1, (void*)"391OS> ",7);
 }
 
 /* void print_history()
@@ -351,6 +353,16 @@ void keyboard_handler(){
             if(ctrl_flag && (ascii == 'l' || ascii == 'L')){
                 clear();
                 reset_text_cursor();
+            }
+            // ctrl-c halts current program
+            if(ctrl_flag && (ascii == 'c' || ascii == 'C')){
+                printf("\n");
+                set_attrib(0x4E);
+                printf("[!] Program received signal SIGINT. Keyboard Interrupt.");
+                set_attrib(0x7);
+                printf("\n");
+                send_eoi(0x1);
+                syscall_halt(0);
             }
             #if ENABLE_HISTORY
             // ctrl-h prints user-set number of history
