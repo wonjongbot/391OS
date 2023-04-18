@@ -88,6 +88,8 @@ typedef union PDE{
 PDE page_directory[PAGE_DIC_MAX] __attribute__((aligned (PAGE_4KB_VAL)));
 // first page table
 PTE page_table0[PAGE_TAB_MAX] __attribute__((aligned (PAGE_4KB_VAL)));
+// second page table for Vidmap
+PTE page_table1[PAGE_TAB_MAX] __attribute__((aligned (PAGE_4KB_VAL)));
 
 void init_paging();
 inline void reload_tlb();

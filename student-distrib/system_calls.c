@@ -56,15 +56,15 @@ void set_vidmap(uint32_t pcb_id) {
   page_directory[pde_index].ps = 0;
   page_directory[pde_index].rw = 1;
   page_directory[pde_index].us = 1;
-  page_directory[pde_index].base_addr=((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+  page_directory[pde_index].base_addr=((uint32_t)page_table1 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
 
   uint32_t pte_index = page_entry(VIDMAP_START_VIRTUAL_ADDR);
-  page_table0[pte_index].val = 0;
-  page_table0[pte_index].present = 0;
-  page_table0[pte_index].ps = 0;
-  page_table0[pte_index].rw = 1;
-  page_table0[pte_index].us = 1;
-  page_table0[pte_index].base_addr = (VGA_TEXT_BUF_ADDR & ALIGNED_ADDR_MASK) >> TABLE_ADDRESS_SHIFT;
+  page_table1[pte_index].val = 0;
+  page_table1[pte_index].present = 0;
+  page_table1[pte_index].ps = 0;
+  page_table1[pte_index].rw = 1;
+  page_table1[pte_index].us = 1;
+  page_table1[pte_index].base_addr = (VGA_TEXT_BUF_ADDR & ALIGNED_ADDR_MASK) >> TABLE_ADDRESS_SHIFT;
 
   reload_tlb();
 }
@@ -79,15 +79,15 @@ void set_vidmap_present(uint32_t pcb_id, uint32_t present) {
   page_directory[pde_index].ps = 0;
   page_directory[pde_index].rw = 1;
   page_directory[pde_index].us = 1;
-  page_directory[pde_index].base_addr=((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+  page_directory[pde_index].base_addr=((uint32_t)page_table1 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
 
   uint32_t pte_index = page_entry(VIDMAP_START_VIRTUAL_ADDR);
-  page_table0[pte_index].val = 0;
-  page_table0[pte_index].present = present;
-  page_table0[pte_index].ps = 0;
-  page_table0[pte_index].rw = 1;
-  page_table0[pte_index].us = 1;
-  page_table0[pte_index].base_addr = (VGA_TEXT_BUF_ADDR & ALIGNED_ADDR_MASK) >> TABLE_ADDRESS_SHIFT;
+  page_table1[pte_index].val = 0;
+  page_table1[pte_index].present = present;
+  page_table1[pte_index].ps = 0;
+  page_table1[pte_index].rw = 1;
+  page_table1[pte_index].us = 1;
+  page_table1[pte_index].base_addr = (VGA_TEXT_BUF_ADDR & ALIGNED_ADDR_MASK) >> TABLE_ADDRESS_SHIFT;
 
   reload_tlb();
 }

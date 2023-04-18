@@ -27,6 +27,10 @@ void init_paging(){
         page_table0[i].present=0;
         page_table0[i].rw = 1;      // set rw flag
         page_table0[i].base_addr = i;   // set the base address as the entry index aligned
+        page_table1[i].val = 0;     // clean all
+        page_table1[i].present=0;
+        page_table1[i].rw = 1;      // set rw flag
+        page_table1[i].base_addr = i;   // set the base address as the entry index aligned
     }
 
     /* we would uncomment this if we want the first page to be available*/
