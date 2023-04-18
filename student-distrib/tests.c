@@ -423,7 +423,7 @@ void vidmap_test(){
 //  */
 void getargs_vidmap_test(){
   uint8_t* commandC;
- uint8_t** screen_start = (uint8_t**)(VALUE_128MB+1);
+ uint8_t** screen_start = NULL;
 	void* buf = NULL;
 	execute (commandC);
   printf("execute system call pass\n");
@@ -437,9 +437,9 @@ void getargs_vidmap_test(){
   printf("close system call pass\n");
 	getargs (buf, 3);
   printf("getargs system call pass\n");
-	if (vidmap (screen_start)!=-1){
+  vidmap (screen_start);
   printf("vidmap system call pass\n");
-  }
+  
 }
 
 

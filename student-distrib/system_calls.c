@@ -461,17 +461,11 @@ int32_t syscall_getargs(uint8_t* buf, int32_t nbytes) {
  *   SIDE EFFECTS: none
  */
 int32_t syscall_vidmap(uint8_t** screen_start) {
-  printf("okkkk\n");
   //uint32_t flags;
   if ((uint32_t) screen_start < VALUE_128MB || (uint32_t) screen_start >= VALUE_132MB) return -1;
-  printf("gg\n");
 
   //cli_and_save(flags);
   *screen_start = (uint8_t*) VIDMAP_START_VIRTUAL_ADDR;
-  printf("ok1");
-  
-  uint32_t test=current->pid;
-  printf("ok2");
   set_vidmap_present(current->pid, 1);
   //restore_flags(flags);
 
