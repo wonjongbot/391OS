@@ -48,6 +48,14 @@ void set_virtual_memory(uint32_t pcb_id) {
   reload_tlb();
 }
 
+/*
+ * set_vidmap
+ *   DESCRIPTION: set the virtual vidmap address to point at physical address of vmem
+ *   INPUTS: pcb_id
+ *   OUTPUTS: None
+ *   RETURN VALUE: None
+ *   SIDE EFFECTS: One of the pages point at video memory
+ */
 void set_vidmap(uint32_t pcb_id) {
   if (pcb_id >= MAX_PROCESS_NUM) return;
   uint32_t pde_index = dir_entry(VIDMAP_START_VIRTUAL_ADDR);
@@ -69,7 +77,14 @@ void set_vidmap(uint32_t pcb_id) {
   reload_tlb();
 }
 
-
+/*
+ * set_vidmap_present
+ *   DESCRIPTION: enables/disables the vidmap page by setting the present bit to user input
+ *   INPUTS: pcb_id, present(input for enable/disabling the page)
+ *   OUTPUTS: None
+ *   RETURN VALUE: None
+ *   SIDE EFFECTS: Vidmap page is enabled or disabled
+ */
 void set_vidmap_present(uint32_t pcb_id, uint32_t present) {
   if (pcb_id >= MAX_PROCESS_NUM) return;
 
@@ -146,11 +161,9 @@ int32_t syscall_halt(uint8_t status) {
     // unmap current paging / map parent's paging using physical_mem_start
     set_virtual_memory(curr_pid);
 
+    // set TSS to parent's info
     tss.ss0 = KERNEL_DS;
-
-    //NOT SURE WHAT THE VALUE HERE SHOULD BE
-    // tss.esp0 = parent->save_esp;
-    tss.esp0 = (1<<23) - ((1<<13)*(curr_pid)) - 4;
+    tss.esp0 = (1<<23) - ((1<<13)*(curr_pid)) - 4; // Bottom of parent's kernel stack
 
     //tss.esp0 = curr->save_esp;
     // printf("PID: %d\n", curr_pid);
@@ -261,17 +274,15 @@ int32_t syscall_execute(const uint8_t* command) {
   uint32_t inode_idx = file.inode_index;
   uint32_t file_size = _inodes[inode_idx].length;
 
-
-  // find out entry point is correct entry point is valid
-
-  // also have to do TSS stuff
-
   uint8_t buf[MAGIC_NUM_SIZE];
 
+  // check if file executing is executable
   if ((read_data(inode_idx, 0, buf, MAGIC_NUM_SIZE) == -1) || *(uint32_t*)buf != MAGIC_NUM_EXE){
     unload(curr);
     return -1;
   }
+
+  // map the user space virtual memory based on pid
   set_virtual_memory(curr->pid);
 
   //copy to user space
@@ -283,12 +294,12 @@ int32_t syscall_execute(const uint8_t* command) {
 
   curr_pid = curr->pid;
 
+  // set TSS to child's information
   tss.ss0 = KERNEL_DS;
-  tss.esp0 = (1<<23) - ((1<<13)*(curr_pid)) - 4;
+  tss.esp0 = (1<<23) - ((1<<13)*(curr_pid)) - 4;  // Bottom of parent's kernel stack
 
   uint32_t return_addr = *(uint32_t*) &(((uint8_t*) PROGRAM_START_VIRTUAL_ADDR)[24]);
 
-  // JIANLIN: LOOK HERE
   // I close this because I don't want to open executable in child process
   syscall_close(fd);
   // printf("PID: %d\n", curr_pid);
@@ -316,7 +327,7 @@ int32_t syscall_execute(const uint8_t* command) {
 }
 
 /*
- * open
+ * syscall_open
  * Input: filename
  * Output: -1 If the named file does not exist or no descriptors are free, 0 on Success
  * The open system call provides access to the file system. The call should find the directory entry corresponding to the
@@ -333,6 +344,7 @@ int32_t syscall_open(const uint8_t* filename) {
   dentry_t dentry;
 
   //find what we need to start file's fd
+  // fd starts at 2 because 0 and 1 is stdin and stdout, shouldnt be closed
   for (fd = 2;; fd++) {
     if (fd == FILEARR_SIZE) {
       return -1;
@@ -369,7 +381,16 @@ int32_t syscall_open(const uint8_t* filename) {
   // Set up any data necessary to handle the given type of file (directory, RTC device, or regular file)
 }
 
+/*
+ * syscall_close
+ * Input: fd
+ * Output: -1 if descriptor is out of bounds, 0 on Success
+ * The close system call closes the specified file descriptor and makes it available for return from later calls to open.
+ * You should not allow the user to close the default descriptors (0 for input and 1 for output). Trying to close an invalid
+ * descriptor should result in a return value of -1; successful closes should return 0.
+ */
 int32_t syscall_close(int32_t fd) {
+  // max allocatable fd index is 7 and minumum is 2
   if (fd >= 8 || fd < 2) return -1;    //2=<fd<8
 
   filed* fileclose = &current->filearray[fd];
@@ -385,47 +406,50 @@ int32_t syscall_close(int32_t fd) {
 
   //not sure what to return
   return close_value;
-
-/*
-The close system call closes the specified file descriptor and makes it available for return from later calls to open.
-You should not allow the user to close the default descriptors (0 for input and 1 for output). Trying to close an invalid
-descriptor should result in a return value of -1; successful closes should return 0.
-*/
 }
 
+/*
+ * syscall_read
+ * Input: fd, buf, nbytes
+ * Output: -1 if descriptor is out of bounds, 0 on Success
+ * The read system call reads data from the keyboard, a file, device (RTC), or directory. This call returns the number
+ * of bytes read. If the initial file position is at or beyond the end of file, 0 shall be returned (for normal files and the
+ * directory). In the case of the keyboard, read should return data from one line that has been terminated by pressing
+ * Enter, or as much as fits in the buffer from one such line. The line returned should include the line feed character.
+ * In the case of a file, data should be read to the end of the file or the end of the buffer provided, whichever occurs
+ * sooner. In the case of reads to the directory, only the filename should be provided (as much as fits, or all 32 bytes), and
+ * subsequent reads should read from successive directory entries until the last is reached, at which point read should
+ * repeatedly return 0. For the real-time clock (RTC), this call should always return 0, but only after an interrupt has
+ * occurred (set a flag and wait until the interrupt handler clears it, then return 0). You should use a jump table referenced
+ * by the task’s file array to call from a generic handler for this call into a file-type-specific function. This jump table
+ * should be inserted into the file array on the open system call (see below).
+ */
 int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes) {
+  // max allocatable fd index is 7 and minumum is 2
   if (fd >= 8 || fd < 0) return -1;    //0=<fd<8
   if (current->filearray[fd].flags == 0) return -1;
+  // set interrupt since syscalls are interrupt gate
   sti();
   return current->filearray[fd].ops->read(fd, buf, nbytes);
-/*
-The read system call reads data from the keyboard, a file, device (RTC), or directory. This call returns the number
-of bytes read. If the initial file position is at or beyond the end of file, 0 shall be returned (for normal files and the
-directory). In the case of the keyboard, read should return data from one line that has been terminated by pressing
-Enter, or as much as fits in the buffer from one such line. The line returned should include the line feed character.
-In the case of a file, data should be read to the end of the file or the end of the buffer provided, whichever occurs
-sooner. In the case of reads to the directory, only the filename should be provided (as much as fits, or all 32 bytes), and
-subsequent reads should read from successive directory entries until the last is reached, at which point read should
-repeatedly return 0. For the real-time clock (RTC), this call should always return 0, but only after an interrupt has
-occurred (set a flag and wait until the interrupt handler clears it, then return 0). You should use a jump table referenced
-by the task’s file array to call from a generic handler for this call into a file-type-specific function. This jump table
-should be inserted into the file array on the open system call (see below).
-*/
 }
 
+/*
+ * syscall_write
+ * Input: fd, buf, nbytes
+ * Output: -1 if descriptor is out of bounds or file is not open, 0 on Success
+ * The write system call writes data to the terminal or to a device (RTC). In the case of the terminal, all data should
+ * be displayed to the screen immediately. In the case of the RTC, the system call should always accept only a 4-byte
+ * integer specifying the interrupt rate in Hz, and should set the rate of periodic interrupts accordingly. Writes to regular
+ * files should always return -1 to indicate failure since the file system is read-only. The call returns the number of bytes
+ * written, or -1 on failure.
+ */
 int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes) {
 // printf("SYSCALL WRITE on fd %d\n", fd);
 //  printf("CURRENT PCB ADDR: %x\n", current);
+// max allocatable fd index is 7 and minumum is 2
   if (fd >= 8 || fd < 0) return -1;    //0=<fd<8
   if (current->filearray[fd].flags == 0) return -1;
    return current->filearray[fd].ops->write(fd, buf, nbytes);
-/*
-The write system call writes data to the terminal or to a device (RTC). In the case of the terminal, all data should
-be displayed to the screen immediately. In the case of the RTC, the system call should always accept only a 4-byte
-integer specifying the interrupt rate in Hz, and should set the rate of periodic interrupts accordingly. Writes to regular
-files should always return -1 to indicate failure since the file system is read-only. The call returns the number of bytes
-written, or -1 on failure.
-*/
 }
 
 /*
@@ -462,10 +486,13 @@ int32_t syscall_getargs(uint8_t* buf, int32_t nbytes) {
  */
 int32_t syscall_vidmap(uint8_t** screen_start) {
   //uint32_t flags;
+  // check if input variable is within the user space
   if ((uint32_t) screen_start < VALUE_128MB || (uint32_t) screen_start >= VALUE_132MB) return -1;
 
   //cli_and_save(flags);
+  // always return starting address of vidmap
   *screen_start = (uint8_t*) VIDMAP_START_VIRTUAL_ADDR;
+  // enable the page mapping to vmem
   set_vidmap_present(current->pid, 1);
   //restore_flags(flags);
 
