@@ -29,6 +29,7 @@ int kb_buf_history_ptr;
 int kb_buf_history_top;
 int kb_buf_top_cached;
 
+#if (muti_terminal==1)
 typedef struct terminal{
     int start_row_index;
     int cur_x;
@@ -43,15 +44,17 @@ typedef struct terminal{
 } terminal;
 typedef struct terminal terminal_struct;
 
-#if (muti_terminal==1)
+
 static char input_bufs[TERMINAL_NUM][TERMINAL_INPUT_BUF_SIZE ];
 static char text_bufs[TERMINAL_NUM][TERMINAL_TEXT_BUF_SIZE];
 static terminal terminal_arr[TERMINAL_NUM];
 static int terminal_used[TERMINAL_NUM];
+
+int terminal_init_each(terminal* terminal, char* text_buf, char* input_buf);
 #endif
 
 void terminal_init();
-int terminal_init_each(terminal* terminal, char* text_buf, char* input_buf);
+
 
 int32_t terminal_open(const uint8_t* filename);
 
@@ -66,6 +69,7 @@ int32_t terminal_close(int32_t fd);
 int32_t stdin_write(int32_t fd, const void* buf, int32_t nbytes);
 int32_t stdout_read(int32_t fd, void* buf, int32_t nbytes);
 
+#if (muti_terminal==1)
 void terminal_buf_put(terminal* terminal, char c);
 void terminal_buf_delete(terminal* terminal);
 void terminal_buf_clear(terminal* terminal);
@@ -74,6 +78,6 @@ terminal* terminal_alloc();    // dynamic terminal allocator
 int terminal_free(terminal* terminal);    // free the dynamic allocated terminal
 terminal* terminal_get(int index);
 int terminal_get_index(terminal* terminal);
-
+#endif
 
 #endif

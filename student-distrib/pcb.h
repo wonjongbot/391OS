@@ -21,8 +21,10 @@ typedef struct pcb {
   uint8_t argv[ARGV_MAX_LEN + 1];
   struct pcb* parent;
 
-  //need to add terminal information (not familiar of this part);
+
+#if (muti_terminal==1)
   terminal* terminal;
+#endif
 
   // TSS
   uint32_t esp;

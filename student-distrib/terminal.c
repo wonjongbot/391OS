@@ -112,6 +112,7 @@ void terminal_init(){
 #endif
 }
 
+#if (muti_terminal==1)
 int terminal_init_each(terminal* terminal, char* text_buf, char* input_buf){
     terminal->start_row_index = 0;
     terminal->cur_x = 0;
@@ -125,6 +126,7 @@ int terminal_init_each(terminal* terminal, char* text_buf, char* input_buf){
 
     return 0;
 }
+#endif
 
 // TODO the header for this
 /* int32_t terminal_open();
@@ -236,6 +238,7 @@ int32_t terminal_close(int32_t fd){
     return 0;
 }
 
+#if (muti_terminal==1)
 void terminal_buf_put(terminal* terminal, char c){
     if (terminal->input_buf_cur_pos < TERMINAL_INPUT_BUF_SIZE ){
         terminal->input_buf[terminal->input_buf_cur_pos] = c;
@@ -257,7 +260,7 @@ void terminal_buf_clear(terminal* terminal){
     return;
 }
 
-#if (muti_terminal==1)
+
 terminal* terminal_alloc(){
     int i;
     int index;
