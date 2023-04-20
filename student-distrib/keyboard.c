@@ -1,4 +1,5 @@
 #include "keyboard.h"
+#include "terminal.h"
 
 #define ASCII_SPACE 0x20
 #define ASCII_TILDA 0x7E
@@ -30,6 +31,34 @@ void keyboard_init(){
     kb_buf_top = 0;
     caps_flag = 0, shift_flag = 0, alt_flag = 0, ctrl_flag = 0, enter_flag = 0;
 }
+
+#if (muti_terminal==1)
+void swich_terminal(unsigned char scancode){
+    int index;
+    if (alt_flag==0){
+        return;
+    }
+    switch (scancode)
+    {
+    case 0x3B: //F1
+        index = 0;
+        break;
+    case 0x3C:  //F2
+        index = 1;
+        break;
+    case 0x3D: //F3
+        index = 2;
+        break;
+    default:
+        return;
+    }
+    terminal* terminal = &terminal_arr[index];
+    
+    //need to set pcb and vga
+    //didn't finish!!
+         
+}
+#endif
 
 /* int keyboard_init(uint8_t ascii);
  * Inputs: uint8_t ascii
@@ -339,12 +368,12 @@ void keyboard_handler(){
                     }
                     // only print to screen and push to keyboard buffer up til 127th character
                     if(kb_buf_top < kb_buf_size - 1){
-                        push_kb_buf(ascii);
+                        push_kb_buf(ascii); //need to be change
                         putc(ascii);
                     }
                     // 128th character is reserved for newline character
                     if(kb_buf_top == kb_buf_size - 1 && (ascii == '\n' || ascii == '\r')){
-                        push_kb_buf(ascii);
+                        push_kb_buf(ascii); //need to be change
                         putc(ascii);
                     }
                 }

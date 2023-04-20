@@ -145,6 +145,9 @@ int32_t syscall_halt(uint8_t status) {
     printf("\n");
     curr->status = 0;
     pid_dealloc(curr->pid);
+#if (muti_terminal==1)
+    terminal_free(curr->terminal);
+#endif
     curr_pid = -1;
     syscall_execute((uint8_t*)"shell");
   }
@@ -238,6 +241,8 @@ int32_t syscall_execute(const uint8_t* command) {
     );
     curr = current;
   }
+
+  //need to alloc terminal
 
   if(PCB_init(curr) == -1) return -1;
 

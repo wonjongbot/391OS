@@ -22,6 +22,7 @@ typedef struct pcb {
   struct pcb* parent;
 
   //need to add terminal information (not familiar of this part);
+  terminal* terminal;
 
   // TSS
   uint32_t esp;
