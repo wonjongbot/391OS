@@ -18,8 +18,7 @@
 #include "paging.h"
 #include "terminal.h"
 
-int32_t curr_pid = -1;
-
+curr_pid = -1;
 // current executing EXE's fd # in parent process.
 // int32_t opened_exe_fd = 0;
 
