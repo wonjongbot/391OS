@@ -1,5 +1,6 @@
 #include "keyboard.h"
 #include "terminal.h"
+#include "pcb.h"
 
 #define ASCII_SPACE 0x20
 #define ASCII_TILDA 0x7E
@@ -53,7 +54,7 @@ void swich_terminal(unsigned char scancode){
         return;
     }
     terminal* terminal = &terminal_arr[index];
-    
+    printf("CURR PID: %d\n", current->pid);
     //need to set pcb and vga
     //didn't finish!!
          

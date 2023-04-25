@@ -50,10 +50,10 @@ void init_multiterm(){
     int i;
     for(i = 0; i < 3; i++){
         init_terminal(i);
+        // esp value returns to called function, PCB is at process 0 pretty neat
         register uint32_t esp_tmp asm("esp");
         printf("ESP VALUE after function call: %x\n", esp_tmp);
     }
-    // set the 
     printf("CURR PID: %d\n", current->pid);
     uint32_t return_addr = *(uint32_t*) &(((uint8_t*) PROGRAM_START_VIRTUAL_ADDR)[24]);
 
@@ -71,8 +71,4 @@ void init_multiterm(){
         : "a" (USER_DS), "b" (USER_CS), "c" (return_addr)
         : "cc", "memory"
     );
-    // individually load shell program into those programs
-
-    // do similar things that we did in execute. 
-
 }
