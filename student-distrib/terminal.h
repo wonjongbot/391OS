@@ -5,7 +5,7 @@
 #ifndef _TERMINAL_H
 #define _TERMINAL_H
 
-#define muti_terminal 0
+#define muti_terminal 1
 
 #include "lib.h"
 #include "keyboard.h"
