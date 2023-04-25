@@ -10,6 +10,7 @@
 #include "tests/terminal_tests.h"
 #include "tests/filesystem_tests.h"
 #include "tests/pcb_tests.h"
+#include "multiterm.h"
 
 // global variable to check test function output
 //int ret;
@@ -564,8 +565,8 @@ void launch_tests() {
 #endif
 ///////////////////////////////////////////////////////////////////////////////
   // execute_test();
-   garbage_input_test();
-   getargs_vidmap_test();
+  //  garbage_input_test();
+  //  getargs_vidmap_test();
 
   // basic_syscall_print_read();
 //  syscall_open_test();
@@ -580,6 +581,7 @@ void launch_tests() {
 //  printf("\t* Enable SQUASH_TEST macro in rtc.h and try to execute pingpong.\n\t  Does it return to parent shell?\n");
 //  set_attrib(0x07);
 
-  execute((uint8_t*)"shell");
+  // execute((uint8_t*)"shell");
+  init_multiterm();
 }
 
