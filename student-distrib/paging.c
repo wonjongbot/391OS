@@ -61,6 +61,27 @@ void init_paging(){
     page_table0[vga_table_index].rw=1;
     page_table0[vga_table_index].base_addr=(VGA_TEXT_BUF_ADDR & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
 
+    // initialize 4KB pages for terminal
+    uint32_t terminal_dir_index;
+    uint32_t terminal_table_index;
+    uint32_t terminal_addr_tmp;
+    uint32_t pages;
+
+    for(pages = 0; pages < 3; pages++){
+        terminal_addr_tmp = VGA_TERM_0 + 0x1000 * pages;
+        terminal_dir_index = dir_entry(terminal_addr_tmp);
+        terminal_table_index = page_entry(terminal_addr_tmp);
+
+        page_directory[terminal_dir_index].present=1;
+        page_directory[terminal_dir_index].rw=1;
+        page_directory[terminal_dir_index].global=1;
+        page_directory[terminal_dir_index].base_addr=((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+
+        page_table0[terminal_table_index].present=1;
+        page_table0[terminal_table_index].rw=1;
+        page_table0[terminal_table_index].base_addr=(terminal_addr_tmp & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+    }
+
     // Init paging by seting the control registers
     asm volatile(
         "movl $page_directory, %%eax \n\t"          // move page_directory's address to cr3(PBDR)

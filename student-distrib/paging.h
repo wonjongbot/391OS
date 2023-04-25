@@ -27,6 +27,10 @@
 #define KERNEL_ADDR              PAGE_4MB_VAL               // Kernel start at 4MB in physical memory
 #define VGA_TEXT_BUF_ADDR        0xB8000                    // VGA text mode starts at 0xB8000
 
+#define VGA_TERM_0 0xB9000
+// #define VGA_TERM_1 0xB8A000
+// #define VGA_TERM_2 0xB8B000
+
 //#define PROGRAM_START_VIRTUAL_ADDR 0x08048000
 #define PROGRAM_START_VIRTUAL_ADDR 0x08048000
 #define VIDMAP_START_VIRTUAL_ADDR  0x0C000000
@@ -36,9 +40,6 @@
 #define VGA_MODEX_ADDR           0x0A0000
 
 #define VGA_TEXT_BUF_ADDR0 (0xB8000)
-// #define VGA_TEXT_BUF_ADDR1 (0xB8000+(80*25*2+160))
-// #define VGA_TEXT_BUF_ADDR2 (0xB8000+(80*25*2+160)*2)
-// #define VGA_TEXT_BUF_ADDR2 (0xB8000+(80*25*2+160)*3)
 #define VGA_TEXT_BUF_ADDR1 (0xBA000)
 #define VGA_TEXT_BUF_ADDR2 (0xBA000+80*25*2+160)
 #define VGA_TEXT_BUF_ADDR3 (0xBA000+80*25*4+160*2)
