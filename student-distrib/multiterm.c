@@ -1,14 +1,22 @@
 #include "multiterm.h"
 
-
-void init_multiterm(){
-    // initialize three 4MB pages for user program, and initialize pcb also
+void init_terminal(int terminal_idx){
     int32_t fd;
     pcb_t* curr;
     pcb_t* parent = NULL;
-
-    // initialize PCB
-    curr = current;
+    if(curr_pid == -1){
+        curr = current;
+    }
+    else{
+        asm volatile(
+        "addl %0, %%esp        \n\t"
+        :
+        : "r" (-8192 * terminal_idx)
+        : "cc"
+        );
+        // initialize PCB
+        curr = current;
+    }
     PCB_init(curr);
     curr->parent = parent;
 
@@ -16,6 +24,8 @@ void init_multiterm(){
     set_virtual_memory(curr->pid);
 
     fd = open((uint8_t*)"shell");
+
+    printf("CURR PID: %d\n", current->pid);
     
     filed file = curr->filearray[fd];
     uint32_t inode_idx = file.inode_index;
@@ -24,13 +34,29 @@ void init_multiterm(){
 
     set_vidmap(curr->pid);
     curr_pid = curr->pid;
-
     // set TSS to child's information
     tss.ss0 = KERNEL_DS;
     tss.esp0 = (1<<23) - ((1<<13)*(curr_pid)) - 4;  // Bottom of parent's kernel stack
-    uint32_t return_addr = *(uint32_t*) &(((uint8_t*) PROGRAM_START_VIRTUAL_ADDR)[24]);
+
     syscall_close(fd);
-    printf("CURR PID: %d\n", curr->pid);
+    register uint32_t esp_tmp asm("esp");
+    printf("ESP VALUE in function: %x\n", esp_tmp);
+}
+
+void init_multiterm(){
+    // initialize three 4MB pages for user program, and initialize pcb also
+    
+    // initialize three terminals
+    int i;
+    for(i = 0; i < 3; i++){
+        init_terminal(i);
+        register uint32_t esp_tmp asm("esp");
+        printf("ESP VALUE after function call: %x\n", esp_tmp);
+    }
+    // set the 
+    printf("CURR PID: %d\n", current->pid);
+    uint32_t return_addr = *(uint32_t*) &(((uint8_t*) PROGRAM_START_VIRTUAL_ADDR)[24]);
+
     asm volatile(
         "pushl %%eax \n\t"
         "pushl $0x83ffffc \n\t"
