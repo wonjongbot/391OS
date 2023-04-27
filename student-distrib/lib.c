@@ -36,6 +36,21 @@ void clear(void) {
     }
 }
 
+int get_x(){
+    return screen_x;
+}
+
+void set_x(int x){
+    screen_x = x;
+}
+
+int get_y(){
+    return screen_y;
+}
+
+void set_y(int y){
+    screen_y = y;
+}
 /* void clear_line(void);
  * Inputs:  none;
  * Return Value: none

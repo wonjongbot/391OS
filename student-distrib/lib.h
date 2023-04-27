@@ -21,6 +21,13 @@ void cursor_to_coord(int x, int y);
 void test_interrupts(void);
 void handle_arrowkeys(uint8_t scancode);
 
+
+int get_x();
+int get_x();
+void set_x(int x);
+void set_y(int y);
+
+
 int last_screenx[25];
 
 void* memset(void* s, int32_t c, uint32_t n);
