@@ -1,5 +1,9 @@
 #include "schedule.h"
+#define MULTI_THREAD 0
 
+#if (MULTI_THREAD == 0)
+static int pid_to_sched_unit[3] = {-1, -1, -1};
+#endif
 
 void save_curr_terminal(){
     memcpy(VGA_TERM_0 + 0x1000*curr_term, VGA_TEXT_BUF_ADDR, 0x1000);
@@ -80,8 +84,29 @@ void switch_context(uint32_t term_idx_src){
 
 
 void schedule(){
-
+    
 }
+
+static volatile int num_of_sched = 0;
+
+static volatile int cur_sched = 0;
+#if (MULTI_THREAD == 0)
+int32_t context_switch(){
+    // int32_t sched_index = sched_get_index(current);
+    int32_t pid;
+    if(num_of_sched<3){
+        num_of_sched++;
+        context_switch_to(-1,0);
+    }else{
+        pid = pid_to_sched_unit[cur_sched];
+        cur_sched = (cur_sched + 1) % 3;
+        if(pid==-1) return -1;
+        // kprintf("pid %d\n", pid);
+        context_switch_to(pid,0);
+    }
+    return 0;
+}
+#endif
 
 int32_t context_switch_to(int32_t pid, int32_t tflag){
     pcb_t* cur_pcb = current;
@@ -108,7 +133,7 @@ int32_t context_switch_to(int32_t pid, int32_t tflag){
     // Part 1 Set Paging
     //
     if(map_4MB_page(PROGRAM_START_VIRTUAL_ADDR, target_pcb->physical_mem_start)==-1) return -1;
-    set_vidmap_present(pid,1);
+    set_vidmap_present(pid,1);  //not sure!!
     
     //
     // Part 2 Set TSS
@@ -127,7 +152,7 @@ int32_t context_switch_to(int32_t pid, int32_t tflag){
         :
         : "cc"
     );
-
+#if (MULTI_THREAD == 0)
     if(tflag == 1){
         cli_and_save(flags);
         flags |= 0x0200;
@@ -143,7 +168,7 @@ int32_t context_switch_to(int32_t pid, int32_t tflag){
             : "eax"
         );
     }
-
+#endif
     //
     // Part 4 Context Switch
     //
