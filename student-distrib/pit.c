@@ -14,5 +14,6 @@ void pit_init(void){
 }
 
 void pit_handler(){
+    schedule();
     send_eoi(PIT_IRQ);
 }

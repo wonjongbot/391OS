@@ -27,7 +27,7 @@ static file_ops_t dir_ops_list = {d_read, d_write, d_open, d_close};
 static file_ops_t file_ops_list = {f_read, f_write, f_open, f_close};
 
 /*
- * sys_halt
+ *  set_virtual_memory
  *   DESCRIPTION: set the vitual memory by page for pcb
  *   INPUTS: pcb position
  *   OUTPUTS: None
@@ -202,7 +202,7 @@ int32_t syscall_execute(const uint8_t* command) {
   if (command == NULL) return -1;
 
 // // if there is no process (first shell), we want to set up PCB in current stack
-   if( pid_peek() == -1){
+   if( pid_peek() == -1 ){
     set_attrib(0x4E);
     printf("[!] Maximum number of process opened! Close programs to allocate more...");
     set_attrib(0x7);
@@ -220,7 +220,7 @@ int32_t syscall_execute(const uint8_t* command) {
 
   pcb_t* parent = NULL;
   pcb_t* curr;
-  if(curr_pid == -1){
+  if(curr_pid < 3){
     curr = current;
   }
   else{
@@ -244,6 +244,8 @@ int32_t syscall_execute(const uint8_t* command) {
   //need to alloc terminal
 
   if(PCB_init(curr) == -1) return -1;
+
+  printf("PID: %d\n", curr->pid);
 
   curr->parent = parent;
 

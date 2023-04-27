@@ -123,10 +123,26 @@ int32_t map_4MB_page(uint32_t virtual_addr, uint32_t physical_addr){
     page_directory[pd_index].rw = 1;
     page_directory[pd_index].us = 1;
     page_directory[pd_index].ps = 1;
-    page_directory[pd_index].val |= physical_addr;
+    page_directory[pd_index].val = physical_addr>>TABLE_ADDRESS_SHIFT;
     reload_tlb();
     return 0;
 }
 
+int32_t map_4KB_page(uint32_t virtual_addr, uint32_t physical_addr){
+    if(virtual_addr==0 || physical_addr==0) return -1;
+    uint32_t pd_index = dir_entry(virtual_addr);
+    uint32_t pt_index = page_entry(virtual_addr);
+    
+    page_directory[pd_index].val = 0;
+    page_directory[pd_index].present = 1;
+    page_directory[pd_index].rw = 1;
+    page_directory[pd_index].ps = 1;
+    page_directory[pd_index].val = ((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
 
+    page_table0[pt_index].present=1;
+    page_table0[pt_index].rw=1;
+    page_table0[pt_index].base_addr=(physical_addr & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+    reload_tlb();
+    return 0;
+}
 

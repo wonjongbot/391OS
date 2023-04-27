@@ -11,8 +11,11 @@
 #include "terminal.h"
 #include "pcb.c"
 
-
+int32_t curr_term_sched;
+int32_t curr_term_displayed;
 // void init_multiterm();
+
+void schedule();
 
 // physical addresses for the three terminals
 #define uprog_paddr0 (1<<23)

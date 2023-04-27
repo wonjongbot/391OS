@@ -95,4 +95,7 @@ PTE page_table1[PAGE_TAB_MAX] __attribute__((aligned (PAGE_4KB_VAL)));
 void init_paging();
 inline void reload_tlb();
 
+int32_t map_4MB_page(uint32_t virtual_addr, uint32_t physical_addr);
+int32_t map_4KB_page(uint32_t virtual_addr, uint32_t physical_addr);
+
 #endif

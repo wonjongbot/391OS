@@ -40,6 +40,13 @@ typedef struct terminal{
     int rtc_state;
 
     pcb_t* curr_pcb;
+
+    // esp and ebp for scheduling
+    uint32_t esp_sched;
+    uint32_t ebp_sched;
+
+    // pid number of most recent program
+    int32_t curr_pid;
 } terminal;
 typedef struct terminal terminal_struct;
 
