@@ -36,34 +36,6 @@ void keyboard_init(){
 #define F1_DOWN 0x3B
 #define F3_DOWN 0x3D
 
-#if (muti_terminal==1)
-void switch_terminal(uint32_t term_idx){
-    if(term_idx == curr_term){
-        return;
-    }
-    terminal* terminal = &terminal_arr[term_idx];
-    printf("SWITCHING TO TERMINAL #%d\n",term_idx);
-    printf("CURR PID: %d\n", current->pid);
-    printf("CURR TERMINAL: %d\n", curr_term);
-
-    switch(term_idx){
-        case 0:
-            
-        case 1:
-
-        case 2:
-
-        default: return;
-    }
-
-
-    curr_term = term_idx;
-    //need to set pcb and vga
-    //didn't finish!!
-         
-}
-#endif
-
 /* int keyboard_init(uint8_t ascii);
  * Inputs: uint8_t ascii
  * Return Value: 1 if key is a printable key 0 if not
