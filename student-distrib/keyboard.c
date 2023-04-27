@@ -33,28 +33,31 @@ void keyboard_init(){
     caps_flag = 0, shift_flag = 0, alt_flag = 0, ctrl_flag = 0, enter_flag = 0;
 }
 
+#define F1_DOWN 0x3B
+#define F3_DOWN 0x3D
+
 #if (muti_terminal==1)
-void swich_terminal(unsigned char scancode){
-    int index;
-    if (alt_flag==0){
+void switch_terminal(uint32_t term_idx){
+    if(term_idx == curr_term){
         return;
     }
-    switch (scancode)
-    {
-    case 0x3B: //F1
-        index = 0;
-        break;
-    case 0x3C:  //F2
-        index = 1;
-        break;
-    case 0x3D: //F3
-        index = 2;
-        break;
-    default:
-        return;
-    }
-    terminal* terminal = &terminal_arr[index];
+    terminal* terminal = &terminal_arr[term_idx];
+    printf("SWITCHING TO TERMINAL #%d\n",term_idx);
     printf("CURR PID: %d\n", current->pid);
+    printf("CURR TERMINAL: %d\n", curr_term);
+
+    switch(term_idx){
+        case 0:
+            
+        case 1:
+
+        case 2:
+
+        default: return;
+    }
+
+
+    curr_term = term_idx;
     //need to set pcb and vga
     //didn't finish!!
          
@@ -406,6 +409,13 @@ void keyboard_handler(){
                     print_history_full();
             }
             #endif
+        }
+    }
+    // handling alt-f_ key for terminal switching
+    if(alt_flag == 1){
+        if(scancode >= F1_DOWN && scancode <= F3_DOWN){
+            uint32_t terminal_idx = scancode - F1_DOWN;
+            switch_terminal(terminal_idx);
         }
     }
     // handling arrow keys

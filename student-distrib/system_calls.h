@@ -19,6 +19,8 @@
 
 int32_t curr_pid;
 
+int32_t curr_term;
+
 void set_virtual_memory(uint32_t pcb_pos);
 void set_vidmap(uint32_t pcb_pos);
 
