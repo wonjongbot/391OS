@@ -114,16 +114,12 @@ void terminal_init(){
 
 #if (muti_terminal==1)
 int terminal_init_each(terminal* terminal, char* text_buf, char* input_buf){
-    terminal->start_row_index = 0;
     terminal->cur_x = 0;
     terminal->cur_y = 0;
-    terminal->text_color = TERMINAL_TEXT_COLOR;
-    terminal->background_color = TERMINAL_BACKGROUND_COLOR;
-
+    terminal->text_attrib = TERMINAL_TEXT_COLOR;
+    terminal->temrinal_idx = -1;
     terminal->text_buf = text_buf;
-    terminal->input_buf_cur_pos = 0;
-    terminal->input_buf = input_buf;
-
+    terminal->curr_pcb = NULL;
     return 0;
 }
 #endif

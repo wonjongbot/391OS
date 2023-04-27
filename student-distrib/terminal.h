@@ -31,16 +31,15 @@ int kb_buf_top_cached;
 
 #if (muti_terminal==1)
 typedef struct terminal{
-    int start_row_index;
     int cur_x;
     int cur_y;
-    unsigned char text_color;
-    unsigned char background_color;
+    uint8_t text_attrib;
+    uint8_t* text_buf;         // can not be modified after driver init
     
-    char* text_buf;         // can not be modified after driver init
-    int input_buf_cur_pos;
-    char* input_buf;        // can not be modified after driver init
-    
+    int rtc_target;
+    int rtc_state;
+
+    pcb_t* curr_pcb;
 } terminal;
 typedef struct terminal terminal_struct;
 
