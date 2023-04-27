@@ -12,7 +12,8 @@
 #define MAX_PROCESS_NUM 6
 
 #define current current_thread_PCB()
-
+#define get_pcb_from_pos(pcb_pos) ((pcb_t*)((PAGE_4MB_VAL << 1) - (pcb_pos + 1) * (PAGE_4KB_VAL << 1)))
+#define get_kernel_stack_from_pos(pcb_pos) ((uint32_t)(((uint32_t)get_pcb_from_pos(pcb_pos)) + (PAGE_4KB_VAL << 1) - 4))
 typedef struct pcb {
   uint32_t pid;   // 0 to 5
   filed filearray[FILEARR_SIZE]; // fd

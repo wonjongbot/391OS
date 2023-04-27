@@ -6,6 +6,11 @@
 #include "filesystem.h"
 #include "paging.h"
 #include "rtc.h"
+#include "lib.h"
+#include "keyboard.h"
+#include "terminal.h"
+#include "pcb.c"
+
 
 // void init_multiterm();
 

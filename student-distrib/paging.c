@@ -114,5 +114,19 @@ inline void reload_tlb(){
     );
 }
 
+int32_t map_4MB_page(uint32_t virtual_addr, uint32_t physical_addr){
+    if(virtual_addr==0 || physical_addr==0) return -1;
+    uint32_t pd_index = dir_entry(virtual_addr);
+    
+    page_directory[pd_index].val = 0;
+    page_directory[pd_index].present = 1;
+    page_directory[pd_index].rw = 1;
+    page_directory[pd_index].us = 1;
+    page_directory[pd_index].ps = 1;
+    page_directory[pd_index].val |= physical_addr;
+    reload_tlb();
+    return 0;
+}
+
 
 
