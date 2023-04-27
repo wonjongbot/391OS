@@ -1,6 +1,9 @@
 #include "schedule.h"
 #define MULTI_THREAD 0
 
+curr_term_sched = -1;
+curr_term_displayed = 0;
+
 #if (MULTI_THREAD == 0)
 static int pid_to_sched_unit[3] = {-1, -1, -1};
 #endif
