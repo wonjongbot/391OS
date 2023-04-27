@@ -5,6 +5,7 @@
 #include "i8259.h"
 #include "keyboard.h"
 #include "rtc.h"
+#include "pit.h"
 #include "system_calls.h"
 
 // set_atrib function takes in 4 bits for foreground color and 4 bits for background color
@@ -464,6 +465,16 @@ void INT0x1f(){
 }
 
 /*
+ * INT_0x20()
+ * Input: None
+ * Output: None
+ * Interrupt handler for PIT interrupt
+ */
+void INT0x20(){
+    pit_handler();
+}
+
+/*
  * INT_0x21()
  * Input: None
  * Output: None
@@ -676,6 +687,9 @@ void init_idt(){
 
     // Interrupt 31
     SET_IDT_ENTRY(idt[31], INT0x1f_linker);
+
+    // Interrupt 0x20 -- PIT
+    SET_IDT_ENTRY(idt[0x20], INT0x20_linker);
 
     // Interrupt 0x21 -- keyboard
     SET_IDT_ENTRY(idt[0x21], INT0x21_linker);
