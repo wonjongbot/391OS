@@ -37,6 +37,23 @@ void rtc_init(void) {
     enable_irq(RTC_IRQ);          // Turn on IRQ8
 }
 
+int get_rtc_target(){
+    return rtc_target;
+}
+
+void set_rtc_target(int target){
+    rtc_target = target;
+}
+
+int get_rtc_counter(){
+    return rtc_counter;
+}
+
+
+void set_rtc_counter(int couter){
+    rtc_counter = counter;
+}
+
 /* 
  * rtc_set_rate
  * Input: None
