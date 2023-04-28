@@ -144,9 +144,7 @@ int32_t syscall_halt(uint8_t status) {
     printf("\n");
     curr->status = 0;
     pid_dealloc(curr->pid);
-#if (muti_terminal==1)
-    terminal_free(curr->terminal);
-#endif
+
     curr_pid = -1;
     syscall_execute((uint8_t*)"shell");
   }
@@ -481,7 +479,7 @@ int32_t syscall_getargs(uint8_t* buf, int32_t nbytes) {
   return 0;
 }
 
-/*  
+/*
  * syscall_vidmap
  *   DESCRIPTION: system call: map the text-mode video memory into user-space virtual address
  *   INPUTS: screen_start

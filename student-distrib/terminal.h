@@ -7,15 +7,15 @@
 
 #define muti_terminal 1
 
+#include "pcb.h"
 #include "lib.h"
 #include "keyboard.h"
 #include "types.h"
+#include "definitions.h"
 
 #define ENABLE_HISTORY 0
 #define TERMINAL_PROMPT_MODE 0
 #define TERMINAL_PROMPT_LEN 7
-#define kb_buf_size 128
-#define kb_history_size 128
 #define screen_w 80
 
 #define TERMINAL_TEXT_COLOR 0x3C
@@ -35,7 +35,7 @@ typedef struct terminal{
     int cur_y;
     uint8_t text_attrib;
     uint8_t* text_buf;         // can not be modified after driver init
-    
+
     int rtc_target;
     int rtc_state;
 

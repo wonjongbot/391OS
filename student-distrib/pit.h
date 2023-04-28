@@ -16,6 +16,6 @@
 /* Initializes PIT */
 void pit_init(void);
 
-void pit_hanlder();
+void pit_handler();
 
 #endif

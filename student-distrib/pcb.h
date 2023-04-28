@@ -5,7 +5,7 @@
 #include "system_calls.h"
 #include "filesystem.h"
 #include "lib.h"
-#include "terminal.h"
+#include "definitions.h"
 
 #define MAX_THREAD_FOR_PCB 2
 #define ARGV_MAX_LEN (kb_buf_size - 3) // keyboard buf length - 2 for hypothetical 1 char filename + space + null/newline char
@@ -21,11 +21,6 @@ typedef struct pcb {
   uint32_t argc;
   uint8_t argv[ARGV_MAX_LEN + 1];
   struct pcb* parent;
-
-
-#if (muti_terminal==1)
-  terminal* terminal;
-#endif
 
   // TSS
   uint32_t esp;
