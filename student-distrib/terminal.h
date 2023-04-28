@@ -7,6 +7,7 @@
 
 #include "lib.h"
 #include "keyboard.h"
+#include "pcb.h"
 #include "types.h"
 
 #define ENABLE_HISTORY 0
@@ -20,6 +21,30 @@ char kb_buf_history[kb_history_size][kb_buf_size];
 int kb_buf_history_ptr;
 int kb_buf_history_top;
 int kb_buf_top_cached;
+
+typedef struct terminal{
+    int cur_x;
+    int cur_y;
+    uint8_t text_attrib;
+    uint8_t* text_buf;         // can not be modified after driver init
+
+    int rtc_target;
+    int rtc_state;
+
+    pcb_t* curr_pcb;
+
+    // esp and ebp for scheduling
+    uint32_t esp_sched;
+    uint32_t ebp_sched;
+
+    // pid number of most recent program
+    int32_t curr_pid;
+} terminal_t;
+
+#define TERMINAL_NUM 3
+
+terminal_t terminal_arr[TERMINAL_NUM];
+
 
 void terminal_init();
 
