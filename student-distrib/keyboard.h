@@ -11,6 +11,7 @@
 #include "types.h"
 #include "terminal.h"
 #include "system_calls.h"
+#include "schedule.h"
 
 
 // macro for special keys. DOWN keys by default

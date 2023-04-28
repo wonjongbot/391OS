@@ -298,6 +298,9 @@ void print_history_full(){
 
 
 #define KB_SCANCODE_PORT 0x60
+#define F1_DOWN 0x3B
+#define F3_DOWN 0x3D
+
 
 /* void keyboard_handler()
  * Inputs: none
@@ -378,6 +381,14 @@ void keyboard_handler(){
             #endif
         }
     }
+    // handling alt-f_ key for terminal switching
+    if(alt_flag == 1){
+        if(scancode >= F1_DOWN && scancode <= F3_DOWN){
+            uint32_t terminal_idx = scancode - F1_DOWN;
+            terminal_switch(terminal_idx);
+        }
+    }
+
     // handling arrow keys
     if(scancode == DOWN || scancode == UP || scancode == RIGHT || scancode == LEFT){
         handle_arrowkeys(scancode);
