@@ -137,6 +137,7 @@ int32_t map_4KB_page(uint32_t virtual_addr, uint32_t physical_addr){
     page_directory[pd_index].val = 0;
     page_directory[pd_index].present = 1;
     page_directory[pd_index].rw = 1;
+    page_directory[pd_index].global=1;
     page_directory[pd_index].base_addr = ((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
 
     page_table0[pt_index].present=1;
@@ -158,3 +159,5 @@ int32_t map_4KB_page(uint32_t virtual_addr, uint32_t physical_addr){
     // page_table0[vga_table_index].present=1;
     // page_table0[vga_table_index].rw=1;
     // page_table0[vga_table_index].base_addr=(VGA_TEXT_BUF_ADDR & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+
+    
