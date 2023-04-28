@@ -117,7 +117,6 @@ int terminal_init_each(terminal* terminal, char* text_buf, char* input_buf){
     terminal->cur_x = 0;
     terminal->cur_y = 0;
     terminal->text_attrib = TERMINAL_TEXT_COLOR;
-    terminal->temrinal_idx = -1;
     terminal->text_buf = text_buf;
     terminal->curr_pcb = NULL;
     return 0;
@@ -234,61 +233,61 @@ int32_t terminal_close(int32_t fd){
     return 0;
 }
 
-#if (muti_terminal==1)
-void terminal_buf_put(terminal* terminal, char c){
-    if (terminal->input_buf_cur_pos < TERMINAL_INPUT_BUF_SIZE ){
-        terminal->input_buf[terminal->input_buf_cur_pos] = c;
-        terminal->input_buf_cur_pos++;
-    }
-    return;
-}
+// #if (muti_terminal==1)
+// void terminal_buf_put(terminal* terminal, char c){
+//     if (terminal->input_buf_cur_pos < TERMINAL_INPUT_BUF_SIZE ){
+//         terminal->input_buf[terminal->input_buf_cur_pos] = c;
+//         terminal->input_buf_cur_pos++;
+//     }
+//     return;
+// }
 
-void terminal_buf_delete(terminal* terminal){
-    if (terminal->input_buf_cur_pos > 0){
-        terminal->input_buf_cur_pos--;
-        return;
-    }
-    return;
-}
+// void terminal_buf_delete(terminal* terminal){
+//     if (terminal->input_buf_cur_pos > 0){
+//         terminal->input_buf_cur_pos--;
+//         return;
+//     }
+//     return;
+// }
 
-void terminal_buf_clear(terminal* terminal){
-    terminal->input_buf_cur_pos = 0;
-    return;
-}
+// void terminal_buf_clear(terminal* terminal){
+//     terminal->input_buf_cur_pos = 0;
+//     return;
+// }
 
 
-terminal* terminal_alloc(){
-    int i;
-    int index;
-    if (terminal_used[TERMINAL_NUM-1]==1) return NULL;
+// terminal* terminal_alloc(){
+//     int i;
+//     int index;
+//     if (terminal_used[TERMINAL_NUM-1]==1) return NULL;
     
-    for(i=0; i<TERMINAL_NUM; i++){
+//     for(i=0; i<TERMINAL_NUM; i++){
         
-        if(terminal_used[i]==0){
-            terminal_used[i] = 1;
-            index= i;
-        }
+//         if(terminal_used[i]==0){
+//             terminal_used[i] = 1;
+//             index= i;
+//         }
         
-    }
-    terminal* terminal = &terminal_arr[index];
-    return terminal;
-}
+//     }
+//     terminal* terminal = &terminal_arr[index];
+//     return terminal;
+// }
 
-int terminal_free(terminal* terminal){
-    int index = ((uint32_t)terminal - (uint32_t)terminal_arr) / sizeof(terminal_struct);
-    if(index<0 || index>=TERMINAL_NUM) return -1;
-    terminal_used[index] = 0;
-    return 0;
-}
+// int terminal_free(terminal* terminal){
+//     int index = ((uint32_t)terminal - (uint32_t)terminal_arr) / sizeof(terminal_struct);
+//     if(index<0 || index>=TERMINAL_NUM) return -1;
+//     terminal_used[index] = 0;
+//     return 0;
+// }
 
-terminal* terminal_get(int index){
-    if(index<0 || index>=TERMINAL_NUM) return NULL;
-    return &terminal_arr[index];
-}
+// terminal* terminal_get(int index){
+//     if(index<0 || index>=TERMINAL_NUM) return NULL;
+//     return &terminal_arr[index];
+// }
 
-int terminal_get_index(terminal* terminal){
-    int index = ((uint32_t)terminal - (uint32_t)terminal_arr) / sizeof(terminal_struct);
-    if(index<0 || index>=TERMINAL_NUM) return -1;
-    return index;
-}
-#endif
+// int terminal_get_index(terminal* terminal){
+//     int index = ((uint32_t)terminal - (uint32_t)terminal_arr) / sizeof(terminal_struct);
+//     if(index<0 || index>=TERMINAL_NUM) return -1;
+//     return index;
+// }
+// #endif

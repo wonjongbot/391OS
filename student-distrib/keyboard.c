@@ -1,6 +1,7 @@
 #include "keyboard.h"
 #include "terminal.h"
 #include "pcb.h"
+#include "schedule.h"
 
 #define ASCII_SPACE 0x20
 #define ASCII_TILDA 0x7E
@@ -387,7 +388,7 @@ void keyboard_handler(){
     if(alt_flag == 1){
         if(scancode >= F1_DOWN && scancode <= F3_DOWN){
             uint32_t terminal_idx = scancode - F1_DOWN;
-            switch_terminal(terminal_idx);
+            terminal_switch(terminal_idx);
         }
     }
     // handling arrow keys

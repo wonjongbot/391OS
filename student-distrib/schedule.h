@@ -16,6 +16,8 @@ int32_t curr_term_displayed;
 // void init_multiterm();
 
 void schedule();
+void terminal_switch(uint32_t to);
+void context_switch(uint32_t to);
 
 // physical addresses for the three terminals
 #define uprog_paddr0 (1<<23)
