@@ -18,8 +18,6 @@
 #include "paging.h"
 #include "terminal.h"
 
-int32_t curr_pid = -1;
-
 // current executing EXE's fd # in parent process.
 // int32_t opened_exe_fd = 0;
 
@@ -158,6 +156,8 @@ int32_t syscall_halt(uint8_t status) {
 
     curr_pid = parent->pid;
 
+    terminal_arr[curr_term_sched].curr_pid = curr_pid;
+
     // unmap current paging / map parent's paging using physical_mem_start
     set_virtual_memory(curr_pid);
 
@@ -199,7 +199,6 @@ int32_t syscall_halt(uint8_t status) {
 int32_t syscall_execute(const uint8_t* command) {
   if (command == NULL) return -1;
 
-// // if there is no process (first shell), we want to set up PCB in current stack
    if( pid_peek() == -1){
     set_attrib(0x4E);
     printf("[!] Maximum number of process opened! Close programs to allocate more...");
@@ -218,7 +217,19 @@ int32_t syscall_execute(const uint8_t* command) {
 
   pcb_t* parent = NULL;
   pcb_t* curr;
+  // if there is no process (first shell), we want to set up PCB in current stack
   if(curr_pid == -1){
+    printf("INITIALIZING ONE OF THE BASE SHELL 0\n");
+    curr = current;
+  }
+  else if(curr_pid < 2){
+    printf("INITIALIZING ONE OF THE BASE SHELL 1 or 2\n");
+    asm volatile(
+      "addl $-8192, %%esp        \n\t"
+      :
+      :
+      : "cc"
+    );
     curr = current;
   }
   else{
@@ -237,9 +248,14 @@ int32_t syscall_execute(const uint8_t* command) {
       : "cc"
     );
     curr = current;
+    printf("PARENT PID IS %d\n", parent->pid);
   }
 
   if(PCB_init(curr) == -1) return -1;
+
+  printf("EXECUTING ON PID: %d\n", curr->pid);
+
+  terminal_arr[curr_term_sched].curr_pid = curr->pid;
 
   curr->parent = parent;
 

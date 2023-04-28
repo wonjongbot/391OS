@@ -22,16 +22,17 @@ int kb_buf_history_ptr;
 int kb_buf_history_top;
 int kb_buf_top_cached;
 
+int32_t curr_term_sched;
+int32_t curr_term_displayed;
+
 typedef struct terminal{
     int cur_x;
     int cur_y;
     uint8_t text_attrib;
-    uint8_t* text_buf;         // can not be modified after driver init
+    char* text_buf;         // can not be modified after driver init
 
     int rtc_target;
     int rtc_state;
-
-    pcb_t* curr_pcb;
 
     // esp and ebp for scheduling
     uint32_t esp_sched;

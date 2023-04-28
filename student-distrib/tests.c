@@ -580,6 +580,6 @@ void launch_tests() {
 //  printf("\t* Enable SQUASH_TEST macro in rtc.h and try to execute pingpong.\n\t  Does it return to parent shell?\n");
 //  set_attrib(0x07);
 
-  execute((uint8_t*)"shell");
+  //execute((uint8_t*)"shell");
 }
 

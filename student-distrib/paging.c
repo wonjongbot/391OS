@@ -61,6 +61,28 @@ void init_paging(){
     page_table0[vga_table_index].rw=1;
     page_table0[vga_table_index].base_addr=(VGA_TEXT_BUF_ADDR & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
 
+
+    // initialize 4KB pages for terminal
+    uint32_t terminal_dir_index;
+    uint32_t terminal_table_index;
+    uint32_t terminal_addr_tmp;
+    uint32_t pages;
+
+    for(pages = 0; pages < 3; pages++){
+        terminal_addr_tmp = VGA_TERM_0 + 0x1000 * pages;
+        terminal_dir_index = dir_entry(terminal_addr_tmp);
+        terminal_table_index = page_entry(terminal_addr_tmp);
+
+        page_directory[terminal_dir_index].present=1;
+        page_directory[terminal_dir_index].rw=1;
+        page_directory[terminal_dir_index].global=1;
+        page_directory[terminal_dir_index].base_addr=((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+
+        page_table0[terminal_table_index].present=1;
+        page_table0[terminal_table_index].rw=1;
+        page_table0[terminal_table_index].base_addr=(terminal_addr_tmp & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+    }
+
     // Init paging by seting the control registers
     asm volatile(
         "movl $page_directory, %%eax \n\t"          // move page_directory's address to cr3(PBDR)
@@ -93,5 +115,46 @@ inline void reload_tlb(){
     );
 }
 
+int32_t map_4MB_page(uint32_t virtual_addr, uint32_t physical_addr){
+    if(virtual_addr==0 || physical_addr==0) return -1;
+    uint32_t pd_index = dir_entry(virtual_addr);
+    
+    page_directory[pd_index].val = 0;
+    page_directory[pd_index].present = 1;
+    page_directory[pd_index].rw = 1;
+    page_directory[pd_index].us = 1;
+    page_directory[pd_index].ps = 1;
+    page_directory[pd_index].val = physical_addr>>TABLE_ADDRESS_SHIFT;
+    reload_tlb();
+    return 0;
+}
+
+int32_t map_4KB_page(uint32_t virtual_addr, uint32_t physical_addr){
+    if(virtual_addr==0 || physical_addr==0) return -1;
+    uint32_t pd_index = dir_entry(virtual_addr);
+    uint32_t pt_index = page_entry(virtual_addr);
+    
+    page_directory[pd_index].val = 0;
+    page_directory[pd_index].present = 1;
+    page_directory[pd_index].rw = 1;
+    page_directory[pd_index].base_addr = ((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+
+    page_table0[pt_index].present=1;
+    page_table0[pt_index].rw=1;
+    page_table0[pt_index].base_addr=(physical_addr & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+    reload_tlb();
+    return 0;
+}
 
 
+    // vga_table_index=page_entry(VGA_TEXT_BUF_ADDR);
+    // vga_dic_index=dir_entry(VGA_TEXT_BUF_ADDR);
+
+    // page_directory[vga_dic_index].present=1;
+    // page_directory[vga_dic_index].rw=1;
+    // page_directory[vga_dic_index].global=1;
+    // page_directory[vga_dic_index].base_addr=((uint32_t)page_table0 & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+
+    // page_table0[vga_table_index].present=1;
+    // page_table0[vga_table_index].rw=1;
+    // page_table0[vga_table_index].base_addr=(VGA_TEXT_BUF_ADDR & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;

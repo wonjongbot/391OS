@@ -11,7 +11,14 @@
 static file_ops_t stdin_ops = {stdin_read, stdin_write, terminal_open, terminal_close};
 static file_ops_t stdout_ops = {stdout_read, stdout_write, terminal_open, terminal_close};
 
-static int32_t process_using[MAX_PROCESS_NUM] = {0, 0, 0, 0, 0, 0};
+
+void init_proc(){
+    int i;
+    for(i = 0; i < MAX_PROCESS_NUM; i++){
+        process_using[i] = 0;
+    }
+    curr_pid = -1;
+}
 
 /*
  * pid_alloc
@@ -124,7 +131,7 @@ int32_t PCB_init(pcb_t* pcb) {
   pcb->parent = NULL;         //initialize the pcb's parent
   pcb->argc = 0;
   memset(pcb->argv, '\0', ARGV_MAX_LEN + 1);
-  pcb->shell_flag = 0;
+//   pcb->shell_flag = 0;
 
 
     //pcb->terminal = NULL; need to init terminal info
@@ -149,12 +156,12 @@ int32_t PCB_init(pcb_t* pcb) {
         pcb->filearray[i].inode_index = -1;
         pcb->filearray[i].ops = NULL;
     }
-    // init threads
-    pcb->thread_flag = 0;
-    pcb->thread_num = 0;
-    pcb->global_thread_index = 0;
-    for(i=0;i<MAX_THREAD_FOR_PCB; i++){
-        pcb->threads[i] = -1;
-    }
+    // // init threads
+    // pcb->thread_flag = 0;
+    // pcb->thread_num = 0;
+    // pcb->global_thread_index = 0;
+    // for(i=0;i<MAX_THREAD_FOR_PCB; i++){
+    //     pcb->threads[i] = -1;
+    // }
     return 0;
 }

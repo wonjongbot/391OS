@@ -4,6 +4,8 @@
 
 #ifndef _KEYBOARD_H
 #define _KEYBOARD_H
+
+#include "definitions.h"
 #include "i8259.h"
 #include "lib.h"
 #include "types.h"
@@ -28,9 +30,6 @@
 
 #define CASE_OFFSET 0x20
 #define UPPERCASE(ASCII) ASCII - CASE_OFFSET
-
-#define kb_buf_size 128
-#define kb_history_size 128
 
 // think of this array as a stack where top is next availble location
 char kb_buf[kb_buf_size];

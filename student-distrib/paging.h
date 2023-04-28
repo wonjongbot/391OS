@@ -30,6 +30,8 @@
 //#define PROGRAM_START_VIRTUAL_ADDR 0x08048000
 #define PROGRAM_START_VIRTUAL_ADDR 0x08048000
 #define VIDMAP_START_VIRTUAL_ADDR  0x0C000000
+
+#define VGA_TERM_0 0xB9000
 /* if we are to create multiple pages for vga page switching, we would uncomment these lines */
 
 /*
@@ -93,5 +95,10 @@ PTE page_table1[PAGE_TAB_MAX] __attribute__((aligned (PAGE_4KB_VAL)));
 
 void init_paging();
 inline void reload_tlb();
+
+int32_t map_4MB_page(uint32_t virtual_addr, uint32_t physical_addr);
+
+int32_t map_4KB_page(uint32_t virtual_addr, uint32_t physical_addr);
+
 
 #endif

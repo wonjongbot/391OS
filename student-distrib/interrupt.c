@@ -6,6 +6,7 @@
 #include "keyboard.h"
 #include "rtc.h"
 #include "system_calls.h"
+#include "pit.h"
 
 // set_atrib function takes in 4 bits for foreground color and 4 bits for background color
 // colors we used are :

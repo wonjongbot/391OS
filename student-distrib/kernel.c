@@ -14,6 +14,7 @@
 #include "paging.h"
 #include "filesystem.h"
 #include "pit.h"
+#include "pcb.h"
 
 #define RUN_TESTS
 
@@ -147,6 +148,8 @@ void entry(unsigned long magic, unsigned long addr) {
 
     /* Init the PIC */
     i8259_init();
+    
+    init_proc();
 
     //init the rtc
     rtc_init();

@@ -17,6 +17,8 @@
 
 #include "types.h"
 
+int32_t curr_pid;
+
 void set_virtual_memory(uint32_t pcb_pos);
 void set_vidmap(uint32_t pcb_pos);
 

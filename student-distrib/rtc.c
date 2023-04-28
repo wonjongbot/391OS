@@ -190,3 +190,21 @@ int32_t pow_of_two(unsigned number) {
     }
     return pow_of_two(number/2);
 }
+
+
+int get_rtc_target(){
+    return rtc_target;
+}
+
+void set_rtc_target(int target){
+    rtc_target = target;
+}
+
+int get_rtc_counter(){
+    return rtc_counter;
+}
+
+
+void set_rtc_counter(int counter){
+    rtc_counter = counter;
+}

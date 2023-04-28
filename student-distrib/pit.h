@@ -4,6 +4,7 @@
 #include "lib.h"
 #include "types.h"
 #include "i8259.h"
+#include "schedule.h"
 
 // PIT channels
 #define PIT_CH_0    0x40

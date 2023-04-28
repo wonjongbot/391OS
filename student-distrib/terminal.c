@@ -96,6 +96,9 @@ void terminal_history_handler(){
 void terminal_init(){
     kb_buf_history_ptr = 0;
     kb_buf_history_top = 0;
+
+    curr_term_sched = -1;
+    curr_term_displayed = 0;
 }
 
 // TODO the header for this

@@ -42,4 +42,12 @@ int32_t rtc_close (int32_t fd);
 
 /* Check for power of 2 */
 int32_t pow_of_two(unsigned number);
+
+int get_rtc_target();
+
+void set_rtc_target(int target);
+
+int get_rtc_counter();
+
+void set_rtc_counter(int couter);
 #endif

@@ -161,4 +161,14 @@ do {                                    \
     );                                  \
 } while (0)
 
+
+int get_x();
+
+void set_x(int x);
+
+int get_y();
+
+void set_y(int y);
+
 #endif /* _LIB_H */
+

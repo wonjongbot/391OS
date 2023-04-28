@@ -5,13 +5,15 @@
 #include "system_calls.h"
 #include "filesystem.h"
 #include "lib.h"
-#include "terminal.h"
+#include "definitions.h"
 
 #define MAX_THREAD_FOR_PCB 2
 #define ARGV_MAX_LEN (kb_buf_size - 3) // keyboard buf length - 2 for hypothetical 1 char filename + space + null/newline char
 #define MAX_PROCESS_NUM 6
 
 #define current current_thread_PCB()
+
+int32_t process_using[MAX_PROCESS_NUM];
 
 typedef struct pcb {
   uint32_t pid;   // 0 to 5
@@ -35,17 +37,18 @@ typedef struct pcb {
   // Memory Map
   uint32_t physical_mem_start;
   // Shell
-  uint32_t shell_flag;
+  // uint32_t shell_flag;
 
   // need Signal for cp6
 
-  // Thread
-  int32_t thread_flag;
-  int32_t thread_num;
-  int32_t global_thread_index;
-  int32_t threads[MAX_THREAD_FOR_PCB];
+  // // Thread
+  // int32_t thread_flag;
+  // int32_t thread_num;
+  // int32_t global_thread_index;
+  // int32_t threads[MAX_THREAD_FOR_PCB];
 } pcb_t;
 
+void init_proc();
 int32_t pid_alloc();
 
 int32_t pid_peek();
