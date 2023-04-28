@@ -79,9 +79,11 @@ void context_switch(uint32_t to){
 
     // printf("Current Terminal(to): %d\n", curr_term_sched);
 
-    register uint32_t saved_ebp asm("ebp");
 
+    if(prev_term_sched >= 0){
+    register uint32_t saved_ebp asm("ebp");
     terminal_arr[prev_term_sched].ebp_sched = saved_ebp;
+    }
 
     if(process_using[to] == 0){
         // printf("OPENING NEW SHELL at PID %d\n", to);
