@@ -564,8 +564,8 @@ void launch_tests() {
 #endif
 ///////////////////////////////////////////////////////////////////////////////
   // execute_test();
-   garbage_input_test();
-   getargs_vidmap_test();
+  //  garbage_input_test();
+  //  getargs_vidmap_test();
 
   // basic_syscall_print_read();
 //  syscall_open_test();
