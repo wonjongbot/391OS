@@ -11,7 +11,7 @@
 static file_ops_t stdin_ops = {stdin_read, stdin_write, terminal_open, terminal_close};
 static file_ops_t stdout_ops = {stdout_read, stdout_write, terminal_open, terminal_close};
 
-static int32_t process_using[MAX_PROCESS_NUM] = {0, 0, 0, 0, 0, 0};
+
 
 /*
  * pid_alloc

@@ -11,6 +11,8 @@
 #define ARGV_MAX_LEN (kb_buf_size - 3) // keyboard buf length - 2 for hypothetical 1 char filename + space + null/newline char
 #define MAX_PROCESS_NUM 6
 
+static int32_t process_using[MAX_PROCESS_NUM] = {0, 0, 0, 0, 0, 0};
+
 #define current current_thread_PCB()
 #define get_pcb_from_pos(pcb_pos) ((pcb_t*)((PAGE_4MB_VAL << 1) - (pcb_pos + 1) * (PAGE_4KB_VAL << 1)))
 #define get_kernel_stack_from_pos(pcb_pos) ((uint32_t)(((uint32_t)get_pcb_from_pos(pcb_pos)) + (PAGE_4KB_VAL << 1) - 4))

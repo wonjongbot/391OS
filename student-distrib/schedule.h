@@ -9,7 +9,7 @@
 #include "lib.h"
 #include "keyboard.h"
 #include "terminal.h"
-#include "pcb.c"
+//#include "pcb.c"
 
 int32_t curr_term_sched;
 int32_t curr_term_displayed;
