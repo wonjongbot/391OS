@@ -213,9 +213,10 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
         // write to screen nbytes amount of time.
         while(i < nbytes){
             terminal_t* terminal = &terminal_arr[curr_term_displayed];
-            //multi_terminal_putc(terminal,*((int8_t*)buf+i));
+            multi_terminal_putc(terminal,*((int8_t*)buf+i));
             //xy_get(terminal->cur_x,terminal->cur_y);
-            putc(*((int8_t*)buf+i));
+            //printf("cur_x is %d,cur_y is %d\n",terminal->cur_x,terminal->cur_y);
+            //putc(*((int8_t*)buf+i));
             i++;
         }
         return i;
@@ -335,7 +336,7 @@ int multi_terminal_putc(terminal_t* terminal, char c){
     }else{
         vga_print(terminal->cur_x, terminal->cur_y, c, terminal->text_color);
         // also record the text buf data
-        terminal->text_buf[terminal->cur_x + terminal->cur_y * 80] = c;
+        //terminal->text_buf[terminal->cur_x + terminal->cur_y * 80] = c;
         // store the text at text buffer
         if(terminal->cur_x + 1 == 80 ){
             if(terminal->cur_y + 1 == 25){

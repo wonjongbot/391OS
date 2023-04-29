@@ -328,11 +328,15 @@ void keyboard_handler(){
                         // if the popped key is tab key, we need to delete 4 characters
                         if(tmp == '\t'){
                             for(i = 0; i < TAB_SIZE; i++){
-                                putc(ascii);
+                                terminal_t* terminal = &terminal_arr[curr_term_displayed];
+                                multi_terminal_putc(terminal,ascii);
+                                //putc(ascii);
                             }
                         }
                         else{
-                            putc(ascii);
+                            terminal_t* terminal = &terminal_arr[curr_term_displayed];
+                            multi_terminal_putc(terminal,ascii);
+                            //putc(ascii);
                         }
                     }
                 }
@@ -343,12 +347,16 @@ void keyboard_handler(){
                     // only print to screen and push to keyboard buffer up til 127th character
                     if(kb_buf_top < kb_buf_size - 1){
                         push_kb_buf(ascii);
-                        putc(ascii);
+                        terminal_t* terminal = &terminal_arr[curr_term_displayed];
+                        multi_terminal_putc(terminal,ascii);
+                        //putc(ascii);
                     }
                     // 128th character is reserved for newline character
                     if(kb_buf_top == kb_buf_size - 1 && (ascii == '\n' || ascii == '\r')){
                         push_kb_buf(ascii);
-                        putc(ascii);
+                        terminal_t* terminal = &terminal_arr[curr_term_displayed];
+                        multi_terminal_putc(terminal,ascii);
+                        //putc(ascii);
                     }
                 }
             }

@@ -32,7 +32,7 @@ void terminal_switch(uint32_t to){
     if(to == curr_term_displayed){
         return;
     }
-    printf("OKK");
+    
     printf("SWITCHING TO TERMINAL #%d\n",to);
 
     // save current terminal content to curr_term_displayed
