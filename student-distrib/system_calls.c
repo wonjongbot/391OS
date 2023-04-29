@@ -219,11 +219,11 @@ int32_t syscall_execute(const uint8_t* command) {
   pcb_t* curr;
   // if there is no process (first shell), we want to set up PCB in current stack
   if(curr_pid == -1){
-    printf("INITIALIZING ONE OF THE BASE SHELL 0\n");
+     printf("INITIALIZING ONE OF THE BASE SHELL 0\n");
     curr = current;
   }
   else if(curr_pid < 2){
-    printf("INITIALIZING ONE OF THE BASE SHELL 1 or 2\n");
+     printf("INITIALIZING ONE OF THE BASE SHELL 1 or 2\n");
     asm volatile(
       "addl $-8192, %%esp        \n\t"
       :
@@ -248,12 +248,12 @@ int32_t syscall_execute(const uint8_t* command) {
       : "cc"
     );
     curr = current;
-    printf("PARENT PID IS %d\n", parent->pid);
+    // printf("PARENT PID IS %d\n", parent->pid);
   }
 
   if(PCB_init(curr) == -1) return -1;
 
-  printf("EXECUTING ON PID: %d\n", curr->pid);
+  // printf("EXECUTING ON PID: %d\n", curr->pid);
 
   terminal_arr[curr_term_sched].curr_pid = curr->pid;
 

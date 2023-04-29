@@ -7,8 +7,8 @@
 
 void save_terminal(uint32_t terminal_idx){
     //memcpy(VGA_TERM_0 + 0x1000*terminal_idx, VGA_TEXT_BUF_ADDR, 0x1000);
-    terminal_arr[terminal_idx].cur_x = 0;//get_x();
-    terminal_arr[terminal_idx].cur_y = 0;// get_y();
+    terminal_arr[terminal_idx].cur_x = get_x();
+    terminal_arr[terminal_idx].cur_y = get_y();
     terminal_arr[terminal_idx].rtc_state = get_rtc_counter();
     terminal_arr[terminal_idx].rtc_target = get_rtc_target();
     terminal_arr[terminal_idx].curr_pid = curr_pid;
@@ -35,11 +35,11 @@ void terminal_switch(uint32_t to){
 
     // save current terminal content to curr_term_displayed
     memcpy((char*)(VGA_TERM_0 + 0x1000*curr_term_displayed), (char*)VGA_TEXT_BUF_ADDR, 0x1000);
-    memcpy((char*)terminal_arr[curr_term_displayed].text_buf, kb_buf, 128);
+    //memcpy((char*)terminal_arr[curr_term_displayed].text_buf, kb_buf, 128);
 
     // recover terminal cntent from buffer
     memcpy((char*) VGA_TEXT_BUF_ADDR, (char*) (VGA_TERM_0 + 0x1000 * to), 0x1000);
-    memcpy(kb_buf, terminal_arr[to].text_buf, 128);
+    //memcpy(kb_buf, terminal_arr[to].text_buf, 128);
     curr_term_displayed = to;
 }
 
@@ -66,39 +66,39 @@ void schedule(){
 
 void context_switch(uint32_t to){
     // if terminal switching to is not running, execute shell
-    int i;
+     int i;
     uint32_t prev_term_sched =curr_term_sched;
     curr_term_sched = to;
 
     // print current procs
-    // printf("\n");
-    // for(i = 0; i < 6; i++){
-    //     printf("%d ", process_using[i]);
-    // }
-    // printf("\n");
+    printf("\n");
+    for(i = 0; i < 6; i++){
+        printf("%d ", process_using[i]);
+    }
+    printf("\n");
 
-    // printf("Current Terminal(to): %d\n", curr_term_sched);
+    printf("Current Terminal(to): %d\n", curr_term_sched);
 
 
     if(prev_term_sched >= 0){
-    register uint32_t saved_ebp asm("ebp");
-    terminal_arr[prev_term_sched].ebp_sched = saved_ebp;
+        register uint32_t saved_ebp asm("ebp");
+        terminal_arr[prev_term_sched].ebp_sched = saved_ebp;
     }
 
     if(process_using[to] == 0){
-        // printf("OPENING NEW SHELL at PID %d\n", to);
-
+        printf("OPENING NEW SHELL at PID %d\n", to);
         syscall_execute((uint8_t*)"shell");
         return;
     }
     else{
-        // printf("ALL TERMINALS INITIALIZED, JUMPING TO PID %d\n", terminal_arr[curr_term_sched].curr_pid);
+        printf("ALL TERMINALS INITIALIZED, JUMPING TO PID %d\n", terminal_arr[curr_term_sched].curr_pid);
         // if not save esp and ebp of current terminal, then recover the next terminal
-        save_terminal(prev_term_sched);
-        recover_terminal(curr_term_sched);
+        // save_terminal(prev_term_sched);
+        // recover_terminal(curr_term_sched);
 
         //update TSS to the stack we are going to
         // set TSS to parent's info
+        curr_pid = terminal_arr[curr_term_sched].curr_pid;
         tss.ss0 = KERNEL_DS;
         tss.esp0 = (1<<23) - ((1<<13)*(curr_pid) - 4); // Bottom of parent's kernel stack
 
@@ -107,12 +107,12 @@ void context_switch(uint32_t to){
 
         // remap video memory. We want to map it to actual video memory
         // if scheduled terminal and displayed terminal index is same
-        if(curr_term_displayed == to){
-            map_4KB_page(VGA_TEXT_BUF_ADDR, VGA_TEXT_BUF_ADDR);
-        }
-        else{
-            map_4KB_page(VGA_TEXT_BUF_ADDR, VGA_TERM_0 + 0x1000 * curr_term_sched);
-        }
+        // if(curr_term_displayed == to){
+        //     map_4KB_page(VGA_TEXT_BUF_ADDR, VGA_TEXT_BUF_ADDR);
+        // }
+        // else{
+        //     map_4KB_page(VGA_TEXT_BUF_ADDR, VGA_TERM_0 + 0x1000 * curr_term_sched);
+        // }
 
         //uint32_t esp_tmp, ebp_tmp;
 

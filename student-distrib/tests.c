@@ -470,6 +470,7 @@ void getargs_vidmap_test(){
 void launch_tests() {
   clear();
   reset_text_cursor();
+  printf("HI\n\n\n");
 
   /* TESTS FOR CP 1 */
 #if cp1_tests
