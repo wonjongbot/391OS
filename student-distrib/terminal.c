@@ -213,8 +213,9 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
         // write to screen nbytes amount of time.
         while(i < nbytes){
             terminal_t* terminal = &terminal_arr[curr_term_displayed];
-            multi_terminal_putc(terminal,*((int8_t*)buf+i));
-            //putc(*((int8_t*)buf+i));
+            //multi_terminal_putc(terminal,*((int8_t*)buf+i));
+            //xy_get(terminal->cur_x,terminal->cur_y);
+            putc(*((int8_t*)buf+i));
             i++;
         }
         return i;

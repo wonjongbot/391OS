@@ -14,8 +14,12 @@ static int screen_x;
 static int screen_y;
 static char* video_mem = (char *)VIDEO;
 uint8_t ATTRIB = ATTRIB_DEFAULT;
-
-
+/*
+void xy_get(int cur_x,int cur_y){
+    screen_x=cur_x;
+    screen_y=cur_y;
+}
+*/
 /* void set_attrib(uint8_t);
  * Inputs:  background and foreground color value;
  * Return Value: none

@@ -6,6 +6,7 @@
 #define _LIB_H
 
 #include "types.h"
+//void xy_get(int cur_x,int cur_y);
 void set_attrib(uint8_t var);
 int32_t printf(int8_t *format, ...);
 void reset_text_cursor(void);
