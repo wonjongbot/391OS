@@ -28,9 +28,11 @@ void recover_terminal(uint32_t terminal_idx){
 }
 
 void terminal_switch(uint32_t to){
+
     if(to == curr_term_displayed){
         return;
     }
+    printf("OKK");
     printf("SWITCHING TO TERMINAL #%d\n",to);
 
     // save current terminal content to curr_term_displayed
@@ -40,6 +42,10 @@ void terminal_switch(uint32_t to){
     // recover terminal cntent from buffer
     memcpy((char*) VGA_TEXT_BUF_ADDR, (char*) (VGA_TERM_0 + 0x1000 * to), 0x1000);
     //memcpy(kb_buf, terminal_arr[to].text_buf, 128);
+    //vga_show_set(to);
+    //vga_write_set(to);
+    
+    
     curr_term_displayed = to;
 }
 

@@ -26,12 +26,15 @@
 // Addrs
 #define KERNEL_ADDR              PAGE_4MB_VAL               // Kernel start at 4MB in physical memory
 #define VGA_TEXT_BUF_ADDR        0xB8000                    // VGA text mode starts at 0xB8000
+#define VGA_TEXT_BUF_ADDR1 (0xBA000)
+#define VGA_TEXT_BUF_ADDR2 (0xBC000)
+#define VGA_TEXT_BUF_ADDR3 (0xBC000+80*25*2+160)
 
 //#define PROGRAM_START_VIRTUAL_ADDR 0x08048000
 #define PROGRAM_START_VIRTUAL_ADDR 0x08048000
 #define VIDMAP_START_VIRTUAL_ADDR  0x0C000000
 
-#define VGA_TERM_0 0xB9000
+#define VGA_TERM_0 0xBA000
 /* if we are to create multiple pages for vga page switching, we would uncomment these lines */
 
 /*

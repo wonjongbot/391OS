@@ -241,7 +241,7 @@ void clear_kb_buf(){
     }
     kb_buf_top = 0;
 }
-
+#if ENABLE_HISTORY
 #define history_depth 5
 
 /* void print_history()
@@ -295,7 +295,7 @@ void print_history_full(){
     // restore text graphics
     set_attrib(0x07);
 }
-
+#endif
 
 #define KB_SCANCODE_PORT 0x60
 #define F1_DOWN 0x3B

@@ -5,10 +5,13 @@
 #ifndef _TERMINAL_H
 #define _TERMINAL_H
 
+#define TEST_MUL 1
+
 #include "lib.h"
 #include "keyboard.h"
 #include "pcb.h"
 #include "types.h"
+#include "paging.h"
 
 #define ENABLE_HISTORY 0
 #define TERMINAL_PROMPT_MODE 0
@@ -16,6 +19,10 @@
 #define kb_buf_size 128
 #define kb_history_size 128
 #define screen_w 80
+
+#define VGA_CMD 0x3d4
+#define VGA_DATA 0x3d5
+#define VGA_MEMORY 0xB8000
 
 char kb_buf_history[kb_history_size][kb_buf_size];
 int kb_buf_history_ptr;
@@ -26,8 +33,10 @@ int32_t curr_term_sched;
 int32_t curr_term_displayed;
 
 typedef struct terminal{
+    int start_row_index;
     int cur_x;
     int cur_y;
+    unsigned char text_color;
     uint8_t text_attrib;
     char* text_buf;         // can not be modified after driver init
 
@@ -46,6 +55,16 @@ typedef struct terminal{
 
 terminal_t terminal_arr[TERMINAL_NUM];
 
+
+
+#if TEST_MUL
+
+terminal_t* terminal_get(int index);
+void vga_show_set(int index);
+void vga_write_set(int index);
+#endif
+
+int multi_terminal_putc(terminal_t* terminal, char c);
 
 void terminal_init();
 

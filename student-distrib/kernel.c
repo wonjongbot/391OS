@@ -154,7 +154,7 @@ void entry(unsigned long magic, unsigned long addr) {
     //init the rtc
     rtc_init();
     // init the pit
-    pit_init();
+    //pit_init();
     // rtc_set_freq(0);
     //init the keyboard
     keyboard_init();

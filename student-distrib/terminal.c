@@ -1,5 +1,7 @@
 #include "terminal.h"
 
+char* vga_mem = (char*)VGA_MEMORY;
+
 /* void terminal_history_handler();
  * Inputs: none;
  * Return Value: none
@@ -88,6 +90,14 @@ void terminal_history_handler(){
     }
 }
 
+int terminal_init_each(terminal_t* terminal){
+    terminal->start_row_index = 0;
+    terminal->cur_x = 0;
+    terminal->cur_y = 0;
+    terminal->text_color = 0x3C;
+    return 0;
+}
+
 /* void terminal_init();
  * Inputs: none;
  * Return Value: none
@@ -99,7 +109,14 @@ void terminal_init(){
 
     curr_term_sched = -1;
     curr_term_displayed = 0;
+    int i;
+    for(i=0; i<3; i++){
+        terminal_init_each(&terminal_arr[i]);
+    }
 }
+
+
+
 
 // TODO the header for this
 /* int32_t terminal_open();
@@ -195,7 +212,9 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
     else{
         // write to screen nbytes amount of time.
         while(i < nbytes){
-            putc(*((int8_t*)buf+i));
+            terminal_t* terminal = &terminal_arr[curr_term_displayed];
+            multi_terminal_putc(terminal,*((int8_t*)buf+i));
+            //putc(*((int8_t*)buf+i));
             i++;
         }
         return i;
@@ -210,3 +229,129 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
 int32_t terminal_close(int32_t fd){
     return 0;
 }
+
+#if TEST_MUL
+
+static int text_mem_array[3] = {VGA_TEXT_BUF_ADDR, VGA_TEXT_BUF_ADDR1,  VGA_TEXT_BUF_ADDR2};
+static int video_mem_array_show[3] = {0, (VGA_TEXT_BUF_ADDR1 - VGA_TEXT_BUF_ADDR)/2,  (VGA_TEXT_BUF_ADDR2 - VGA_TEXT_BUF_ADDR)/2};
+
+terminal_t* terminal_get(int index){
+    if(index<0 || index>=TERMINAL_NUM) return NULL;
+    return &terminal_arr[index];
+}
+
+int terminal_get_index(terminal_t* terminal){
+    int index = ((uint32_t)terminal - (uint32_t)terminal_arr) / sizeof(terminal_t);
+    if(index<0 || index>=TERMINAL_NUM) return -1;
+    return index;
+}
+
+/*
+shift VGA screen up
+input:none
+output:1 for success
+side effect:change video memory
+*/
+inline int vga_up_shift(){
+    unsigned int x,y;
+    unsigned int index, index2;
+    for(y=0;y<25  -1;y++){
+        for(x=0;x<80 ;x++){
+            index = y * 80  + x;
+            index2 = (y + 1) *80  + x;
+            *(uint8_t *)(vga_mem + (index << 1)) = *(uint8_t *)(vga_mem + (index2 << 1));
+            *(uint8_t *)(vga_mem + (index << 1) + 1) = *(uint8_t *)(vga_mem + (index2 << 1) + 1);
+        }
+    }
+    for(x=0;x<80 ;x++){
+        index = y * 80  + x;
+        *(uint8_t *)(vga_mem + (index << 1)) = ' ';
+    }
+    return 1;
+}
+
+inline int vga_print(int x, int y, char c, unsigned char color){
+    uint32_t index = y * 80 + x;
+    *(uint8_t *)(vga_mem + (index << 1)) = c;
+    *(uint8_t *)(vga_mem + (index << 1) + 1) = color;
+    return 1;
+}
+
+int vga_set_cursor(int index, int x, int y){
+    unsigned short pos = video_mem_array_show[index] + y * screen_w + x;
+    //if(top_pcb==NULL || index != terminal_get_index(top_pcb->terminal)) return 0;
+	outb(14, VGA_CMD); // write to 14th registers
+    // 0x3d4 is command port
+	outb((pos >> 8) & 0xff, VGA_DATA);
+    // 0x3d5 is data port
+	outb(15, VGA_CMD);  // write to 15th registers
+	outb(pos & 0xff, VGA_DATA);
+    return 1;
+}
+
+void vga_show_set(int index){
+    if (index<0 || index > 2){
+        return;
+    }
+    uint16_t address = (uint16_t)video_mem_array_show[index];
+    outb(0x0c, VGA_CMD);
+    outb(((address)>>8), VGA_DATA);
+    // 0x0c holds higher video memory address
+    // takes higher 4 bits
+    outb(0x0d, VGA_CMD);
+    outb(((address)&0x00ff), VGA_DATA);
+    // 0x0d holds lower video memory address
+    // takes lower 4 bits
+    terminal_t* terminal = terminal_get(index);
+    vga_set_cursor(index, terminal->cur_x, terminal->cur_y);
+    return;
+}
+
+void vga_write_set(int index){
+    if (index<0 || index > 2){
+        return;
+    }
+    vga_mem = (char*)text_mem_array[index];
+    return;
+}
+
+int multi_terminal_putc(terminal_t* terminal, char c){
+
+    uint32_t flags;
+    cli_and_save(flags);
+    if (terminal == NULL){
+        return -1;
+    }
+    int index = terminal_get_index(terminal);
+    vga_write_set(index);
+    if(c == '\n' || c == '\r'){
+        terminal->cur_x = 0;
+        if(terminal->cur_y + 1 ==  25){
+            vga_up_shift();
+        }else{
+            terminal->cur_y++;
+        }
+    }else{
+        vga_print(terminal->cur_x, terminal->cur_y, c, terminal->text_color);
+        // also record the text buf data
+        terminal->text_buf[terminal->cur_x + terminal->cur_y * 80] = c;
+        // store the text at text buffer
+        if(terminal->cur_x + 1 == 80 ){
+            if(terminal->cur_y + 1 == 25){
+                terminal->cur_x = 0;
+                terminal->start_row_index = (terminal->start_row_index + 1) % 25;
+                vga_up_shift();
+            }else{
+                terminal->cur_y++;
+                terminal->cur_x = 0;
+            }
+        }else{
+            terminal->cur_x++;
+        }
+    }
+    vga_set_cursor(index, terminal->cur_x, terminal->cur_y);
+    restore_flags(flags);
+    return 1;
+}
+
+#endif

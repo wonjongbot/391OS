@@ -46,6 +46,7 @@ void init_paging(){
     page_directory[kernel_index].global=1;
     page_directory[kernel_index].base_addr=KERNEL_ADDR>>TABLE_ADDRESS_SHIFT;
 
+
     // Set the page for VGA text mode, first set the page directory entry
     // Then, set the page_table0 with appropriate values
     //get index for the page table and page directory for VGA text mode page (ADDR 0xb8000)
@@ -60,6 +61,7 @@ void init_paging(){
     page_table0[vga_table_index].present=1;
     page_table0[vga_table_index].rw=1;
     page_table0[vga_table_index].base_addr=(VGA_TEXT_BUF_ADDR & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
+
 
 
     // initialize 4KB pages for terminal
@@ -82,6 +84,9 @@ void init_paging(){
         page_table0[terminal_table_index].rw=1;
         page_table0[terminal_table_index].base_addr=(terminal_addr_tmp & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
     }
+
+
+
 
     // Init paging by seting the control registers
     asm volatile(
