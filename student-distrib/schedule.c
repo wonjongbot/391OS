@@ -82,14 +82,6 @@ void switch_active_terminal(uint32_t index) {
     } else {
         page_table1[idx].base_addr = (VGA_TERM_0 + current_terminal * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
     }
-    if (terminal_pids[current_terminal] > 2) {
-        idx = page_entry(VGA_TEXT_BUF_ADDR);
-        if (active_terminal == current_terminal) {
-            page_table0[idx].base_addr = VGA_TEXT_BUF_ADDR >> TABLE_ADDRESS_SHIFT;
-        } else {
-            page_table0[idx].base_addr = (VGA_TERM_0 + current_terminal * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
-        }
-    }
     reload_tlb();
 
     if (terminal_pids[active_terminal] == -1) {
