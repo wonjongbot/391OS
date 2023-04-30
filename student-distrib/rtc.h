@@ -1,10 +1,10 @@
-/* rtc.h - Defines functions and constant variables for rtc.c 
+/* rtc.h - Defines functions and constant variables for rtc.c
  */
 
 #ifndef _RTC_H
 #define _RTC_H
 
-#define RTC             0x70    
+#define RTC             0x70
 #define CMOS            0x71
 #define REG_A           0xA
 #define REG_B           0xB
@@ -27,19 +27,27 @@ int32_t rtc_set_freq(unsigned frequency);
 void rtc_handler(void);
 
 /* opens RTC */
-int32_t rtc_open (const uint8_t* filename);
+int32_t rtc_open(const uint8_t* filename);
 
 /* read RTC */
-int32_t rtc_read (int32_t fd, void* buf, int32_t nbytes);
+int32_t rtc_read(int32_t fd, void* buf, int32_t nbytes);
 
 /* write RTC */
-int32_t rtc_write (int32_t fd, const void* buf, int32_t nbytes);
+int32_t rtc_write(int32_t fd, const void* buf, int32_t nbytes);
 
 /* close RTC */
-int32_t rtc_close (int32_t fd);
+int32_t rtc_close(int32_t fd);
 
 /* Helper Functions */
+int get_rtc_target();
+
+void set_rtc_target(int target);
+
+int get_rtc_counter();
+
+void set_rtc_counter(int counter);
 
 /* Check for power of 2 */
 int32_t pow_of_two(unsigned number);
+
 #endif

@@ -6,6 +6,10 @@
 #include "filesystem.h"
 #include "lib.h"
 #include "terminal.h"
+#include "keyboard.h"
+#include "terminal.h"
+#include "paging.h"
+#include "schedule.h"
 
 #define MAX_THREAD_FOR_PCB 2
 #define ARGV_MAX_LEN (kb_buf_size - 3) // keyboard buf length - 2 for hypothetical 1 char filename + space + null/newline char
@@ -21,7 +25,7 @@ typedef struct pcb {
   uint8_t argv[ARGV_MAX_LEN + 1];
   struct pcb* parent;
 
-  //need to add terminal information (not familiar of this part);
+  uint32_t term_idx;
 
   // TSS
   uint32_t esp;
@@ -34,8 +38,6 @@ typedef struct pcb {
 
   // Memory Map
   uint32_t physical_mem_start;
-  // Shell
-  uint32_t shell_flag;
 
   // need Signal for cp6
 
@@ -52,12 +54,14 @@ int32_t pid_peek();
 
 void pid_dealloc(int32_t pid);
 
-void unload(pcb_t* pcb);
+void unload(pcb_t* pcb, uint32_t ret);
 
-//point to the current process
 inline pcb_t* current_thread_PCB();
+
+pcb_t* PCB(uint32_t pid);
 
 int32_t PCB_init(pcb_t* pcb);
 
+void print_proc();
 
 #endif

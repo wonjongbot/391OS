@@ -4,11 +4,7 @@
 #include "lib.h"
 #include "keyboard.h"
 #include "terminal.h"
-
-#define VIDEO       0xB8000
-#define NUM_COLS    80
-#define NUM_ROWS    25
-#define ATTRIB_DEFAULT      0x7
+#include "definitions.h"
 
 static int screen_x;
 static int screen_y;
@@ -43,20 +39,11 @@ void clear(void) {
  */
 void clear_line(void) {
     int32_t i;
-    if(TERMINAL_PROMPT_MODE){
-        for (i = TERMINAL_PROMPT_LEN; i < NUM_COLS; i++) {
-            *(uint8_t *)(video_mem + ((NUM_COLS * (screen_y) + i) << 1)) = ' ';
-            *(uint8_t *)(video_mem + ((NUM_COLS * (screen_y) + i)<< 1) + 1) = ATTRIB;
-        }
-        screen_x = TERMINAL_PROMPT_LEN;
+    for (i = 0; i < NUM_COLS; i++) {
+        *(uint8_t *)(video_mem + ((NUM_COLS * (screen_y) + i) << 1)) = ' ';
+        *(uint8_t *)(video_mem + ((NUM_COLS * (screen_y) + i)<< 1) + 1) = ATTRIB;
     }
-    else{
-        for (i = 0; i < NUM_COLS; i++) {
-            *(uint8_t *)(video_mem + ((NUM_COLS * (screen_y) + i) << 1)) = ' ';
-            *(uint8_t *)(video_mem + ((NUM_COLS * (screen_y) + i)<< 1) + 1) = ATTRIB;
-        }
-        screen_x = 0;
-    }
+    screen_x = 0;
     cursor_to_coord(screen_x, screen_y);
 }
 
@@ -655,4 +642,26 @@ void test_interrupts(void) {
     for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
         video_mem[i << 1]++;
     }
+}
+
+uint32_t getX() {
+    return screen_x;
+}
+
+void setX(uint32_t x) {
+    screen_x = x;
+    cursor_to_coord(screen_x, screen_y);
+}
+
+uint32_t getY() {
+    return screen_y;
+}
+
+void setY(uint32_t y) {
+    screen_y = y;
+    cursor_to_coord(screen_x, screen_y);
+}
+
+uint8_t get_attrib() {
+    return ATTRIB;
 }

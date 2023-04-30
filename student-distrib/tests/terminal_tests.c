@@ -26,15 +26,11 @@ void terminal_readwrite_test_Delay() {
   printf(
       "[*] Type ECE\\n and then 391\\n right away.\n[*] You should be able to see 391 after delay without pressing enter again.\n");
   set_attrib(0x07);
-  if (TERMINAL_PROMPT_MODE)
-    terminal_write(fd, (int8_t*) terminal_flag, (int32_t) TERMINAL_PROMPT_LEN);
   ret = terminal_read(fd, (int8_t*) buf, (int32_t) 128);
-  ret = terminal_write(fd, (int8_t*) buf, (int32_t) ret);
+  terminal_write(fd, (int8_t*) buf, (int32_t) ret);
   for (i = 0; i < 600000000; i++);
-  if (TERMINAL_PROMPT_MODE)
-    terminal_write(fd, (int8_t*) terminal_flag, (uint32_t) TERMINAL_PROMPT_LEN);
   ret = terminal_read(fd, (int8_t*) buf, (int32_t) 10);
-  ret = terminal_write(fd, (int8_t*) buf, (int32_t) ret);
+  terminal_write(fd, (int8_t*) buf, (int32_t) ret);
   terminal_close(3);
 }
 
@@ -95,7 +91,7 @@ int terminal_write_test() {
   for (i = 0; i < 200; i++) {
     buf[i] = '0';
   }
-  ret = terminal_write(fd, buf, 200);
+  terminal_write(fd, buf, 200);
   for (i = 0; i < 600000000; i++);
   for (i = 0; i < 200; i++) {
     buf[i] = '\b';
@@ -161,8 +157,6 @@ void terminal_readwrite_test_inf() {
   char exit_flag[] = "exit\n";
   terminal_open(file);
   while (1) {
-    if (TERMINAL_PROMPT_MODE)
-      terminal_write(fd, (int8_t*) terminal_flag, (int32_t) TERMINAL_PROMPT_LEN);
     ret = terminal_read(fd, (int8_t*) buf, (int32_t) kb_buf_size);
     set_attrib(0x0B);
     printf("[*] READ %d bytes\n", ret);

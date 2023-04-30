@@ -1,108 +1,61 @@
 #include "terminal.h"
 
-/* void terminal_history_handler();
- * Inputs: none;
- * Return Value: none
- * Function: handles terminal history functioanlity.
- *           up arrow shows previous terminal command and vice versa.
- *           user can store up til 128 terminal history.
- */
-void terminal_history_handler(){
-    int i;
-    // we can only access 128 histories
-    if(kb_buf_top == 0 &&(up_flag == 1 && kb_buf_history_top > 0 && kb_buf_history_ptr > 0)){
-        // if up was pressed in the top of keyboard history, we copy
-        // what we have so far into the most recent history and save num chars
-        if(kb_buf_history_ptr == kb_buf_history_top){
-            memcpy(kb_buf_history[kb_buf_history_top], kb_buf, kb_buf_size);
-            kb_buf_top_cached = kb_buf_top;
-        }
-        // if current terminal argument is longer than screen width, delete stuff
-        // so that cursor is in the first line
-        if(kb_buf_top > screen_w - 1){
-            while(kb_buf_top > screen_w - 1){
-                putc('\b');
-                pop_kb_buf();
-            }
-        }
-        // point at next most recent history
-        kb_buf_history_ptr--;
-        // copy contents of that history buffer to keyboard buffer
-        memcpy(kb_buf, kb_buf_history[kb_buf_history_ptr], kb_buf_size);
-        i = 0;
-        // print the saved buffer to screen, after clearing current line.
-        clear_line();
-        //terminal_write(1, (void*)"391OS> ",7);
-        while(1){
-            if(kb_buf[i] == '\n' || kb_buf[i] == '\r'){
-                break;
-            }
-            putc(kb_buf[i]);
-            i++;
-        }
-        kb_buf_top = i;
-        up_flag = 0;
-        down_flag = 0;
-    }
-    else if(down_flag == 1 && kb_buf_history_ptr < kb_buf_history_top && kb_buf_history_top < kb_history_size){
-        kb_buf_history_ptr++;
-        if(kb_buf_top > screen_w - 1){
-            while(kb_buf_top > screen_w - 1){
-                putc('\b');
-                pop_kb_buf();
-            }
-        }
-        // if we are printing the in-progress buffer, there is no newline char
-        // to terminate on. Use cached buffer length as a terminator.
-        if(kb_buf_history_ptr == kb_buf_history_top){
-            i = 0;
-            clear_line();
-            // terminal_write(1, (void*)"391OS> ",7);
-            memcpy(kb_buf, kb_buf_history[kb_buf_history_top], kb_buf_size);
-            kb_buf_top = kb_buf_top_cached;
-            while(i < kb_buf_top_cached){
-                putc(kb_buf[i]);
-                i++;
-            }
-        }
-        else{
-            // for other saved buffers you just print until newline after clearing line.
-            // same thing as above.
-            memcpy(kb_buf, kb_buf_history[kb_buf_history_ptr], kb_buf_size);
-            i = 0;
-            clear_line();
-            // terminal_write(1, (void*)"391OS> ",7);
-            while(1){
-                if(kb_buf[i] == '\n' || kb_buf[i] == '\r'){
-                    kb_buf_top = ++i;
-                    break;
-                }
-                putc(kb_buf[i]);
-                i++;
-            }
-        }
-        // if I don't clear both flags, it will ignore the key (or goes up and then down so it looks like
-        // if ignores key) when ptr is on the edge idk
-        up_flag = 0;
-        down_flag = 0;
-    }
-}
-
 /* void terminal_init();
  * Inputs: none;
  * Return Value: none
  * Function: initializes terminal history stack pointer and index to 0.
  */
 void terminal_init(){
-    kb_buf_history_ptr = 0;
-    kb_buf_history_top = 0;
+    uint32_t i;
+    for (i = 0; i < terminal_count; i++) {
+        terminal_init_each(i);
+    }
 }
 
-// TODO the header for this
+void terminal_init_each(uint32_t index) {
+    terminals[index].attrib = ATTRIB_DEFAULT;
+    uint32_t i;
+    for(i = 0; i < kb_buf_size; i++){
+        terminals[index]._kb_buf[i] = 0;
+    }
+    terminals[index].pid = -1;
+//    map_4KB_page(VGA_TEXT_BUF_ADDR, VGA_TERM_0 + VGA_SIZE * index);
+}
+
+void save_terminal(uint32_t index) {
+    terminals[index].x = getX();
+    terminals[index].y = getY();
+    terminals[index].rtc_counter = get_rtc_counter();
+    terminals[index].rtc_target = get_rtc_target();
+    terminals[index].attrib = get_attrib();
+    map_4KB_page(VGA_TEXT_BUF_ADDR, VGA_TEXT_BUF_ADDR);
+    map_4KB_page(VGA_TERM_0 + VGA_SIZE * index, VGA_TERM_0 + VGA_SIZE * index);
+    memcpy((uint8_t*) (VGA_TERM_0 + VGA_SIZE * index), (uint8_t*) VGA_TEXT_BUF_ADDR, VGA_SIZE);
+    map_4KB_page(VGA_TEXT_BUF_ADDR, VGA_TERM_0 + VGA_SIZE * index);
+}
+
+void restore_terminal(uint32_t index) {
+    setX(terminals[index].x);
+    setY(terminals[index].y);
+    set_rtc_counter(terminals[index].rtc_counter);
+    set_rtc_target(terminals[index].rtc_target);
+    set_attrib(terminals[index].attrib);
+    map_4KB_page(VGA_TEXT_BUF_ADDR, VGA_TEXT_BUF_ADDR);
+    map_4KB_page(VGA_TERM_0 + VGA_SIZE * index, VGA_TERM_0 + VGA_SIZE * index);
+    memcpy((uint8_t*) VGA_TEXT_BUF_ADDR, (uint8_t*) (VGA_TERM_0 + VGA_SIZE * index), VGA_SIZE);
+}
+
+uint8_t* kb_buf_() {
+    return (uint8_t*) terminals[active_terminal_idx]._kb_buf;
+}
+
+uint32_t* kb_buf_top_() {
+    return &terminals[active_terminal_idx]._kb_buf_top;
+}
+
 /* int32_t terminal_open();
  * Inputs: none
- * Return Value: -1
- * Function: returns -1 because terminal shouldn't be open in cp2
+ * Return Value: 0
  */
 int32_t terminal_open(const uint8_t* filename){
     return 0;
@@ -155,7 +108,7 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
         // copy whatever is in the keyboard buffer to the input buffer, nbytes number of
         // times. including newline character
         i = 0;
-        while(i < nbytes && kb_buf_top <= kb_buf_size){
+        while(i < nbytes && *kb_buf_top <= kb_buf_size){
             buf_c[i] = kb_buf[i];
             if(buf_c[i] == '\n' || buf_c[i] == '\r'){
                 buf_c[i] = '\n';
@@ -201,8 +154,7 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
 
 /* int32_t terminal_close(int32_t fd);
  * Inputs: none;
- * Return Value: -1
- * Function: terminal shouldn't be closed for cp2.
+ * Return Value: 0
  */
 int32_t terminal_close(int32_t fd){
     return 0;

@@ -8,20 +8,37 @@
 #include "lib.h"
 #include "keyboard.h"
 #include "types.h"
+#include "schedule.h"
+#include "definitions.h"
+#include "rtc.h"
+#include "paging.h"
 
-#define ENABLE_HISTORY 0
-#define TERMINAL_PROMPT_MODE 0
-#define TERMINAL_PROMPT_LEN 7
-#define kb_buf_size 128
-#define kb_history_size 128
-#define screen_w 80
+typedef struct terminal {
+    int32_t x, y;
+    uint8_t attrib;
 
-char kb_buf_history[kb_history_size][kb_buf_size];
-int kb_buf_history_ptr;
-int kb_buf_history_top;
-int kb_buf_top_cached;
+    uint8_t _kb_buf[kb_buf_size];
+    uint32_t _kb_buf_top;
+
+    uint32_t rtc_target;
+    uint32_t rtc_counter;
+
+    uint32_t ebp;
+
+    int32_t pid;
+} terminal_t;
+
+terminal_t terminals[terminal_count];
 
 void terminal_init();
+
+void terminal_init_each(uint32_t index);
+
+void save_terminal(uint32_t index);
+void restore_terminal(uint32_t index);
+
+uint8_t* kb_buf_();
+uint32_t* kb_buf_top_();
 
 int32_t terminal_open(const uint8_t* filename);
 

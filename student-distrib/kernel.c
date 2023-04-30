@@ -13,8 +13,9 @@
 #include "keyboard.h"
 #include "paging.h"
 #include "filesystem.h"
+#include "pit.h"
 
-#define RUN_TESTS
+#define RUN_TESTS 0
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -158,8 +159,12 @@ void entry(unsigned long magic, unsigned long addr) {
     //init page
     init_paging();
 
+    init_scheduler();
+
     //init terminal
     terminal_init();
+    pit_init();
+
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
@@ -168,14 +173,17 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
      * without showing you any output */
-    printf("Enabling Interrupts\n");
+//    printf("Enabling Interrupts\n");
     sti();
 
 #ifdef RUN_TESTS
     /* Run tests */
-    launch_tests();
+//    launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
+    clear();
+    reset_text_cursor();
+    terminal_switch(0);
 
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");

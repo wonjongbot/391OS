@@ -9,6 +9,7 @@
 #include "types.h"
 #include "terminal.h"
 #include "system_calls.h"
+#include "definitions.h"
 
 
 // macro for special keys. DOWN keys by default
@@ -25,16 +26,16 @@
 #define RIGHT 0x4d
 #define ENTER 0x1c
 #define TAB_SIZE 4
+#define F1_DOWN 0x3B
+#define F3_DOWN 0x3D
 
 #define CASE_OFFSET 0x20
 #define UPPERCASE(ASCII) ASCII - CASE_OFFSET
 
-#define kb_buf_size 128
-#define kb_history_size 128
+#define kb_buf kb_buf_()
+#define kb_buf_top kb_buf_top_()
 
 // think of this array as a stack where top is next availble location
-char kb_buf[kb_buf_size];
-int kb_buf_top;
 int caps_flag;
 int shift_flag;
 int alt_flag;

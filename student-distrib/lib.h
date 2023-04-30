@@ -36,6 +36,14 @@ int8_t* strncpy(int8_t* dest, const int8_t*src, uint32_t n);
 int32_t bad_userspace_addr(const void* addr, int32_t len);
 int32_t safe_strncpy(int8_t* dest, const int8_t* src, int32_t n);
 
+uint32_t getX();
+uint32_t getY();
+
+void setX(uint32_t x);
+void setY(uint32_t y);
+
+uint8_t get_attrib();
+
 /* Port read functions */
 /* Inb reads a byte and returns its value as a zero-extended 32-bit
  * unsigned int */
