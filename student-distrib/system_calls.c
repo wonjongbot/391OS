@@ -440,7 +440,8 @@ written, or -1 on failure.
  *
  */
 int32_t syscall_getargs(uint8_t* buf, int32_t nbytes) {
-    if (buf == NULL) return -1;
+    // check if pointer is in user space
+    if ((uint32_t) buf < VALUE_128MB || (uint32_t) buf >= VALUE_132MB) return -1;
     pcb_t * curr = current;
     int32_t n = strlen((int8_t*) curr->argv);
     if (n + 1 > nbytes || n == 0) return -1;
@@ -459,7 +460,7 @@ int32_t syscall_getargs(uint8_t* buf, int32_t nbytes) {
  *   SIDE EFFECTS: none
  */
 int32_t syscall_vidmap(uint8_t** screen_start) {
-    //uint32_t flags;
+    // check if pointer is in user space
     if ((uint32_t) screen_start < VALUE_128MB || (uint32_t) screen_start >= VALUE_132MB) return -1;
 
     uint32_t pte_index = page_entry(VIDMAP_START_VIRTUAL_ADDR);
