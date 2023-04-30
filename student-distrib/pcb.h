@@ -14,20 +14,20 @@
 #define current current_thread_PCB()
 
 typedef struct pcb {
-  uint32_t pid;   // 0 to 5
-  filed filearray[FILEARR_SIZE]; // fd
-  uint32_t status;
-  uint32_t argc;
-  uint8_t argv[ARGV_MAX_LEN + 1];
-  struct pcb* parent;
+  uint32_t pid;                     // Current PCB's running process ID.
+  filed filearray[FILEARR_SIZE];    // fd array for each process
+  uint32_t status;                  // Status variable to check if this PCB is used or not
+            //  uint32_t argc;                    // unused
+  uint8_t argv[ARGV_MAX_LEN + 1];   // string of argument portion of the command
+  struct pcb* parent;               // pointer to the parent PCB
 
   //need to add terminal information (not familiar of this part);
 
-  // TSS
+  // Information saved for scheduling purposes
   uint32_t esp;
   uint32_t ebp;
-  uint32_t eip;
 
+  // For saving/restoring TSS.ESP0 and TSS.SS0 when switching cntext
   uint32_t esp0;
   uint32_t ss0;
 
@@ -35,18 +35,12 @@ typedef struct pcb {
   uint32_t save_ebp;
   uint32_t save_esp;
 
-  // Memory Map
+  // Start of the user space memory
   uint32_t physical_mem_start;
   // Shell
   uint32_t shell_flag;
 
   // need Signal for cp6
-
-  // Thread
-  int32_t thread_flag;
-  int32_t thread_num;
-  int32_t global_thread_index;
-  int32_t threads[MAX_THREAD_FOR_PCB];
 } pcb_t;
 
 int32_t pid_alloc();

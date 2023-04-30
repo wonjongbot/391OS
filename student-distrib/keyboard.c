@@ -372,6 +372,7 @@ void keyboard_handler(){
             #endif
         }
     }
+    // handler for switching terminal upon alt + f#
     if (alt_flag && (scancode >= F1_down && scancode <= F3_down)) {
         send_eoi(0x1);
         switch_active_terminal(scancode - F1_down);
