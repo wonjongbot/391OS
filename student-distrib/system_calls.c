@@ -109,13 +109,13 @@ int32_t syscall_halt(uint8_t status) {
         set_attrib(0x7);
         printf("\n");
         curr->status = 0;
-        pid_dealloc(curr->pid);
+        pid_dealloc(terminal_pids[current_terminal]);
         terminal_pids[current_terminal] = -1;
         syscall_execute((uint8_t*) "shell");
     } else {
         // set current pid as inactive
         curr->status = 0;
-        pid_dealloc(curr->pid);
+        pid_dealloc(terminal_pids[current_terminal]);
 
         // update tss to saved of parent
         pcb_t * parent = curr->parent;
@@ -189,8 +189,8 @@ int32_t syscall_execute(const uint8_t* command) {
 
     pcb_t * parent = NULL;
     pcb_t * curr;
-    if (terminal_pids[current_terminal] == -1) {
-        printf("Welcome to Terminal %d\n", current_terminal);
+    if (terminal_pids[active_terminal] == -1) {
+        printf("Welcome to Terminal %d\n", active_terminal);
         if (current_terminal > 0) {
             asm volatile(
                     "addl $-8192, %%esp        \n\t"
@@ -278,7 +278,11 @@ int32_t syscall_execute(const uint8_t* command) {
 
     set_vidmap_present(curr->pid, 0);
 
-    terminal_pids[current_terminal] = curr->pid;
+    int idx = page_entry(VIDMAP_START_VIRTUAL_ADDR);
+    page_table1[idx].base_addr = VGA_TEXT_BUF_ADDR >> 12;
+
+    terminal_pids[active_terminal] = curr->pid;
+    current_terminal = active_terminal;
 
     tss.ss0 = KERNEL_DS;
     tss.esp0 = (1 << 23) - ((1 << 13) * (curr->pid)) - 4;
@@ -458,9 +462,11 @@ int32_t syscall_vidmap(uint8_t** screen_start) {
     //uint32_t flags;
     if ((uint32_t) screen_start < VALUE_128MB || (uint32_t) screen_start >= VALUE_132MB) return -1;
 
+    uint32_t pte_index = page_entry(VIDMAP_START_VIRTUAL_ADDR);
+    page_table1[pte_index].present = 1;
+
     //cli_and_save(flags);
     *screen_start = (uint8_t*) VIDMAP_START_VIRTUAL_ADDR;
-    set_vidmap_present(current->pid, 1);
     //restore_flags(flags);
 
     return 0;

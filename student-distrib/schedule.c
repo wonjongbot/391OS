@@ -41,17 +41,13 @@ void switch_running_task(uint32_t pid) {
 
     reload_tlb();
 
-    PTE temp;
-    int32_t idx = dir_entry(VGA_TEXT_BUF_ADDR);
-    temp.val = page_table0[idx].val;
+    int32_t idx = page_entry(VGA_TEXT_BUF_ADDR);
 
     if (current_terminal == active_terminal) {
-        temp.base_addr = VGA_TEXT_BUF_ADDR >> TABLE_ADDRESS_SHIFT;
+        page_table0[idx].base_addr = VGA_TEXT_BUF_ADDR >> TABLE_ADDRESS_SHIFT;
     } else {
-        temp.base_addr = (VGA_TERM_0 + VGA_SIZE * current_terminal) >> TABLE_ADDRESS_SHIFT;
+        page_table0[idx].base_addr = (VGA_TERM_0 + VGA_SIZE * current_terminal) >> TABLE_ADDRESS_SHIFT;
     }
-
-    page_table0[idx].val = temp.val;
 
     reload_tlb();
 
@@ -75,44 +71,37 @@ void switch_active_terminal(uint32_t index) {
     if (current_terminal >= 0 && active_terminal == index) return;
     int previous_terminal;
 
-    PTE temp;
-
-    current_terminal++;
-    if (current_terminal > 2) current_terminal = 0;
-
     previous_terminal = active_terminal;
     active_terminal = index;
     switch_video_mem(previous_terminal, active_terminal);
 
-    int idx = dir_entry(VIDMAP_START_VIRTUAL_ADDR);
-    temp.val = page_table1[idx].val;
+    int idx = page_entry(VIDMAP_START_VIRTUAL_ADDR);
 
     if (current_terminal == active_terminal) {
-        temp.base_addr = VGA_TEXT_BUF_ADDR >> 12;
+        page_table1[idx].base_addr = VGA_TEXT_BUF_ADDR >> TABLE_ADDRESS_SHIFT;
     } else {
-        temp.base_addr = (VGA_TERM_0 + current_terminal * VGA_SIZE) >> 12;
+        page_table1[idx].base_addr = (VGA_TERM_0 + current_terminal * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
     }
-
-    page_table1[idx].val = temp.val;
+    if (terminal_pids[current_terminal] > 2) {
+        idx = page_entry(VGA_TEXT_BUF_ADDR);
+        if (active_terminal == current_terminal) {
+            page_table0[idx].base_addr = VGA_TEXT_BUF_ADDR >> TABLE_ADDRESS_SHIFT;
+        } else {
+            page_table0[idx].base_addr = (VGA_TERM_0 + current_terminal * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
+        }
+    }
+    reload_tlb();
 
     if (terminal_pids[active_terminal] == -1) {
+        current_terminal = active_terminal;
         syscall_execute((uint8_t*) "shell");
     }
 }
 
 void switch_video_mem(uint32_t curr_term, uint32_t next_term) {
-    PTE temp;
-    uint32_t idx = dir_entry(VGA_TEXT_BUF_ADDR);
-
-    temp.base_addr = VGA_TEXT_BUF_ADDR;
-    page_table0[idx].val = temp.val;
-
-    reload_tlb();
-
     memcpy((void*) (VGA_TERM_0 + curr_term * VGA_SIZE), (void*) VGA_TEXT_BUF_ADDR, VGA_SIZE);
     memcpy((void*) VGA_TEXT_BUF_ADDR, (void*) (VGA_TERM_0 + next_term * VGA_SIZE), VGA_SIZE);
 
-    reload_tlb();
 
     terminal_x[curr_term] = getX();
     terminal_y[curr_term] = getY();

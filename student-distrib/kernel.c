@@ -166,9 +166,9 @@ void entry(unsigned long magic, unsigned long addr) {
 
     clear();
     reset_text_cursor();
-    switch_active_terminal(0);
-
     pit_init();
+//    switch_active_terminal(0);
+
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */

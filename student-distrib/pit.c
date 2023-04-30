@@ -1,6 +1,6 @@
 #include "pit.h"
 
-volatile int shells_initialized = 0;
+volatile int shells_initialized = -1;
 
 void pit_init(void){
     int counter = 1193182 / 100;
@@ -15,21 +15,13 @@ void pit_init(void){
 void pit_handler() {
     send_eoi(PIT_IRQ);
 
-    PTE temp;
-
-    current_terminal++;
-    if (current_terminal > 2) current_terminal = 0;
-
-    int idx = dir_entry(VIDMAP_START_VIRTUAL_ADDR);
-    temp.val = page_table1[idx].val;
-
-    if (current_terminal == active_terminal) {
-        temp.base_addr = VGA_TEXT_BUF_ADDR >> TABLE_ADDRESS_SHIFT;
-    } else {
-        temp.base_addr = (VGA_TERM_0 + current_terminal * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
+    if (shells_initialized == -1) {
+        clear();
+        reset_text_cursor();
     }
-
-    page_table1[idx].val = temp.val;
-
-    switch_running_task(terminal_pids[active_terminal]);
+    if (shells_initialized < 3) {
+        shells_initialized++;
+        switch_active_terminal(shells_initialized % 3); // 0, 1, 2, 0
+        return;
+    }
 }
