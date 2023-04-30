@@ -109,7 +109,7 @@ int32_t syscall_halt(uint8_t status) {
     int i;
     // close all the file descriptor
     for (i = 2; i < 8; i++) {
-        close_at_pcb(curr, i);
+        close(i);
     }
 
     // -0x1f is the smallest exception number in uint8_t scale
@@ -204,27 +204,6 @@ int32_t syscall_execute(const uint8_t* command) {
 //  opened_exe_fd = fd;
 // //  syscall_close(fd);
 
-    pcb_t * parent = NULL;
-
-    if (terminals[active_terminal_idx].pid != -1) {
-        // save ebp and esp
-        parent = PCB(terminals[active_terminal_idx].pid);
-
-        register uint32_t ebp_tmp asm("ebp");
-        parent->save_ebp = ebp_tmp;
-
-        register uint32_t esp_tmp asm("esp");
-        parent->save_esp = esp_tmp;
-    }
-
-    pcb_t * curr = PCB(pid_peek());
-
-    if (PCB_init(curr) == -1) return -1;
-
-    active_process_idx = curr->pid;
-
-    curr->parent = parent;
-
     uint32_t command_size = strlen((int8_t*) command);
     uint32_t name_size = 0;
     while (name_size < command_size && command[++name_size] != ' ');
@@ -233,35 +212,26 @@ int32_t syscall_execute(const uint8_t* command) {
     memcpy(program, command, name_size);
     program[name_size] = '\0';
 
-    memset(curr->argv, '\0', ARGV_MAX_LEN + 1);
-
-    if (name_size == strlen("rtc") && strncmp((int8_t*) program, "rtc", strlen("rtc")) == 0) {
-        unload(curr, -1);
-        return -1;
-    }
-
     if (name_size == strlen("proc") && strncmp((int8_t*) program, "proc", strlen("proc")) == 0) {
         print_proc();
-        unload(curr, 0);
         return 0;
     }
 
     // Remove any extra whitespace after program name
     if (command_size > name_size) {
         while (name_size < command_size && command[++name_size] == ' ');
-        memcpy(curr->argv, &command[name_size], command_size - name_size);
     }
 
-    int32_t fd;
-    if ((fd = open_at_pcb(curr, program)) == -1) {
-        unload(curr, -1);
+    dentry_t dentry;
+    if (read_dentry_by_name(command, &dentry) == -1) {
         return -1;
     }
 
-    filed file = curr->filearray[fd];
-    close_at_pcb(curr, fd);
+    if (dentry.file_type != 2) {
+        return -1;
+    }
 
-    uint32_t inode_idx = file.inode_index;
+    uint32_t inode_idx = dentry.inode;
 
     uint32_t file_size = _inodes[inode_idx].length;
 
@@ -269,20 +239,28 @@ int32_t syscall_execute(const uint8_t* command) {
     uint8_t buf[MAGIC_NUM_SIZE];
 
     if ((read_data(inode_idx, 0, buf, MAGIC_NUM_SIZE) == -1) || *(uint32_t*) buf != MAGIC_NUM_EXE) {
-        unload(curr, -1);
         return -1;
     }
+
+    terminals[active_terminal_idx].pid = pid_peek();
+
+    pcb_t* curr = PCB(pid_peek());
+
+
+    active_process_idx = curr->pid;
+
+    curr->parent = current;
+
+    set_vidmap(curr->pid);
 
     set_virtual_memory(curr->pid);
 
     //copy to user space
-    if (read_data(inode_idx, 0, (uint8_t*) PROGRAM_START_VIRTUAL_ADDR, file_size) == -1) {
-        unload(curr, -1);
-        return -1;
-    }
+    read_data(inode_idx, 0, (uint8_t*) PROGRAM_START_VIRTUAL_ADDR, file_size);
 
-    set_vidmap(curr->pid);
+    PCB_init(curr);
 
+    memcpy(curr->argv, &command[name_size], command_size - name_size);
     terminals[active_terminal_idx].pid = curr->pid;
 
     curr->term_idx = active_terminal_idx;
@@ -323,11 +301,6 @@ int32_t syscall_execute(const uint8_t* command) {
  * named file, allocate an unused file descriptor, and set up any data necessary to handle the given type of file (directory,RTC device, or regular file)
  */
 int32_t syscall_open(const uint8_t* filename) {
-    return open_at_pcb(current, filename);
-}
-
-int32_t open_at_pcb(void* _pcb, const uint8_t* filename) {
-    pcb_t* pcb = (pcb_t*) _pcb;
     // int i;
     // for(i = 0; i < FILEARR_SIZE; i++){
     //   printf("%d ", current->filearray[i].flags);
@@ -342,14 +315,14 @@ int32_t open_at_pcb(void* _pcb, const uint8_t* filename) {
         if (fd == FILEARR_SIZE) {
             return -1;
         }
-        if (pcb->filearray[fd].flags == 0) {
+        if (current->filearray[fd].flags == 0) {
             break;
         }
     }
 
     if (read_dentry_by_name(filename, &dentry) == -1) return -1;
 
-    filed* filenew = &pcb->filearray[fd];
+    filed* filenew = &current->filearray[fd];
     filenew->flags = 1;
     filenew->file_position = 0;
     filenew->inode_index = dentry.inode;
@@ -375,21 +348,9 @@ int32_t open_at_pcb(void* _pcb, const uint8_t* filename) {
 }
 
 int32_t syscall_close(int32_t fd) {
-    return close_at_pcb(current, fd);
-
-/*
-The close system call closes the specified file descriptor and makes it available for return from later calls to open.
-You should not allow the user to close the default descriptors (0 for input and 1 for output). Trying to close an invalid
-descriptor should result in a return value of -1; successful closes should return 0.
-*/
-}
-
-int32_t close_at_pcb(void* _pcb, int32_t fd) {
     if (fd >= 8 || fd < 2) return -1;    //2=<fd<8
 
-    pcb_t* pcb = (pcb_t*) _pcb;
-
-    filed* fileclose = &pcb->filearray[fd];
+    filed* fileclose = &current->filearray[fd];
     if (fileclose->flags == 0 || fileclose->ops == NULL) return -1;
 
     uint32_t close_value = fileclose->ops->close(fd);

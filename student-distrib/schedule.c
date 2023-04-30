@@ -11,9 +11,9 @@ void schedule() {
 }
 
 void terminal_switch(uint32_t idx) {
-    active_process_idx = terminals[active_terminal_idx].pid;
     save_terminal(active_terminal_idx);
     restore_terminal(idx);
+    active_process_idx = terminals[active_terminal_idx].pid;
 
     active_terminal_idx = idx;
 }

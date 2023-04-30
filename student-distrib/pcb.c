@@ -117,7 +117,6 @@ pcb_t* PCB(uint32_t pid) {
  *   SIDE EFFECTS: none
  */
 int32_t PCB_init(pcb_t* pcb) {
-    if (pcb == NULL) return -1;
     pcb->pid = pid_alloc();     // assign a available pid
     pcb->status = 1;       //update the pcb's status
     pcb->parent = NULL;         //initialize the pcb's parent
