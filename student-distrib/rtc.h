@@ -1,10 +1,10 @@
-/* rtc.h - Defines functions and constant variables for rtc.c 
+/* rtc.h - Defines functions and constant variables for rtc.c
  */
 
 #ifndef _RTC_H
 #define _RTC_H
 
-#define RTC             0x70    
+#define RTC             0x70
 #define CMOS            0x71
 #define REG_A           0xA
 #define REG_B           0xB
@@ -12,7 +12,6 @@
 #define RTC_IRQ         0x8
 
 #include "types.h"
-
 
 /* Initializes RTC */
 void rtc_init(void);

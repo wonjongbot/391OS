@@ -164,6 +164,8 @@ void entry(unsigned long magic, unsigned long addr) {
 
     init_scheduler();
 
+    clear();
+    reset_text_cursor();
     switch_active_terminal(0);
 
     pit_init();

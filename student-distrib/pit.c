@@ -1,5 +1,7 @@
 #include "pit.h"
 
+volatile int shells_initialized = 0;
+
 void pit_init(void){
     int counter = 1193182 / 100;
     outb(PIT_MODE2_LOHI, PIT_CMD);
@@ -13,19 +15,10 @@ void pit_init(void){
 void pit_handler() {
     send_eoi(PIT_IRQ);
 
-    int previous_terminal;
-
     PTE temp;
 
     current_terminal++;
     if (current_terminal > 2) current_terminal = 0;
-
-    if (next_terminal != -1) {
-        previous_terminal = active_terminal;
-        active_terminal = next_terminal;
-        next_terminal = -1;
-        switch_video_mem(previous_terminal, active_terminal);
-    }
 
     int idx = dir_entry(VIDMAP_START_VIRTUAL_ADDR);
     temp.val = page_table1[idx].val;

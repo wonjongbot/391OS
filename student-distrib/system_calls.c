@@ -19,8 +19,6 @@
 #include "terminal.h"
 #include "schedule.h"
 
-int32_t curr_pid = -1;
-
 // current executing EXE's fd # in parent process.
 // int32_t opened_exe_fd = 0;
 
@@ -103,7 +101,7 @@ int32_t syscall_halt(uint8_t status) {
         halt_ret = 256;
     }
 
-    set_vidmap_present(current->pid, 0);
+    set_vidmap_present(curr->pid, 0);
 
     if (curr->parent == NULL) {
         set_attrib(0x4E);
@@ -112,7 +110,7 @@ int32_t syscall_halt(uint8_t status) {
         printf("\n");
         curr->status = 0;
         pid_dealloc(curr->pid);
-        curr_pid = -1;
+        terminal_pids[current_terminal] = -1;
         syscall_execute((uint8_t*) "shell");
     } else {
         // set current pid as inactive
@@ -125,16 +123,18 @@ int32_t syscall_halt(uint8_t status) {
         parent->ss0 = tss.ss0;
         parent->esp0 = tss.esp0;
 
-        curr_pid = parent->pid;
+        terminal_pids[current_terminal] = parent->pid;
 
         // unmap current paging / map parent's paging using physical_mem_start
-        set_virtual_memory(curr_pid);
+        set_virtual_memory(parent->pid);
+
+        set_vidmap_present(parent->pid, 0);
 
         tss.ss0 = KERNEL_DS;
 
         //NOT SURE WHAT THE VALUE HERE SHOULD BE
         // tss.esp0 = parent->save_esp;
-        tss.esp0 = (1 << 23) - ((1 << 13) * (curr_pid)) - 4;
+        tss.esp0 = (1 << 23) - ((1 << 13) * (parent->pid)) - 4;
 
         //tss.esp0 = curr->save_esp;
         // printf("PID: %d\n", curr_pid);
@@ -190,6 +190,15 @@ int32_t syscall_execute(const uint8_t* command) {
     pcb_t * parent = NULL;
     pcb_t * curr;
     if (terminal_pids[current_terminal] == -1) {
+        printf("Welcome to Terminal %d\n", current_terminal);
+        if (current_terminal > 0) {
+            asm volatile(
+                    "addl $-8192, %%esp        \n\t"
+                    :
+                    :
+                    : "cc"
+                    );
+        }
         curr = current;
     } else {
         // save ebp and esp
@@ -267,9 +276,7 @@ int32_t syscall_execute(const uint8_t* command) {
         return -1;
     }
 
-    if (terminal_pids[current_terminal] != -1) {
-        set_vidmap_present(curr->pid, 0);
-    }
+    set_vidmap_present(curr->pid, 0);
 
     terminal_pids[current_terminal] = curr->pid;
 

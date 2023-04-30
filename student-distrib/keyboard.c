@@ -358,16 +358,6 @@ void keyboard_handler(){
                 clear();
                 reset_text_cursor();
             }
-            // ctrl-c halts current program
-            if(ctrl_flag && (ascii == 'c' || ascii == 'C')){
-                printf("\n");
-                set_attrib(0x4E);
-                printf("[!] Program received signal SIGINT. Keyboard Interrupt.");
-                set_attrib(0x7);
-                printf("\n");
-                send_eoi(0x1);
-                syscall_halt(0);
-            }
             #if ENABLE_HISTORY
             // ctrl-h prints user-set number of history
             if(ctrl_flag && (ascii == 'h')){
@@ -384,7 +374,6 @@ void keyboard_handler(){
     }
     if (alt_flag && (scancode >= F1_down && scancode <= F3_down)) {
         send_eoi(0x1);
-        printf("Switching to %d\n", scancode - F1_down);
         switch_active_terminal(scancode - F1_down);
     }
     // handling arrow keys

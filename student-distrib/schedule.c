@@ -6,12 +6,18 @@
 #include "paging.h"
 #include "definitions.h"
 #include "filesystem.h"
+#include "rtc.h"
 
 volatile int active_terminal;
 volatile int current_terminal;
 volatile int next_terminal = -1;
 
 volatile int terminal_pids[3];
+
+volatile int terminal_x[3];
+volatile int terminal_y[3];
+
+volatile int halt_flag = -1;
 
 void init_scheduler() {
     active_terminal = 0;
@@ -66,6 +72,7 @@ void switch_running_task(uint32_t pid) {
 }
 
 void switch_active_terminal(uint32_t index) {
+    if (current_terminal >= 0 && active_terminal == index) return;
     int previous_terminal;
 
     PTE temp;
@@ -88,7 +95,7 @@ void switch_active_terminal(uint32_t index) {
 
     page_table1[idx].val = temp.val;
 
-    if (terminal_pids[current_terminal] == -1) {
+    if (terminal_pids[active_terminal] == -1) {
         syscall_execute((uint8_t*) "shell");
     }
 }
@@ -106,39 +113,10 @@ void switch_video_mem(uint32_t curr_term, uint32_t next_term) {
     memcpy((void*) VGA_TEXT_BUF_ADDR, (void*) (VGA_TERM_0 + next_term * VGA_SIZE), VGA_SIZE);
 
     reload_tlb();
-}
 
-void start_shell(uint32_t pid) {
-    printf("help\n");
-    dentry_t shell;
-    uint8_t buf[4];
+    terminal_x[curr_term] = getX();
+    terminal_y[curr_term] = getY();
 
-    read_dentry_by_name((uint8_t*) "shell", &shell);
-    read_data(shell.inode, 24, buf, 4);
-
-    uint32_t entry = *(uint32_t*) buf;
-
-
-    printf("%d\n", pid);
-    set_virtual_memory(pid);
-
-    read_data(shell.inode, 0, (uint8_t*)(PROGRAM_START_VIRTUAL_ADDR), _inodes[shell.inode].length);
-
-    PCB_init(PCB(pid));
-
-
-    asm volatile(
-                "pushl %%eax \n\t"
-                "pushl $0x83ffffc \n\t"
-                "pushfl \n\t"
-                "popl %%eax\n\t"    // set interrupt flag
-                "orl $0x200, %%eax \n\t"
-                "pushl %%eax \n\t"
-                "pushl %%ebx \n\t"
-                "pushl %%ecx \n\t"
-                "iret \n\t"
-                :
-                : "a" (USER_DS), "b" (USER_CS), "c" (entry)
-                : "cc", "memory"
-                );
+    setX(terminal_x[next_term]);
+    setY(terminal_y[next_term]);
 }

@@ -134,7 +134,7 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
     uint32_t i = 0;
     int8_t* buf_c = (int8_t*) buf;
     // check for nullptr
-    if(buf_c == NULL){
+    if(buf_c == NULL) {
         return -1;
     }
     else{

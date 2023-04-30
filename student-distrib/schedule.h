@@ -12,6 +12,7 @@ extern volatile int current_terminal;
 extern volatile int next_terminal;
 extern volatile int terminal_pids[3];
 
+extern volatile int halt_flag;
 
 void init_scheduler();
 
