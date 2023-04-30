@@ -34,3 +34,10 @@
 - **(4/15/23)** vidmap page was always enabled whenever execute is done. Changed so that vidmap page's present bit is set to 1 only when syscall_vidmap is called by user
 - **(4/15/23)** `cat rtc` should terminate after some time (because it opens rtc and waits until rtc_read returns), but it returned immediately. Issue was that our counter to virtualize the rtc is set to 0, which is the condition rtc_read considers to be interrupt. So we had to set the rtc_open's starting counter value as 1 to avoid this.
 - **(4/18/23)** vidmap created some weird pages mapped at 0x0 - 0x1000, and 0xcb8000-cb9000. Issue was that we used the same page table as previous checkpoints, which caused pages to overlap and duplicated. So we created a new page table for vidmap to fix this
+
+
+## Checkpoint 5
+
+- **(4/30/23)** When one terminal is constantly writing onto vidmap (i.e fish), it keeps writing onto the screen even after it was switch to differnt termianl. Our mapping for vidmap had to be correctly pointed to buffered terminal VGA page instead of active page.
+- **(4/30/23)** Pingpong and counter prints to other terminals when active terminal is switched. This is because we don't have scheduling yet. 
+- **(4/30/23)** Terminal scheduling is not implemented so there are many bugs prevalent, which are intended but does not satisfy the mp3 specs.
