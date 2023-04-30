@@ -18,7 +18,7 @@
 #include "types.h"
 
 void set_virtual_memory(uint32_t pcb_pos);
-void set_vidmap(uint32_t pcb_pos);
+void set_vidmap_present(uint32_t pcb_pos, uint32_t present);
 
 extern int32_t syscall_halt (uint8_t status);
 extern int32_t syscall_execute (const uint8_t* command);

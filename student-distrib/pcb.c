@@ -67,7 +67,7 @@ void pid_dealloc(int32_t pid){
     process_using[pid] = 0;
 }
 
-void unload(pcb_t* pcb) {
+void unload(pcb_t* pcb, int32_t ret) {
   int i;
   // close all the file descriptor
   for(i = 2; i < 8; i++){
@@ -81,7 +81,7 @@ void unload(pcb_t* pcb) {
         "movl %1, %%ebp        \n\t"
         "movl %2, %%eax        \n\t"
         :
-        : "r"(pcb->parent->save_esp), "r"(pcb->parent->save_ebp), "r"(-1)
+        : "r"(pcb->parent->save_esp), "r"(pcb->parent->save_ebp), "r"(ret)
         : "cc"
         );
   }
@@ -106,6 +106,10 @@ inline pcb_t* current_thread_PCB()
         : "cc"
     );
     return ptr;
+}
+
+pcb_t* PCB(uint32_t pid) {
+    return (pcb_t*) ((1 << 23) - (pid + 1) * (1 << 13));
 }
 
 /*
@@ -156,5 +160,21 @@ int32_t PCB_init(pcb_t* pcb) {
     for(i=0;i<MAX_THREAD_FOR_PCB; i++){
         pcb->threads[i] = -1;
     }
+
+    pcb->ss0 = KERNEL_DS;
+    pcb->esp0 = (1 << 23) - (pcb->pid + 1) * (1 << 13) - 4;
     return 0;
+}
+
+void print_proc() {
+    uint32_t i;
+    printf("\n");
+    for (i = 0; i < 6; i++) {
+        if (i == current_terminal) set_attrib(0x3);
+        if (i == active_terminal) set_attrib(0x19);
+        printf("%d", process_using[i]);
+        set_attrib(0x7);
+        printf(" ");
+    }
+    printf("\n");
 }

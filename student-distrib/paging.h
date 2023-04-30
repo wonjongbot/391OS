@@ -3,6 +3,7 @@
 
 #include "lib.h"
 #include "pcb.h"
+#include "definitions.h"
 
 //the address in table start from the 12th b
 #define	TABLE_ADDRESS_SHIFT		12
@@ -21,7 +22,7 @@
 #define VIRTUAL_PAG_OFF          12                         // offset of page table in virtual address
 
 #define VALUE_128MB              0x8000000                  // 128 mb
-#define VALUE_132MB              0x8400000  
+#define VALUE_132MB              0x8400000
 
 // Addrs
 #define KERNEL_ADDR              PAGE_4MB_VAL               // Kernel start at 4MB in physical memory
@@ -93,5 +94,9 @@ PTE page_table1[PAGE_TAB_MAX] __attribute__((aligned (PAGE_4KB_VAL)));
 
 void init_paging();
 inline void reload_tlb();
+
+int32_t map_4MB_page(uint32_t virtual_addr, uint32_t physical_addr);
+int32_t map_4KB_page(uint32_t virtual_addr, uint32_t physical_addr);
+
 
 #endif

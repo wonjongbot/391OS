@@ -4,6 +4,8 @@
 #define ASCII_TILDA 0x7E
 #define ASCII_a 0x61
 #define ASCII_z 0x7a
+#define F1_down 0x3B
+#define F3_down 0x3D
 
 // set_atrib function takes in 4 bits for foreground color and 4 bits for background color
 // colors we used are :
@@ -20,21 +22,23 @@
  *           key flags to 0.
  */
 void keyboard_init(){
-    int i;
+    int i, j;
     enable_irq(0x1);
     // set keyboard buffer to 0
-    for(i = 0; i < kb_buf_size; i++){
-        kb_buf[i] = 0;
+    for (j = 0; j < 3; j++) {
+        for (i = 0; i < kb_buf_size; i++) {
+            kb_buf[j][i] = 0;
+        }
+        // reinitialize various variables
+        kb_buf_top[j] = 0;
     }
-    // reinitialize various variables
-    kb_buf_top = 0;
     caps_flag = 0, shift_flag = 0, alt_flag = 0, ctrl_flag = 0, enter_flag = 0;
 }
 
 /* int keyboard_init(uint8_t ascii);
  * Inputs: uint8_t ascii
  * Return Value: 1 if key is a printable key 0 if not
- * Function: looks at the ascii code input and determines if this should be 
+ * Function: looks at the ascii code input and determines if this should be
  * printed on screen or not. Includes special characters
  */
 int is_printable(uint8_t ascii){
@@ -47,7 +51,7 @@ int is_printable(uint8_t ascii){
 /* int is_capsable(uint8_t ascii);
  * Inputs: uint8_t ascii
  * Return Value: 1 if key should be changed to uppercase when capslock is enabled, 0 if not
- * Function: looks at the ascii code input and determines if this should be 
+ * Function: looks at the ascii code input and determines if this should be
  *           changed to upper case when caps lock is enabled. Basically checks if it is alphabet letter
  */
 int is_capsable(uint8_t ascii){
@@ -91,28 +95,28 @@ int convert_case(uint8_t ascii){
                     break;
                 case '4':
                     ret = '$';
-                    break;                
+                    break;
                 case '5':
                     ret = '%';
-                    break;                
+                    break;
                 case '6':
                     ret = '^';
-                    break;                
+                    break;
                 case '7':
                     ret = '&';
-                    break;                
+                    break;
                 case '8':
                     ret = '*';
-                    break;                
+                    break;
                 case '9':
                     ret = '(';
-                    break;                
+                    break;
                 case ',':
                     ret = '<';
-                    break;                
+                    break;
                 case '.':
                     ret = '>';
-                    break;                
+                    break;
                 case '/':
                     ret = '?';
                     break;
@@ -135,7 +139,7 @@ int convert_case(uint8_t ascii){
                     ret = '~';
                     break;
                 default : break;
-            }                
+            }
         }
     }
     return ret;
@@ -209,8 +213,8 @@ void set_special_flags(uint8_t scancode){
  *           top of stack variable
  */
 void push_kb_buf(uint8_t ascii){
-    kb_buf[kb_buf_top] = ascii;
-    kb_buf_top++;
+    kb_buf[active_terminal][kb_buf_top[active_terminal]] = ascii;
+    kb_buf_top[active_terminal]++;
 }
 
 
@@ -222,9 +226,9 @@ void push_kb_buf(uint8_t ascii){
  */
 uint8_t pop_kb_buf(){
     // remove most recent push and return that. if there is underflow, return null.
-    if(kb_buf_top > 0){
-        kb_buf_top--;
-        return kb_buf[kb_buf_top];
+    if(kb_buf_top[active_terminal] > 0){
+        kb_buf_top[active_terminal]--;
+        return kb_buf[active_terminal][kb_buf_top[active_terminal]];
     }
     return NULL;
 }
@@ -237,9 +241,9 @@ uint8_t pop_kb_buf(){
 void clear_kb_buf(){
     int i;
     for(i = 0; i < kb_buf_size; i++){
-        kb_buf[i] = 0;
+        kb_buf[active_terminal][i] = 0;
     }
-    kb_buf_top = 0;
+    kb_buf_top[active_terminal] = 0;
 }
 
 #define history_depth 5
@@ -320,7 +324,7 @@ void keyboard_handler(){
             if(!(alt_flag || ctrl_flag)){
                 // if backspace we need to pop that from keyboard buffer
                 if(ascii == '\b'){
-                    if(kb_buf_top > 0){
+                    if(kb_buf_top[active_terminal] > 0){
                         uint8_t tmp = pop_kb_buf();
                         // if the popped key is tab key, we need to delete 4 characters
                         if(tmp == '\t'){
@@ -338,12 +342,12 @@ void keyboard_handler(){
                         enter_flag = 1;
                     }
                     // only print to screen and push to keyboard buffer up til 127th character
-                    if(kb_buf_top < kb_buf_size - 1){
+                    if(kb_buf_top[active_terminal] < kb_buf_size - 1){
                         push_kb_buf(ascii);
                         putc(ascii);
                     }
                     // 128th character is reserved for newline character
-                    if(kb_buf_top == kb_buf_size - 1 && (ascii == '\n' || ascii == '\r')){
+                    if(kb_buf_top[active_terminal] == kb_buf_size - 1 && (ascii == '\n' || ascii == '\r')){
                         push_kb_buf(ascii);
                         putc(ascii);
                     }
@@ -367,16 +371,21 @@ void keyboard_handler(){
             #if ENABLE_HISTORY
             // ctrl-h prints user-set number of history
             if(ctrl_flag && (ascii == 'h')){
-                if(kb_buf_top==0)
+                if(kb_buf_top[active_terminal]==0)
                     print_history();
             }
             // ctrl-H prints all history
             if(ctrl_flag && (ascii == 'H')){
-                if(kb_buf_top==0)
+                if(kb_buf_top[active_terminal]==0)
                     print_history_full();
             }
             #endif
         }
+    }
+    if (alt_flag && (scancode >= F1_down && scancode <= F3_down)) {
+        send_eoi(0x1);
+        printf("Switching to %d\n", scancode - F1_down);
+        switch_active_terminal(scancode - F1_down);
     }
     // handling arrow keys
     if(scancode == DOWN || scancode == UP || scancode == RIGHT || scancode == LEFT){

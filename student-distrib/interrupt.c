@@ -6,6 +6,7 @@
 #include "keyboard.h"
 #include "rtc.h"
 #include "system_calls.h"
+#include "pit.h"
 
 // set_atrib function takes in 4 bits for foreground color and 4 bits for background color
 // colors we used are :
@@ -464,6 +465,16 @@ void INT0x1f(){
 }
 
 /*
+ * INT_0x20()
+ * Input: None
+ * Output: None
+ * Interrupt handler for pit interrupt
+ */
+void INT0x20(){
+    pit_handler();
+}
+
+/*
  * INT_0x21()
  * Input: None
  * Output: None
@@ -580,7 +591,6 @@ void init_idt(){
     init_syscall();
 
     // initialize interrupt/trap gates of IDT
-    {
     // Interrupt 0:Divide Error Exception (#DE)
     SET_IDT_ENTRY(idt[0], INT0x00_linker);
 
@@ -677,6 +687,9 @@ void init_idt(){
     // Interrupt 31
     SET_IDT_ENTRY(idt[31], INT0x1f_linker);
 
+    // Interrupt 0x20 -- pit
+    SET_IDT_ENTRY(idt[0x20], INT0x20_linker);
+
     // Interrupt 0x21 -- keyboard
     SET_IDT_ENTRY(idt[0x21], INT0x21_linker);
 
@@ -685,7 +698,6 @@ void init_idt(){
 
     // system call
     SET_IDT_ENTRY(idt[0x80], SYSTEM_CALL_HANDLER);
-    }
 
     // Init System Call in IDT (vec 0x80 is system call)
     //set_system_gate(0x80, SYSTEM_CALL_HANDLER);

@@ -28,6 +28,9 @@ typedef struct pcb {
   uint32_t ebp;
   uint32_t eip;
 
+  uint32_t esp0;
+  uint32_t ss0;
+
   // saved values for halt
   uint32_t save_ebp;
   uint32_t save_esp;
@@ -52,12 +55,15 @@ int32_t pid_peek();
 
 void pid_dealloc(int32_t pid);
 
-void unload(pcb_t* pcb);
+void unload(pcb_t* pcb, int32_t ret);
 
 //point to the current process
 inline pcb_t* current_thread_PCB();
 
+pcb_t* PCB(uint32_t pid);
+
 int32_t PCB_init(pcb_t* pcb);
 
+void print_proc();
 
 #endif
