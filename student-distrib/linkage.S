@@ -53,11 +53,12 @@ CREATE_LINKER(INT0x1c_linker, INT0x1c)
 CREATE_LINKER(INT0x1d_linker, INT0x1d)
 CREATE_LINKER(INT0x1e_linker, INT0x1e)
 CREATE_LINKER(INT0x1f_linker, INT0x1f)
+CREATE_LINKER(INT0x20_linker, INT0x20)
 CREATE_LINKER(INT0x21_linker, INT0x21)
 CREATE_LINKER(INT0x28_linker, INT0x28)
 CREATE_LINKER(INT0x80_linker, INT0x80)
 
-// # ctrl + alt + 2 
+// # ctrl + alt + 2
 //     # brings up qemu monitor
 //     # info mem (lists all the paged area)
 //         # ! if we don't have this properly we ahve PG disabled

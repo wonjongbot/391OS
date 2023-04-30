@@ -67,7 +67,15 @@ void pid_dealloc(int32_t pid){
     process_using[pid] = 0;
 }
 
-void unload(pcb_t* pcb) {
+/*
+ * unload
+ *   DESCRIPTION: undoes everything related to building a kernel stack for execute
+ *   INPUTS: none
+ *   OUTPUTS: none
+ *   RETURN VALUE: None
+ *   SIDE EFFECTS: if execute fails, unload is called and restores the stack as if execute was never called
+ */
+void unload(pcb_t* pcb, int32_t ret) {
   int i;
   // close all the file descriptor
   for(i = 2; i < 8; i++){
@@ -81,7 +89,7 @@ void unload(pcb_t* pcb) {
         "movl %1, %%ebp        \n\t"
         "movl %2, %%eax        \n\t"
         :
-        : "r"(pcb->parent->save_esp), "r"(pcb->parent->save_ebp), "r"(-1)
+        : "r"(pcb->parent->save_esp), "r"(pcb->parent->save_ebp), "r"(ret)
         : "cc"
         );
   }
@@ -109,6 +117,19 @@ inline pcb_t* current_thread_PCB()
 }
 
 /*
+ * PCB
+ *   DESCRIPTION: pointer to the PCB block of input PID
+ *   INPUTS: pid -- process ID of which we want to know the pcb address of
+ *   OUTPUTS: none
+ *   RETURN VALUE: the pointer to the current process
+ *   SIDE EFFECTS: none
+ */
+pcb_t* PCB(uint32_t pid) {
+    // 1<<23 is 8MB which is offset to end of user space page, 1<<13 is 8kb for each kernel stack
+    return (pcb_t*) ((1 << 23) - (pid + 1) * (1 << 13));
+}
+
+/*
  * PCB_init
  *   DESCRIPTION: initialize the pcb.
  *   INPUTS: none
@@ -122,7 +143,7 @@ int32_t PCB_init(pcb_t* pcb) {
   pcb->pid = pid_alloc();     // assign a available pid
   pcb->status = 1;       //update the pcb's status
   pcb->parent = NULL;         //initialize the pcb's parent
-  pcb->argc = 0;
+//  pcb->argc = 0;
   memset(pcb->argv, '\0', ARGV_MAX_LEN + 1);
   pcb->shell_flag = 0;
 
@@ -149,12 +170,32 @@ int32_t PCB_init(pcb_t* pcb) {
         pcb->filearray[i].inode_index = -1;
         pcb->filearray[i].ops = NULL;
     }
-    // init threads
-    pcb->thread_flag = 0;
-    pcb->thread_num = 0;
-    pcb->global_thread_index = 0;
-    for(i=0;i<MAX_THREAD_FOR_PCB; i++){
-        pcb->threads[i] = -1;
-    }
+
+    pcb->ss0 = KERNEL_DS;
+    pcb->esp0 = (1 << 23) - (pcb->pid + 1) * (1 << 13) - 4;
     return 0;
+}
+
+/*
+ * print_proc
+ *   DESCRIPTION: helper function to visualize currently active terminal and processes
+ *   INPUTS: none
+ *   OUTPUTS: none
+ *   RETURN VALUE: none
+ *   SIDE EFFECTS: prints proc info to screen
+ */
+void print_proc() {
+    uint32_t i;
+    printf("\n");
+    // print all process if they are active (1) or inactive (0).
+        // if current terminal that we are looking at is scheduled terminal
+        // or actively displayed terminal, add some color for debugging purposes
+    for (i = 0; i < 6; i++) {
+        if (i == current_terminal) set_attrib(0x3);
+        if (i == active_terminal) set_attrib(0x19);
+        printf("%d", process_using[i]);
+        set_attrib(0x7);
+        printf(" ");
+    }
+    printf("\n");
 }

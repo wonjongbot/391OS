@@ -422,7 +422,7 @@ void vidmap_test(){
 //  *   SIDE EFFECTS: none
 //  */
 void getargs_vidmap_test(){
-  uint8_t* commandC;
+  uint8_t* commandC = NULL;
  uint8_t** screen_start = NULL;
 	void* buf = NULL;
 	execute (commandC);
@@ -439,7 +439,7 @@ void getargs_vidmap_test(){
   printf("getargs system call pass\n");
   vidmap (screen_start);
   printf("vidmap system call pass\n");
-  
+
 }
 
 
@@ -580,6 +580,6 @@ void launch_tests() {
 //  printf("\t* Enable SQUASH_TEST macro in rtc.h and try to execute pingpong.\n\t  Does it return to parent shell?\n");
 //  set_attrib(0x07);
 
-  execute((uint8_t*)"shell");
+//  execute((uint8_t*)"shell");
 }
 

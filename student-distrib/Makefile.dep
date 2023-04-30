@@ -3,28 +3,40 @@ linkage.o: linkage.S
 syscall_handler.o: syscall_handler.S x86_desc.h types.h
 x86_desc.o: x86_desc.S x86_desc.h types.h
 filesystem.o: filesystem.c filesystem.h lib.h types.h pcb.h x86_desc.h \
-  system_calls.h
+  system_calls.h terminal.h keyboard.h i8259.h schedule.h
 i8259.o: i8259.c i8259.h types.h lib.h
 interrupt.o: interrupt.c x86_desc.h types.h lib.h linkage.h interrupt.h \
-  i8259.h keyboard.h terminal.h rtc.h
+  i8259.h keyboard.h terminal.h system_calls.h schedule.h rtc.h pit.h \
+  paging.h pcb.h filesystem.h definitions.h
 kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h debug.h \
-  tests.h interrupt.h rtc.h keyboard.h terminal.h paging.h pcb.h \
-  system_calls.h filesystem.h
-keyboard.o: keyboard.c keyboard.h i8259.h types.h lib.h terminal.h
-lib.o: lib.c lib.h types.h keyboard.h i8259.h terminal.h
+  tests.h interrupt.h rtc.h keyboard.h terminal.h system_calls.h \
+  schedule.h paging.h pcb.h filesystem.h definitions.h pit.h
+keyboard.o: keyboard.c keyboard.h i8259.h types.h lib.h terminal.h \
+  system_calls.h schedule.h
+lib.o: lib.c lib.h types.h keyboard.h i8259.h terminal.h system_calls.h \
+  schedule.h
 paging.o: paging.c paging.h lib.h types.h pcb.h x86_desc.h system_calls.h \
-  filesystem.h
+  filesystem.h terminal.h keyboard.h i8259.h schedule.h definitions.h
 pcb.o: pcb.c lib.h types.h x86_desc.h keyboard.h i8259.h terminal.h \
-  paging.h pcb.h system_calls.h filesystem.h
+  system_calls.h schedule.h paging.h pcb.h filesystem.h definitions.h
+pit.o: pit.c pit.h i8259.h types.h paging.h lib.h pcb.h x86_desc.h \
+  system_calls.h filesystem.h terminal.h keyboard.h schedule.h \
+  definitions.h
 rtc.o: rtc.c rtc.h types.h lib.h i8259.h
+schedule.o: schedule.c pcb.h x86_desc.h types.h system_calls.h \
+  filesystem.h lib.h terminal.h keyboard.h i8259.h schedule.h paging.h \
+  definitions.h rtc.h
 system_calls.o: system_calls.c system_calls.h types.h lib.h filesystem.h \
-  rtc.h pcb.h x86_desc.h paging.h
-terminal.o: terminal.c terminal.h lib.h types.h keyboard.h i8259.h
+  rtc.h pcb.h x86_desc.h terminal.h keyboard.h i8259.h schedule.h \
+  paging.h definitions.h
+terminal.o: terminal.c terminal.h lib.h types.h keyboard.h i8259.h \
+  system_calls.h schedule.h
 tests.o: tests.c tests.h x86_desc.h types.h lib.h paging.h pcb.h \
-  system_calls.h filesystem.h rtc.h terminal.h keyboard.h i8259.h \
-  tests/rtc_tests.h tests/../rtc.h tests/../lib.h tests/../tests.h \
-  tests/terminal_tests.h tests/../terminal.h tests/filesystem_tests.h \
-  tests/../filesystem.h tests/../types.h tests/pcb_tests.h tests/../pcb.h
+  system_calls.h filesystem.h terminal.h keyboard.h i8259.h schedule.h \
+  definitions.h rtc.h tests/rtc_tests.h tests/../rtc.h tests/../lib.h \
+  tests/../tests.h tests/terminal_tests.h tests/../terminal.h \
+  tests/filesystem_tests.h tests/../filesystem.h tests/../types.h \
+  tests/pcb_tests.h tests/../pcb.h
 filesystem_tests.o: tests/filesystem_tests.c tests/filesystem_tests.h \
   tests/../filesystem.h tests/../lib.h tests/../types.h tests/../lib.h \
   tests/../tests.h tests/../types.h
@@ -32,9 +44,11 @@ idt_tests.o: tests/idt_tests.c tests/idt_tests.h
 paging_tests.o: tests/paging_tests.c tests/paging_tests.h
 pcb_tests.o: tests/pcb_tests.c tests/pcb_tests.h tests/../pcb.h \
   tests/../x86_desc.h tests/../types.h tests/../system_calls.h \
-  tests/../filesystem.h tests/../lib.h tests/../lib.h
+  tests/../filesystem.h tests/../lib.h tests/../terminal.h \
+  tests/../keyboard.h tests/../i8259.h tests/../schedule.h tests/../lib.h
 rtc_tests.o: tests/rtc_tests.c tests/rtc_tests.h tests/../rtc.h \
   tests/../types.h tests/../lib.h tests/../tests.h
 terminal_tests.o: tests/terminal_tests.c tests/terminal_tests.h \
   tests/../terminal.h tests/../lib.h tests/../types.h tests/../keyboard.h \
-  tests/../i8259.h tests/../terminal.h tests/../lib.h tests/../tests.h
+  tests/../i8259.h tests/../terminal.h tests/../system_calls.h \
+  tests/../schedule.h tests/../lib.h tests/../tests.h

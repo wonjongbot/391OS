@@ -13,6 +13,7 @@
 #include "keyboard.h"
 #include "paging.h"
 #include "filesystem.h"
+#include "pit.h"
 
 #define RUN_TESTS
 
@@ -160,6 +161,14 @@ void entry(unsigned long magic, unsigned long addr) {
 
     //init terminal
     terminal_init();
+
+    init_scheduler();
+
+    clear();
+    reset_text_cursor();
+    pit_init();
+//    switch_active_terminal(0);
+
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */

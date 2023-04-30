@@ -9,6 +9,7 @@
 #include "types.h"
 #include "terminal.h"
 #include "system_calls.h"
+#include "schedule.h"
 
 
 // macro for special keys. DOWN keys by default
@@ -33,8 +34,8 @@
 #define kb_history_size 128
 
 // think of this array as a stack where top is next availble location
-char kb_buf[kb_buf_size];
-int kb_buf_top;
+char kb_buf[3][kb_buf_size];
+int kb_buf_top[3];
 int caps_flag;
 int shift_flag;
 int alt_flag;
