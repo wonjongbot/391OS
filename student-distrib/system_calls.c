@@ -104,8 +104,6 @@ int32_t halt_ret;
 
 int32_t syscall_halt(uint8_t status) {
     // How do we know if this is an exception call?
-    uint32_t flags;
-    cli_and_save(flags);
     pcb_t * curr = PCB(active_process_idx);
     halt_ret = (int32_t) status;
     int i;
@@ -133,7 +131,6 @@ int32_t syscall_halt(uint8_t status) {
         curr->status = 0;
         pid_dealloc(curr->pid);
         terminals[active_terminal_idx].pid = -1;
-        restore_flags(flags);
         syscall_execute((uint8_t*) "shell");
     } else {
 
@@ -189,15 +186,13 @@ int32_t syscall_halt(uint8_t status) {
  */
 int32_t syscall_execute(const uint8_t* command) {
     if (command == NULL) return -1;
-    uint32_t flags;
-    cli_and_save(flags);
+
 // // if there is no process (first shell), we want to set up PCB in current stack
     if (pid_peek() == -1) {
         set_attrib(0x4E);
         printf("[!] Maximum number of process opened! Close programs to allocate more...");
         set_attrib(0x7);
         printf("\n");
-        restore_flags(flags);
         return -1;
     }
 
@@ -219,7 +214,6 @@ int32_t syscall_execute(const uint8_t* command) {
 
     if (name_size == strlen("proc") && strncmp((int8_t*) program, "proc", strlen("proc")) == 0) {
         print_proc();
-        restore_flags(flags);
         return 0;
     }
 
@@ -230,12 +224,10 @@ int32_t syscall_execute(const uint8_t* command) {
 
     dentry_t dentry;
     if (read_dentry_by_name(command, &dentry) == -1) {
-        restore_flags(flags);
         return -1;
     }
 
     if (dentry.file_type != 2) {
-        restore_flags(flags);
         return -1;
     }
 
@@ -247,7 +239,6 @@ int32_t syscall_execute(const uint8_t* command) {
     uint8_t buf[MAGIC_NUM_SIZE];
 
     if ((read_data(inode_idx, 0, buf, MAGIC_NUM_SIZE) == -1) || *(uint32_t*) buf != MAGIC_NUM_EXE) {
-        restore_flags(flags);
         return -1;
     }
 
