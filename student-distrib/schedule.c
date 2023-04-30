@@ -36,12 +36,12 @@ void context_switch(uint32_t idx) {
         return;
     }
 
+    set_virtual_memory(pid);
+
     sched_terminal_idx = idx;
 
     tss.ss0 = KERNEL_DS;
     tss.esp0 = esp0(pid);
-
-    set_virtual_memory(pid);
 
     asm volatile(
             "movl %0, %%ebp \n\t"

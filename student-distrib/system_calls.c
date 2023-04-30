@@ -246,9 +246,6 @@ int32_t syscall_execute(const uint8_t* command) {
 
     pcb_t* curr = PCB(pid_peek());
 
-
-    active_process_idx = curr->pid;
-
     curr->parent = current;
 
     set_vidmap(curr->pid);
@@ -260,8 +257,10 @@ int32_t syscall_execute(const uint8_t* command) {
 
     PCB_init(curr);
 
-    memcpy(curr->argv, &command[name_size], command_size - name_size);
     terminals[active_terminal_idx].pid = curr->pid;
+    active_process_idx = curr->pid;
+
+    memcpy(curr->argv, &command[name_size], command_size - name_size);
 
     curr->term_idx = active_terminal_idx;
 

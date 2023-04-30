@@ -19,6 +19,8 @@ void terminal_init_each(uint32_t index) {
         terminals[index]._kb_buf[i] = 0;
     }
     terminals[index].pid = -1;
+    terminals[index].rtc_counter = 0;
+    terminals[index].rtc_target = 1;
 //    map_4KB_page(VGA_TEXT_BUF_ADDR, VGA_TERM_0 + VGA_SIZE * index);
 }
 
