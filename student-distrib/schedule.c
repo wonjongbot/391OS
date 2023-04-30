@@ -31,7 +31,7 @@ void init_scheduler() {
 }
 
 void switch_running_task(uint32_t pid) {
-    pcb_t* curr = current_thread_PCB();
+    pcb_t * curr = current_thread_PCB();
 
     register uint32_t curr_ebp asm("ebp");
     curr->ebp = curr_ebp;
@@ -51,15 +51,15 @@ void switch_running_task(uint32_t pid) {
 
     reload_tlb();
 
-    pcb_t* next = PCB(pid);
+    pcb_t * next = PCB(pid);
 
     tss.ss0 = next->ss0;
     tss.esp0 = next->esp0;
 
     asm volatile("movl %0, %%ebp  \n\t"
-                 :
-                 : "g"(next->ebp)
-                 );
+            :
+            : "g"(next->ebp)
+            );
 
     asm volatile("leave           \n\t"
                  "ret             \n\t");
@@ -99,9 +99,19 @@ void switch_active_terminal(uint32_t index) {
 }
 
 void switch_video_mem(uint32_t curr_term, uint32_t next_term) {
+    uint32_t idx = page_entry(VGA_TEXT_BUF_ADDR);
+    page_table0[idx].base_addr = VGA_TEXT_BUF_ADDR >> TABLE_ADDRESS_SHIFT;
+    idx = page_entry((VGA_TERM_0 + curr_term * VGA_SIZE));
+    page_table0[idx].base_addr = (VGA_TERM_0 + curr_term * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
+    idx = page_entry((VGA_TERM_0 + next_term * VGA_SIZE));
+    page_table0[idx].base_addr = (VGA_TERM_0 + next_term * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
+
+    reload_tlb();
+
     memcpy((void*) (VGA_TERM_0 + curr_term * VGA_SIZE), (void*) VGA_TEXT_BUF_ADDR, VGA_SIZE);
     memcpy((void*) VGA_TEXT_BUF_ADDR, (void*) (VGA_TERM_0 + next_term * VGA_SIZE), VGA_SIZE);
 
+    reload_tlb();
 
     terminal_x[curr_term] = getX();
     terminal_y[curr_term] = getY();
