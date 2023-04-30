@@ -16,6 +16,7 @@
 
 
 #include "types.h"
+#include "terminal.h"
 
 int32_t curr_pid;
 

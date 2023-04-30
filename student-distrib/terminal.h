@@ -64,7 +64,8 @@ void vga_show_set(int index);
 void vga_write_set(int index);
 #endif
 
-int multi_terminal_putc(terminal_t* terminal, char c);
+int multi_terminal_putc(terminal_t* terminal, uint8_t c);
+int multi_terminal_printf (terminal_t* terminal, char* format, ...);
 
 void terminal_init();
 

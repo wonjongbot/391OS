@@ -344,7 +344,7 @@ void keyboard_handler(){
                     if(ascii == '\n' || ascii == '\r'){
                         enter_flag = 1;
                     }
-                    // only print to screen and push to keyboard buffer up til 127th character
+                    // only print to screen and pus to keyboard buffer up til 127th character
                     if(kb_buf_top < kb_buf_size - 1){
                         push_kb_buf(ascii);
                         terminal_t* terminal = &terminal_arr[curr_term_displayed];

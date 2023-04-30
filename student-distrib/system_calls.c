@@ -219,10 +219,14 @@ int32_t syscall_execute(const uint8_t* command) {
   pcb_t* curr;
   // if there is no process (first shell), we want to set up PCB in current stack
   if(curr_pid == -1){
+    terminal_t* terminal = &terminal_arr[curr_term_displayed];
+    multi_terminal_printf(terminal,"INITIALIZING ONE OF THE BASE SHELL 0\n");
      //printf("INITIALIZING ONE OF THE BASE SHELL 0\n");
     curr = current;
   }
   else if(curr_pid < 2){
+    terminal_t* terminal = &terminal_arr[curr_term_displayed];
+    multi_terminal_printf(terminal,"INITIALIZING ONE OF THE BASE SHELL 1 or 2\n");
      //printf("INITIALIZING ONE OF THE BASE SHELL 1 or 2\n");
     asm volatile(
       "addl $-8192, %%esp        \n\t"

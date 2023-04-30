@@ -32,8 +32,9 @@ void terminal_switch(uint32_t to){
     if(to == curr_term_displayed){
         return;
     }
-    
-    printf("SWITCHING TO TERMINAL #%d\n",to);
+    terminal_t* terminal = &terminal_arr[curr_term_displayed];
+    multi_terminal_printf(terminal,"SWITCHING TO TERMINAL #%d\n",to);
+    //printf("SWITCHING TO TERMINAL #%d\n",to);
 
     // save current terminal content to curr_term_displayed
     memcpy((char*)(VGA_TERM_0 + 0x1000*curr_term_displayed), (char*)VGA_TEXT_BUF_ADDR, 0x1000);
