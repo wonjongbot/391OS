@@ -1,5 +1,7 @@
 #include "schedule.h"
 
+
+
 void init_scheduler() {
     active_terminal_idx = 0;
     sched_terminal_idx = 0;
@@ -22,9 +24,20 @@ void context_switch(uint32_t idx) {
     register uint32_t ebp asm("ebp");
     terminals[sched_terminal_idx].ebp = ebp;
 
-    int32_t pid = terminals[idx].pid;
+    int32_t pid;
+    if(num_of_sched<3){
+        num_of_sched++;
+        pid = -1;
 
-    if (terminals[idx].pid == -1) {
+    }else{
+        pid = pid_to_sched_unit[cur_sched];
+        cur_sched = (cur_sched + 1) % 3;
+        if(pid==-1) return -1;
+
+    }
+
+
+    if (pid == -1) {
         if (terminals[sched_terminal_idx].pid != -1) {
             save_terminal(sched_terminal_idx);
             restore_terminal(idx);
@@ -52,3 +65,7 @@ void context_switch(uint32_t idx) {
             : "ebp"
             );
 }
+
+
+
+

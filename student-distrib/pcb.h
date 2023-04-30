@@ -64,4 +64,7 @@ int32_t PCB_init(pcb_t* pcb);
 
 void print_proc();
 
+int32_t sched_set(pcb_t* pcb);
+int32_t sched_free_pid(pcb_t* pcb);
+
 #endif

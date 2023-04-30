@@ -128,6 +128,7 @@ int32_t syscall_halt(uint8_t status) {
         printf("[!] Base shell cannot be closed! Restarting shell...");
         set_attrib(0x7);
         printf("\n");
+        sched_free_pid( curr   );
         curr->status = 0;
         pid_dealloc(curr->pid);
         terminals[active_terminal_idx].pid = -1;
@@ -140,7 +141,7 @@ int32_t syscall_halt(uint8_t status) {
 
         // update tss to saved of parent
         pcb_t * parent = curr->parent;
-
+        sched_set(parent);
         active_process_idx = parent->pid;
         terminals[active_terminal_idx].pid = active_process_idx;
 
@@ -264,7 +265,7 @@ int32_t syscall_execute(const uint8_t* command) {
     terminals[active_terminal_idx].pid = curr->pid;
 
     curr->term_idx = active_terminal_idx;
-
+    sched_set(curr);
     tss.ss0 = KERNEL_DS;
     tss.esp0 = esp0(curr->pid);
 

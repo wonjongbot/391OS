@@ -165,3 +165,21 @@ void print_proc() {
     }
     printf("\n");
 }
+
+int32_t sched_set(pcb_t* pcb){
+    //printf("call 1\n");
+    if(pcb == NULL) return -1;
+    int32_t index = pcb->term_idx;
+    if(index == -1) return -1;
+    pid_to_sched_unit[index] = pcb->pid;
+    return 0;
+}
+
+int32_t sched_free_pid(pcb_t* pcb){
+    //printf("call 2\n");
+    if(pcb == NULL) return -1;
+    int32_t index = pcb->term_idx;
+    if(index == -1) return -1;
+    pid_to_sched_unit[index] = -1;
+    return 0;
+}
