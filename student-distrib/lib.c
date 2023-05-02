@@ -363,9 +363,16 @@ void putc(uint8_t c) {
 }
 
 void hud(){
-    *(uint8_t *)(video_mem + ((NUM_COLS * 0 + 79) << 1)) = active_terminal + 0x30;
+    *(uint8_t *)(video_mem + ((NUM_COLS * 0 + 78) << 1)) = terminal_x[active_terminal]/10 + 0x30;
+    *(uint8_t *)(video_mem + ((NUM_COLS * 0 + 78) << 1) + 1) = ATTRIB;
+
+    *(uint8_t *)(video_mem + ((NUM_COLS * 0 + 79) << 1)) = terminal_x[active_terminal]%10 + 0x30;
     *(uint8_t *)(video_mem + ((NUM_COLS * 0 + 79) << 1) + 1) = ATTRIB;
-    *(uint8_t *)(video_mem + ((NUM_COLS * 1 + 79) << 1)) = current_terminal + 0x30;
+
+    *(uint8_t *)(video_mem + ((NUM_COLS * 1 + 78) << 1)) = terminal_y[active_terminal]/10 + 0x30;
+    *(uint8_t *)(video_mem + ((NUM_COLS * 1 + 78) << 1) + 1) = ATTRIB;
+
+    *(uint8_t *)(video_mem + ((NUM_COLS * 1 + 79) << 1)) = terminal_y[active_terminal]%10 + 0x30;
     *(uint8_t *)(video_mem + ((NUM_COLS * 1 + 79) << 1) + 1) = ATTRIB;
 }
 

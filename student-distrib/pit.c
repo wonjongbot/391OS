@@ -13,7 +13,7 @@ volatile int shells_initialized = -1;
 void pit_init(void){
 
     // set the counter target of PIT so it sends interrupt at 100Hz.
-    int counter = 1193182 / 5;
+    int counter = 1193182 / 100;
     outb(PIT_MODE2_LOHI, PIT_CMD);
     //0x36
     outb(counter & 0xff, PIT_CH_0);

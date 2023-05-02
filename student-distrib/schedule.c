@@ -89,8 +89,6 @@ void switch_running_task(uint32_t terminal_to) {
     reload_tlb();
 
     if(previous_terminal != -1) {
-        terminal_x[previous_terminal] = getX();
-        terminal_y[previous_terminal] = getY();
         pcb_t * curr = PCB(terminal_pids[previous_terminal]);
 
         curr->ss0 = tss.ss0;
@@ -163,12 +161,22 @@ void switch_active_terminal(uint32_t index) {
     // update our global variable trackers for currently active (displayed) terminal index and previous terminal index
     previous_terminal = active_terminal;
     active_terminal = index;
+
+//    terminal_x[current_terminal] = getX();
+//    terminal_y[current_terminal] = getY();
+
+//    terminal_x[previous_terminal] = getX();
+//    terminal_y[previous_terminal] = getY();
+
     switch_video_mem(previous_terminal, active_terminal);
+
+//    setX(terminal_x[active_terminal]);
+//    setY(terminal_y[active_terminal]);
+    cursor_to_coord(terminal_x[active_terminal], terminal_y[active_terminal]);
 
     // map the page so that previous active page draws to the buffered video memory, not the actual displayed video
     //      memory. This part is for scheduling.
     int idx = page_entry(VIDMAP_START_VIRTUAL_ADDR);
-
     // if current terminal on schedular is same as displayed terminal, we draw on the actual text buffer addr
     if (current_terminal == active_terminal) {
         page_table1[idx].base_addr = VGA_TEXT_BUF_ADDR >> TABLE_ADDRESS_SHIFT;
@@ -214,15 +222,15 @@ void switch_video_mem(uint32_t curr_term, uint32_t next_term) {
 
     reload_tlb();
 
-    // save the cursor location of current terminal
-    terminal_x[curr_term] = getX();
-    terminal_y[curr_term] = getY();
+//    // save the cursor location of current terminal
+//    terminal_x[curr_term] = getX();
+//    terminal_y[curr_term] = getY();
+//
+//    // recover where the cursor was in the terminal we are swithcing to.
+//    setX(terminal_x[next_term]);
+//    setY(terminal_y[next_term]);
 
-    // recover where the cursor was in the terminal we are swithcing to.
-    setX(terminal_x[active_terminal]);
-    setY(terminal_y[active_terminal]);
-
-    cursor_to_coord(terminal_x[active_terminal], terminal_y[active_terminal]);
+//    cursor_to_coord(terminal_x[next_term], terminal_y[next_term]);
 }
 
 void map_vga_current(){
@@ -236,17 +244,17 @@ void map_vga_current(){
 void map_vga_scheduled(){
     uint32_t idx = page_entry(VGA_TEXT_BUF_ADDR);
     page_table0[idx].base_addr = (VGA_TERM_0 + current_terminal * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
-    setX(terminal_x[current_terminal]);
-    setY(terminal_y[current_terminal]);
+//    setX(terminal_x[current_terminal]);
+//    setY(terminal_y[current_terminal]);
     reload_tlb();
 }
 
 void unmap_vga_current() {
-    terminal_x[active_terminal] = getX();
-    terminal_y[active_terminal] = getY();
+//    terminal_x[active_terminal] = getX();
+//    terminal_y[active_terminal] = getY();
     uint32_t idx = page_entry(VGA_TEXT_BUF_ADDR);
     page_table0[idx].base_addr = (VGA_TERM_0 + current_terminal * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
-    setX(terminal_x[current_terminal]);
-    setY(terminal_y[current_terminal]);
+//    setX(terminal_x[current_terminal]);
+//    setY(terminal_y[current_terminal]);
     reload_tlb();
 }

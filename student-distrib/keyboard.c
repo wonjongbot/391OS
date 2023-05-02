@@ -318,8 +318,12 @@ void keyboard_handler(){
     ascii = scancode_down[scancode];
 
 //    // if scancode is a printable code, print on screen!
-    map_vga_current();
     if(scancode < DOWN_SIZE){
+        terminal_x[current_terminal] = getX();
+        terminal_y[current_terminal] = getY();
+        map_vga_current();
+        setX(terminal_x[active_terminal]);
+        setY(terminal_y[active_terminal]);
         if(is_printable(ascii)){
             ascii = convert_case(ascii);
             if(!(alt_flag || ctrl_flag)){
@@ -372,10 +376,15 @@ void keyboard_handler(){
             }
             #endif
         }
+        terminal_x[active_terminal] = getX();
+        terminal_y[active_terminal] = getY();
+        if(current_terminal != active_terminal){
+            unmap_vga_current();
+        }
+        setX(terminal_x[current_terminal]);
+        setY(terminal_y[current_terminal]);
     }
-    if(current_terminal != active_terminal){
-        unmap_vga_current();
-    }
+
 //    if(active_terminal != current_terminal){
 //        idx = page_entry(VGA_TEXT_BUF_ADDR);
 //        page_table0[idx].base_addr = (0xb9000 + current_terminal * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
