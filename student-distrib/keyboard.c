@@ -317,7 +317,8 @@ void keyboard_handler(){
     set_special_flags(scancode);
     ascii = scancode_down[scancode];
 
-    // if scancode is a printable code, print on screen!
+//    // if scancode is a printable code, print on screen!
+    map_vga_current();
     if(scancode < DOWN_SIZE){
         if(is_printable(ascii)){
             ascii = convert_case(ascii);
@@ -372,6 +373,13 @@ void keyboard_handler(){
             #endif
         }
     }
+    if(current_terminal != active_terminal){
+        unmap_vga_current();
+    }
+//    if(active_terminal != current_terminal){
+//        idx = page_entry(VGA_TEXT_BUF_ADDR);
+//        page_table0[idx].base_addr = (0xb9000 + current_terminal * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
+//    }
     // handler for switching terminal upon alt + f#
     if (alt_flag && (scancode >= F1_down && scancode <= F3_down)) {
         send_eoi(0x1);

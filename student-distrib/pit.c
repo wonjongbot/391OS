@@ -32,16 +32,36 @@ void pit_init(void){
 void pit_handler() {
     send_eoi(PIT_IRQ);
 
-    // If we don't have all the shells initilaized, clear off the screen and prepare for executing shell
-            // on that terminal
-    if (shells_initialized == -1) {
-        clear();
-        reset_text_cursor();
+    switch(current_terminal){
+        case -1:
+            switch_running_task(0);
+            break;
+        case 0:
+            switch_running_task(1);
+            break;
+        case 1:
+            switch_running_task(2);
+            break;
+        case 2:
+            switch_running_task(0);
+            break;
+        default: break;
     }
-    // This is mainly for executing three different instances of shell program onto three terminals
-    if (shells_initialized < 3) {
-        shells_initialized++;
-        switch_active_terminal(shells_initialized % 3); // 0, 1, 2, 0
-        return;
-    }
+//
+//    // If we don't have all the shells initilaized, clear off the screen and prepare for executing shell
+//            // on that terminal
+//    if (shells_initialized == -1) {
+//        clear();
+//        reset_text_cursor();
+//    }
+//    // This is mainly for executing three different instances of shell program onto three terminals
+//    if (shells_initialized < 3) {
+//        shells_initialized++;
+//        syscall_execute((uint8_t*)"shell");
+//        //switch_active_terminal(shells_initialized % 3); // 0, 1, 2, 0
+//    }
+//    else{
+//        schedule();
+//        return;
+//    }
 }

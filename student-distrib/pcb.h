@@ -38,7 +38,7 @@ typedef struct pcb {
   // Start of the user space memory
   uint32_t physical_mem_start;
   // Shell
-  uint32_t shell_flag;
+  int32_t terminal_idx;
 
   // need Signal for cp6
 } pcb_t;

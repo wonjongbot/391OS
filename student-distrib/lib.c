@@ -667,10 +667,8 @@ uint32_t getY() {
 
 void setX(uint32_t x) {
     screen_x = x;
-    cursor_to_coord(screen_x, screen_y);
 }
 
 void setY(uint32_t y) {
     screen_y = y;
-    cursor_to_coord(screen_x, screen_y);
 }

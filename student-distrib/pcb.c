@@ -145,7 +145,7 @@ int32_t PCB_init(pcb_t* pcb) {
   pcb->parent = NULL;         //initialize the pcb's parent
 //  pcb->argc = 0;
   memset(pcb->argv, '\0', ARGV_MAX_LEN + 1);
-  pcb->shell_flag = 0;
+  pcb->terminal_idx = -1;
 
 
     //pcb->terminal = NULL; need to init terminal info

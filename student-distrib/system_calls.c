@@ -84,7 +84,9 @@ int32_t halt_ret;
  */
 int32_t syscall_halt(uint8_t status) {
     // How do we know if this is an exception call?
-    pcb_t * curr = current;
+    //pcb_t * curr = current;
+    pcb_t * curr = PCB(terminal_pids[current_terminal]);
+    printf("CALLING HALT ON PID %d\n", terminal_pids[curr->terminal_idx]);
     halt_ret = (int32_t) status;
     int i;
     // close all the file descriptor
@@ -109,13 +111,15 @@ int32_t syscall_halt(uint8_t status) {
         set_attrib(0x7);
         printf("\n");
         curr->status = 0;
-        pid_dealloc(terminal_pids[current_terminal]);
+        pid_dealloc(terminal_pids[curr->terminal_idx]);
         terminal_pids[current_terminal] = -1;
         syscall_execute((uint8_t*) "shell");
     } else {
         // set current pid as inactive
         curr->status = 0;
-        pid_dealloc(terminal_pids[current_terminal]);
+        pid_dealloc(terminal_pids[curr->terminal_idx]);
+        curr->terminal_idx = -1;
+
 
         // update tss to saved of parent
         pcb_t * parent = curr->parent;
@@ -123,7 +127,9 @@ int32_t syscall_halt(uint8_t status) {
         parent->ss0 = tss.ss0;
         parent->esp0 = tss.esp0;
 
-        terminal_pids[current_terminal] = parent->pid;
+        printf("HALTING: PARENT PID IS %d\n", parent->pid);
+
+        terminal_pids[parent->terminal_idx] = parent->pid;
 
         // unmap current paging / map parent's paging using physical_mem_start
         set_virtual_memory(parent->pid);
@@ -135,6 +141,8 @@ int32_t syscall_halt(uint8_t status) {
         //NOT SURE WHAT THE VALUE HERE SHOULD BE
         // tss.esp0 = parent->save_esp;
         tss.esp0 = (1 << 23) - ((1 << 13) * (parent->pid)) - 4;
+
+
 
         //tss.esp0 = curr->save_esp;
         // printf("PID: %d\n", curr_pid);
@@ -189,33 +197,34 @@ int32_t syscall_execute(const uint8_t* command) {
 
     pcb_t * parent = NULL;
     pcb_t * curr;
-    if (terminal_pids[active_terminal] == -1) {
-        printf("Welcome to Terminal %d\n", active_terminal);
-        if (current_terminal > 0) {
-            asm volatile(
-                    "addl $-8192, %%esp        \n\t"
-                    :
-                    :
-                    : "cc"
-                    );
-        }
-        curr = current;
+    if (terminal_pids[current_terminal] == -1) {
+        printf("Welcome to Terminal %d\n", current_terminal);
+//        if (current_terminal > 0) {
+//            asm volatile(
+//                    "addl $-8192, %%esp        \n\t"
+//                    :
+//                    :
+//                    : "cc"
+//                    );
+//        }
+        curr = PCB(pid_peek());
     } else {
         // save ebp and esp
-        parent = current;
+        parent = PCB(current_terminal);
+        printf("CALLING EXECUTE WITH PARENT with PID %d\n", parent->pid);
 
         register uint32_t ebp_tmp asm("ebp");
         parent->save_ebp = ebp_tmp;
 
         register uint32_t esp_tmp asm("esp");
         parent->save_esp = esp_tmp;
-        asm volatile(
-                "addl $-8192, %%esp        \n\t"
-                :
-                :
-                : "cc"
-                );
-        curr = current;
+//        asm volatile(
+//                "addl $-8192, %%esp        \n\t"
+//                :
+//                :
+//                : "cc"
+//                );
+        curr = PCB(pid_peek());
     }
 
     if (PCB_init(curr) == -1) return -1;
@@ -273,23 +282,29 @@ int32_t syscall_execute(const uint8_t* command) {
 
     //copy to user space
     if (read_data(inode_idx, 0, (uint8_t*) PROGRAM_START_VIRTUAL_ADDR, file_size) == -1) {
+        unload(curr, -1);
         return -1;
     }
 
     set_vidmap_present(curr->pid, 0);
 
+
+    // remap display addr?
     int idx = page_entry(VIDMAP_START_VIRTUAL_ADDR);
     page_table1[idx].base_addr = VGA_TEXT_BUF_ADDR >> 12;
 
-    terminal_pids[active_terminal] = curr->pid;
-    current_terminal = active_terminal;
+    curr->terminal_idx = current_terminal;
+    terminal_pids[curr->terminal_idx] = curr->pid;
+    printf("adding terminal %d pid: %d\n", curr->terminal_idx, terminal_pids[curr->terminal_idx]);
 
     tss.ss0 = KERNEL_DS;
     tss.esp0 = (1 << 23) - ((1 << 13) * (curr->pid)) - 4;
 
+    curr->esp0 = tss.esp0;
+    curr->ss0 = tss.ss0;
+
     uint32_t return_addr = *(uint32_t*) &(((uint8_t*) PROGRAM_START_VIRTUAL_ADDR)[24]);
 
-    // printf("PID: %d\n", curr_pid);
     asm volatile(
             "pushl %%eax \n\t"
             "pushl $0x83ffffc \n\t"
@@ -393,9 +408,9 @@ descriptor should result in a return value of -1; successful closes should retur
 
 int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes) {
     if (fd >= 8 || fd < 0) return -1;    //0=<fd<8
-    if (current->filearray[fd].flags == 0) return -1;
+    if (PCB(terminal_pids[current_terminal])->filearray[fd].flags == 0) return -1;
     sti();
-    return current->filearray[fd].ops->read(fd, buf, nbytes);
+    return PCB(terminal_pids[current_terminal])->filearray[fd].ops->read(fd, buf, nbytes);
 /*
 The read system call reads data from the keyboard, a file, device (RTC), or directory. This call returns the number
 of bytes read. If the initial file position is at or beyond the end of file, 0 shall be returned (for normal files and the
@@ -415,8 +430,13 @@ int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes) {
 // printf("SYSCALL WRITE on fd %d\n", fd);
 //  printf("CURRENT PCB ADDR: %x\n", current);
     if (fd >= 8 || fd < 0) return -1;    //0=<fd<8
-    if (current->filearray[fd].flags == 0) return -1;
-    return current->filearray[fd].ops->write(fd, buf, nbytes);
+////    printf("current terminal PID writing: %d\n", terminal_pids[current_terminal]);
+//    printf("What does this think %d\n", terminal_pids[current->terminal_idx]);
+//
+//    printf("This %x and This %x\n", PCB(terminal_pids[current->terminal_idx]), current);
+
+    if (PCB(terminal_pids[current->terminal_idx])->filearray[fd].flags == 0) return -1;
+    return PCB(terminal_pids[current->terminal_idx])->filearray[fd].ops->write(fd, buf, nbytes);
 /*
 The write system call writes data to the terminal or to a device (RTC). In the case of the terminal, all data should
 be displayed to the screen immediately. In the case of the RTC, the system call should always accept only a 4-byte
