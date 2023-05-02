@@ -193,10 +193,10 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
     }
     else{
         // write to screen nbytes amount of time.
-//        if(current_terminal == active_terminal)
-//            map_vga_current();
-//        else
-//            map_vga_scheduled();
+        if(current_terminal == active_terminal)
+            map_vga_current();
+        else
+            map_vga_scheduled();
         while(i < nbytes){
             putc(*((int8_t*)buf+i));
             i++;

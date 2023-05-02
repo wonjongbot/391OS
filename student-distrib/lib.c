@@ -359,7 +359,6 @@ void putc(uint8_t c) {
         //screen_x %= NUM_COLS;
         //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
-    cursor_to_coord(screen_x, screen_y);
 }
 
 void hud(){

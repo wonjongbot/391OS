@@ -132,6 +132,7 @@ void switch_running_task(uint32_t terminal_to) {
         page_table1[idx].present = terminal_vidmap_present[current_terminal];
 
         set_virtual_memory(next->pid);
+        cursor_to_coord(terminal_x[active_terminal], terminal_y[active_terminal]);
         reload_tlb();
 //        printf("swithing to %x\n",terminal_ebp[current_terminal]);
         asm volatile("movl %0, %%ebp  \n\t"
@@ -236,8 +237,6 @@ void switch_video_mem(uint32_t curr_term, uint32_t next_term) {
 void map_vga_current(){
     uint32_t idx = page_entry(VGA_TEXT_BUF_ADDR);
     page_table0[idx].base_addr = VGA_TEXT_BUF_ADDR >> TABLE_ADDRESS_SHIFT;
-    setX(terminal_x[active_terminal]);
-    setY(terminal_y[active_terminal]);
     reload_tlb();
 }
 
