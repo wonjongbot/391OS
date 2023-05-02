@@ -86,7 +86,7 @@ int32_t syscall_halt(uint8_t status) {
     // How do we know if this is an exception call?
     //pcb_t * curr = current;
     pcb_t * curr = PCB(terminal_pids[current_terminal]);
-    printf("CALLING HALT ON PID %d\n", terminal_pids[curr->terminal_idx]);
+//    printf("CALLING HALT ON PID %d\n", terminal_pids[curr->terminal_idx]);
     halt_ret = (int32_t) status;
     int i;
     // close all the file descriptor
@@ -127,7 +127,7 @@ int32_t syscall_halt(uint8_t status) {
         parent->ss0 = tss.ss0;
         parent->esp0 = tss.esp0;
 
-        printf("HALTING: PARENT PID IS %d\n", parent->pid);
+//        printf("HALTING: PARENT PID IS %d\n", parent->pid);
 
         terminal_pids[parent->terminal_idx] = parent->pid;
 
@@ -135,6 +135,8 @@ int32_t syscall_halt(uint8_t status) {
         set_virtual_memory(parent->pid);
 
         set_vidmap_present(parent->pid, 0);
+
+        
 
         tss.ss0 = KERNEL_DS;
 
@@ -210,8 +212,8 @@ int32_t syscall_execute(const uint8_t* command) {
         curr = PCB(pid_peek());
     } else {
         // save ebp and esp
-        parent = PCB(current_terminal);
-        printf("CALLING EXECUTE WITH PARENT with PID %d\n", parent->pid);
+        parent = PCB(terminal_pids[current_terminal]);
+//        printf("CALLING EXECUTE WITH PARENT with PID %d\n", parent->pid);
 
         register uint32_t ebp_tmp asm("ebp");
         parent->save_ebp = ebp_tmp;
@@ -295,7 +297,7 @@ int32_t syscall_execute(const uint8_t* command) {
 
     curr->terminal_idx = current_terminal;
     terminal_pids[curr->terminal_idx] = curr->pid;
-    printf("adding terminal %d pid: %d\n", curr->terminal_idx, terminal_pids[curr->terminal_idx]);
+//    printf("adding terminal %d pid: %d\n", curr->terminal_idx, terminal_pids[curr->terminal_idx]);
 
     tss.ss0 = KERNEL_DS;
     tss.esp0 = (1 << 23) - ((1 << 13) * (curr->pid)) - 4;

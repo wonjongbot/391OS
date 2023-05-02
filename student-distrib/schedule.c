@@ -17,6 +17,8 @@ volatile int terminal_pids[3];
 volatile int terminal_x[3];
 volatile int terminal_y[3];
 
+volatile int terminal_vidmap_present[3];
+
 volatile int halt_flag = -1;
 
 
@@ -74,6 +76,7 @@ void switch_running_task(uint32_t terminal_to) {
         idx = page_entry(VGA_TEXT_BUF_ADDR);
         page_table0[idx].base_addr = (VGA_TERM_0 + current_terminal * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
     }
+    reload_tlb();
     // for vidmap
     idx = page_entry(VIDMAP_START_VIRTUAL_ADDR);
     // if current terminal on schedular is same as displayed terminal, we draw on the actual text buffer addr
@@ -92,12 +95,17 @@ void switch_running_task(uint32_t terminal_to) {
 
         curr->ss0 = tss.ss0;
         curr->esp0 = tss.esp0;
+
+        idx = page_entry(VIDMAP_START_VIRTUAL_ADDR);
+        terminal_vidmap_present[previous_terminal] = page_table1[idx].present;
     }
 
 
-    if(current_terminal >= 0){
+    if(previous_terminal >= 0){
+//        printf("CURRENTLY IN TERMINAL %d\n", current->terminal_idx);
+//        printf("PREVIOUS TERMINAL INDEX IS %d\n", previous_terminal);
         register uint32_t curr_ebp asm("ebp");
-        terminal_ebp[current_terminal] = curr_ebp;
+        terminal_ebp[previous_terminal] = curr_ebp;
     }
     if(terminal_pids[current_terminal] == -1){
         clear();
@@ -113,13 +121,21 @@ void switch_running_task(uint32_t terminal_to) {
         tss.esp0 = next->esp0;
 
         // save the cursor location of current terminal
-        terminal_x[previous_terminal] = getX();
-        terminal_y[previous_terminal] = getY();
+        if(previous_terminal != -1) {
+            terminal_x[previous_terminal] = getX();
+            terminal_y[previous_terminal] = getY();
+        }
 
         // recover where the cursor was in the terminal we are swithcing to.
         setX(terminal_x[current_terminal]);
         setY(terminal_y[current_terminal]);
 
+        idx = page_entry(VIDMAP_START_VIRTUAL_ADDR);
+        page_table1[idx].present = terminal_vidmap_present[current_terminal];
+
+        set_virtual_memory(next->pid);
+        reload_tlb();
+//        printf("swithing to %x\n",terminal_ebp[current_terminal]);
         asm volatile("movl %0, %%ebp  \n\t"
                 :
                 : "g"(terminal_ebp[current_terminal])
@@ -183,12 +199,18 @@ void switch_video_mem(uint32_t curr_term, uint32_t next_term) {
     idx = page_entry((VGA_TERM_0 + next_term * VGA_SIZE));
     page_table0[idx].base_addr = (VGA_TERM_0 + next_term * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
 
+//    if(current_terminal != active_terminal){
+//        uint32_t idx = page_entry(VGA_TEXT_BUF_ADDR);
+//        page_table0[idx].base_addr = (VGA_TERM_0 + next_term * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
+//    }
+
     reload_tlb();
 
     // Save our current screen to the buffered screen page dedicated for current terminal index
     memcpy((void*) (VGA_TERM_0 + curr_term * VGA_SIZE), (void*) VGA_TEXT_BUF_ADDR, VGA_SIZE);
     // then recover video memory of next terminal we are swithcing to
     memcpy((void*) VGA_TEXT_BUF_ADDR, (void*) (VGA_TERM_0 + next_term * VGA_SIZE), VGA_SIZE);
+
 
     reload_tlb();
 
@@ -197,10 +219,10 @@ void switch_video_mem(uint32_t curr_term, uint32_t next_term) {
     terminal_y[curr_term] = getY();
 
     // recover where the cursor was in the terminal we are swithcing to.
-    setX(terminal_x[next_term]);
-    setY(terminal_y[next_term]);
+    setX(terminal_x[active_terminal]);
+    setY(terminal_y[active_terminal]);
 
-    cursor_to_coord(terminal_x[next_term], terminal_y[next_term]);
+    cursor_to_coord(terminal_x[active_terminal], terminal_y[active_terminal]);
 }
 
 void map_vga_current(){
@@ -208,6 +230,15 @@ void map_vga_current(){
     page_table0[idx].base_addr = VGA_TEXT_BUF_ADDR >> TABLE_ADDRESS_SHIFT;
     setX(terminal_x[active_terminal]);
     setY(terminal_y[active_terminal]);
+    reload_tlb();
+}
+
+void map_vga_scheduled(){
+    uint32_t idx = page_entry(VGA_TEXT_BUF_ADDR);
+    page_table0[idx].base_addr = (VGA_TERM_0 + current_terminal * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
+    setX(terminal_x[current_terminal]);
+    setY(terminal_y[current_terminal]);
+    reload_tlb();
 }
 
 void unmap_vga_current() {
@@ -217,4 +248,5 @@ void unmap_vga_current() {
     page_table0[idx].base_addr = (VGA_TERM_0 + current_terminal * VGA_SIZE) >> TABLE_ADDRESS_SHIFT;
     setX(terminal_x[current_terminal]);
     setY(terminal_y[current_terminal]);
+    reload_tlb();
 }

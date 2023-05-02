@@ -21,11 +21,12 @@ void cursor_to_coord(int x, int y);
 void test_interrupts(void);
 void handle_arrowkeys(uint8_t scancode);
 
-void setX(uint32_t x);
-void setY(uint32_t y);
+void setX(int x);
+void setY(int y);
 
 uint32_t getX();
 uint32_t getY();
+void hud();
 
 int last_screenx[25];
 

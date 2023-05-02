@@ -147,16 +147,16 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
         kb_buf_history_ptr = kb_buf_history_top;
         #endif
         // wait for enter key or newline char to be entered.
-        while(enter_flag == 0){
-            #if ENABLE_HISTORY
-            terminal_history_handler();
-            #endif
+        while(enter_flag[current_terminal] == 0){
+//            #if ENABLE_HISTORY
+//            terminal_history_handler();
+//            #endif
         }
         // copy whatever is in the keyboard buffer to the input buffer, nbytes number of
         // times. including newline character
         i = 0;
-        while(i < nbytes && kb_buf_top[active_terminal] <= kb_buf_size){
-            buf_c[i] = kb_buf[active_terminal][i];
+        while(i < nbytes && kb_buf_top[current_terminal] <= kb_buf_size){
+            buf_c[i] = kb_buf[current_terminal][i];
             if(buf_c[i] == '\n' || buf_c[i] == '\r'){
                 buf_c[i] = '\n';
                 i++;
@@ -173,7 +173,9 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
         #endif
         // clear keyboard buffer for next read operation.
         clear_kb_buf();
-        enter_flag = 0;
+        enter_flag[current_terminal] = 0;
+        terminal_x[current_terminal] = getX();
+        terminal_y[current_terminal] = getY();
         return i;
     }
 }
@@ -191,10 +193,16 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
     }
     else{
         // write to screen nbytes amount of time.
+//        if(current_terminal == active_terminal)
+//            map_vga_current();
+//        else
+//            map_vga_scheduled();
         while(i < nbytes){
             putc(*((int8_t*)buf+i));
             i++;
         }
+        terminal_x[current_terminal] = getX();
+        terminal_y[current_terminal] = getY();
         return i;
     }
 }

@@ -32,7 +32,7 @@ void keyboard_init(){
         // reinitialize various variables
         kb_buf_top[j] = 0;
     }
-    caps_flag = 0, shift_flag = 0, alt_flag = 0, ctrl_flag = 0, enter_flag = 0;
+    caps_flag = 0, shift_flag = 0, alt_flag = 0, ctrl_flag = 0, enter_flag[0] = 0, enter_flag[1] = 0, enter_flag[2] = 0;
 }
 
 /* int keyboard_init(uint8_t ascii);
@@ -340,7 +340,7 @@ void keyboard_handler(){
                 }
                 else{
                     if(ascii == '\n' || ascii == '\r'){
-                        enter_flag = 1;
+                        enter_flag[active_terminal] = 1;
                     }
                     // only print to screen and push to keyboard buffer up til 127th character
                     if(kb_buf_top[active_terminal] < kb_buf_size - 1){

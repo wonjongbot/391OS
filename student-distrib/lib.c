@@ -10,8 +10,8 @@
 #define NUM_ROWS    25
 #define ATTRIB_DEFAULT      0x7
 
-static int screen_x;
-static int screen_y;
+static volatile int screen_x;
+static volatile int screen_y;
 static char* video_mem = (char *)VIDEO;
 uint8_t ATTRIB = ATTRIB_DEFAULT;
 
@@ -362,6 +362,13 @@ void putc(uint8_t c) {
     cursor_to_coord(screen_x, screen_y);
 }
 
+void hud(){
+    *(uint8_t *)(video_mem + ((NUM_COLS * 0 + 79) << 1)) = active_terminal + 0x30;
+    *(uint8_t *)(video_mem + ((NUM_COLS * 0 + 79) << 1) + 1) = ATTRIB;
+    *(uint8_t *)(video_mem + ((NUM_COLS * 1 + 79) << 1)) = current_terminal + 0x30;
+    *(uint8_t *)(video_mem + ((NUM_COLS * 1 + 79) << 1) + 1) = ATTRIB;
+}
+
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
  * Inputs: uint32_t value = number to convert
  *            int8_t* buf = allocated buffer to place string in
@@ -665,10 +672,10 @@ uint32_t getY() {
     return screen_y;
 }
 
-void setX(uint32_t x) {
+void setX(int x) {
     screen_x = x;
 }
 
-void setY(uint32_t y) {
+void setY(int y) {
     screen_y = y;
 }

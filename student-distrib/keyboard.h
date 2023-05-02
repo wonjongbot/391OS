@@ -40,7 +40,7 @@ int caps_flag;
 int shift_flag;
 int alt_flag;
 int ctrl_flag;
-int enter_flag;
+int enter_flag[3];
 int up_flag;
 int down_flag;
 int right_flag;

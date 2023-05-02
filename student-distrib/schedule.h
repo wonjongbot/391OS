@@ -12,6 +12,9 @@ extern volatile int current_terminal;
 extern volatile int next_terminal;
 extern volatile int terminal_pids[3];
 
+extern volatile int terminal_x[3];
+extern volatile int terminal_y[3];
+
 extern volatile int halt_flag;
 
 void init_scheduler();
@@ -23,6 +26,9 @@ void switch_active_terminal(uint32_t pid);
 void switch_video_mem(uint32_t curr_term, uint32_t next_terminal);
 
 void map_vga_current();
+
+void map_vga_scheduled();
+
 void unmap_vga_current();
 
 #endif //MP3_SCHEDULE_H
