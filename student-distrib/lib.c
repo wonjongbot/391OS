@@ -24,6 +24,11 @@ uint8_t ATTRIB = ATTRIB_DEFAULT;
 void set_attrib(uint8_t var){
     ATTRIB = var;
 }
+
+uint8_t get_attrib() {
+    return ATTRIB;
+}
+
 /* void clear(void);
  * Inputs: void
  * Return Value: none

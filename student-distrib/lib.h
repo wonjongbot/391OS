@@ -8,6 +8,7 @@
 #include "types.h"
 #include "definitions.h"
 void set_attrib(uint8_t var);
+uint8_t get_attrib();
 int32_t printf(int8_t *format, ...);
 void reset_text_cursor(void);
 void putc_rtc(void);
@@ -19,6 +20,7 @@ int8_t *strrev(int8_t* s);
 uint32_t strlen(const int8_t* s);
 void clear(void);
 void clear_line(void);
+void scroll_screen();
 void cursor_to_coord(int x, int y);
 void test_interrupts(void);
 void handle_arrowkeys(uint8_t scancode);

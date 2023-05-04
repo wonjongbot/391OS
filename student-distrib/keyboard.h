@@ -56,4 +56,8 @@ void keyboard_init();
 
 void keyboard_handler();
 
+void terminal_history_handler();
+
+void show_suggestion();
+
 #endif
