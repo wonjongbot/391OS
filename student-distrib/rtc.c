@@ -15,6 +15,8 @@ unsigned rtc_counter[3] = {0, 0, 0};   // Keeps track of number of interrupts ge
 unsigned rtc_target[3] = {1, 1, 1};    // To keep track if counter > this value. Gives number of interrupts
 volatile int interrupt_flag[3] = {0, 0,0};     // interrupt is off
 
+unsigned rtc_freqs[3] = {0, 0, 0};
+
 /*
  * rtc_init
  * Input: None
@@ -70,6 +72,7 @@ int32_t rtc_set_freq(unsigned frequency){
         return -1;
     }
     else{
+        rtc_freqs[current_terminal] = frequency;
         // rtc_set_rate(6);
         // reset the counter
         rtc_counter[current_terminal] = 1;
