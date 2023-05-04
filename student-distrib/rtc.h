@@ -41,4 +41,6 @@ int32_t rtc_close (int32_t fd);
 
 /* Check for power of 2 */
 int32_t pow_of_two(unsigned number);
+
+extern unsigned rtc_freqs[3];
 #endif

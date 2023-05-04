@@ -24,6 +24,11 @@ uint8_t ATTRIB = ATTRIB_DEFAULT;
 void set_attrib(uint8_t var){
     ATTRIB = var;
 }
+
+uint8_t get_attrib() {
+    return ATTRIB;
+}
+
 /* void clear(void);
  * Inputs: void
  * Return Value: none
@@ -270,7 +275,7 @@ void handle_arrowkeys(uint8_t scancode){
 void reset_text_cursor(void){
     int i;
     screen_x = 0;
-    screen_y = 0;
+    screen_y = CURSOR_START_Y;
     cursor_to_coord(screen_x, screen_x);
     for (i = 0; i < NUM_ROWS; i++){
         last_screenx[i] = 0;
@@ -286,12 +291,16 @@ void reset_text_cursor(void){
 void scroll_screen(){
     // copy second line to first third to second... etc, then clear the last line
     int i = 0;
-    for(i = 1; i < NUM_ROWS; i++){
+    for(i = 3; i < NUM_ROWS; i++){
         memcpy(video_mem + ((NUM_COLS * (i - 1)) << 1), video_mem + ((NUM_COLS * (i)) << 1), line_bytes);
     }
     for (i = 0; i < NUM_COLS; i++) {
         *(uint8_t *)(video_mem + ((NUM_COLS * (NUM_ROWS - 1) + i) << 1)) = ' ';
         *(uint8_t *)(video_mem + ((NUM_COLS * (NUM_ROWS - 1) + i)<< 1) + 1) = ATTRIB;
+    }
+    for (i = 0; i < NUM_COLS; i++) {
+        *(uint8_t *)(video_mem + ((NUM_COLS * (0) + i) << 1)) = ' ';
+        *(uint8_t *)(video_mem + ((NUM_COLS * (0) + i)<< 1) + 1) = ATTRIB;
     }
     for (i = 1; i < NUM_ROWS; i++){
         last_screenx[i - 1] = last_screenx[i];
@@ -361,19 +370,12 @@ void putc(uint8_t c) {
     }
 }
 
-void hud(){
-    *(uint8_t *)(video_mem + ((NUM_COLS * 0 + 78) << 1)) = terminal_x[active_terminal]/10 + 0x30;
-    *(uint8_t *)(video_mem + ((NUM_COLS * 0 + 78) << 1) + 1) = ATTRIB;
 
-    *(uint8_t *)(video_mem + ((NUM_COLS * 0 + 79) << 1)) = terminal_x[active_terminal]%10 + 0x30;
-    *(uint8_t *)(video_mem + ((NUM_COLS * 0 + 79) << 1) + 1) = ATTRIB;
-
-    *(uint8_t *)(video_mem + ((NUM_COLS * 1 + 78) << 1)) = terminal_y[active_terminal]/10 + 0x30;
-    *(uint8_t *)(video_mem + ((NUM_COLS * 1 + 78) << 1) + 1) = ATTRIB;
-
-    *(uint8_t *)(video_mem + ((NUM_COLS * 1 + 79) << 1)) = terminal_y[active_terminal]%10 + 0x30;
-    *(uint8_t *)(video_mem + ((NUM_COLS * 1 + 79) << 1) + 1) = ATTRIB;
+void putc_on_coord(uint8_t c, uint32_t x, uint32_t y, uint8_t attr) {
+    *(uint8_t *)(video_mem + ((NUM_COLS * y + x) << 1)) = c;
+    *(uint8_t *)(video_mem + ((NUM_COLS * y + x) << 1) + 1) = attr;
 }
+
 
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
  * Inputs: uint32_t value = number to convert

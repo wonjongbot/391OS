@@ -40,6 +40,8 @@ typedef struct pcb {
   // Shell
   int32_t terminal_idx;
 
+  int8_t prog_name[20];
+
   // need Signal for cp6
 } pcb_t;
 

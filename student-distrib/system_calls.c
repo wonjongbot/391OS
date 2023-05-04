@@ -137,7 +137,6 @@ int32_t syscall_halt(uint8_t status) {
 
         set_vidmap_present(parent->pid, 0);
 
-        
 
         tss.ss0 = KERNEL_DS;
 
@@ -290,6 +289,12 @@ int32_t syscall_execute(const uint8_t* command) {
     }
 
     set_vidmap_present(curr->pid, 0);
+
+    int tmp = 0;
+    while(tmp <= name_size){
+        *(curr->prog_name + tmp) = *(program + tmp);
+        tmp++;
+    }
 
 
     // remap display addr?

@@ -6,17 +6,21 @@
 #define _LIB_H
 
 #include "types.h"
+#include "definitions.h"
 void set_attrib(uint8_t var);
+uint8_t get_attrib();
 int32_t printf(int8_t *format, ...);
 void reset_text_cursor(void);
 void putc_rtc(void);
 void putc(uint8_t c);
+void putc_on_coord(uint8_t c, uint32_t x, uint32_t y, uint8_t attr);
 int32_t puts(int8_t *s);
 int8_t *itoa(uint32_t value, int8_t* buf, int32_t radix);
 int8_t *strrev(int8_t* s);
 uint32_t strlen(const int8_t* s);
 void clear(void);
 void clear_line(void);
+void scroll_screen();
 void cursor_to_coord(int x, int y);
 void test_interrupts(void);
 void handle_arrowkeys(uint8_t scancode);

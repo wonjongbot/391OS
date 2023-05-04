@@ -31,7 +31,10 @@ void pit_init(void){
  */
 void pit_handler() {
     send_eoi(PIT_IRQ);
-    hud();
+
+    if(terminal_pids[0] != -1 && terminal_pids[1] != -1 && terminal_pids[2] != -1) {
+        hud();
+    }
 
     switch(current_terminal){
         case -1:
