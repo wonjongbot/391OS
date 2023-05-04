@@ -444,6 +444,11 @@ void getargs_vidmap_test(){
 
 }
 
+typedef struct node{
+      int d;
+    struct node* n;
+  } node_t;
+
 int32_t kmalloc_test(){
 	TEST_HEADER;
 	int32_t* mal_1;
@@ -460,12 +465,58 @@ int32_t kmalloc_test(){
 	mal_2[5] = 15; // arbitary number
 	mal_2[1048000] = 8; // 1048000 is in the last page
 
+    if(*mal_1 != 25){
+        printf("[!] Written value doesn't match the expected\n");
+        return FAIL;
+    }
+    else{
+        printf("[*] Written value matches expected\n");
+    }
+
+    if(mal_2[5] != 15){
+        printf("[!] Written value doesn't match the expected\n");
+        return FAIL;
+    }
+    else{
+        printf("[*] Written value matches expected\n");
+    }
+
 	printf("index test passed.\n");
 
 	kfree((int32_t*)mal_1);
 	kfree((int32_t*)mal_2);
   
 	printf("kfree test passed.\n");
+
+
+    printf("Linked list test:\n");
+
+    node_t* n0 = (node_t*)kmalloc(sizeof(node_t));
+    n0->d = 0;
+    node_t* n1 = (node_t*)kmalloc(sizeof(node_t));
+    n1->d = 1;
+    node_t* n2 = (node_t*)kmalloc(sizeof(node_t));
+    n2->d = 2;
+    node_t* n3 = (node_t*)kmalloc(sizeof(node_t));
+    n3->d = 3;
+
+    n0->n = n1;
+    n1->n = n2;
+    n2->n = n3;
+    n3->n = NULL;
+
+    node_t* curr = n0;
+    while(curr != NULL){
+        printf("[ %d ] -> ", curr->d);
+        curr = curr->n;
+    }
+    if(curr == NULL){
+        printf("NULL\n");
+    }
+
+    add_delay();
+    add_delay();
+
 	return PASS;
 }
 
