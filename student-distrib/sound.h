@@ -2,13 +2,11 @@
 #define _SOUND_H_
 
 #include "lib.h"
-#include "lib.h"
-#include "terminal.h"
-#include "rtc.h"
+
 
 #define PIT_FRQ 1193180
 #define PIT_CH2 0x42
-#define PIT_MODEREG 0x43
+#define PIT_CMD 0x43
 #define PIT_SOUND 0xb6
 // 0xb6 = 1011 0110
 // first 10 means chanel 2, 11 means using both high 8 bits and low 8 bits
@@ -18,7 +16,7 @@
 
 
 void play_sound ( uint32_t nFrequence );
-void nosound ();
+void stop_sound ();
 void beep();
 
 

@@ -4,7 +4,7 @@
 #define SOUND_SHIFT	8
 #define SOUND_SHIFT_HIGH	16
 #define SOUND_LOW_MASK 0xFFFF
-#define SOUND_MASK		0xFC
+#define SOUND_MASK		0xfc
 
 
 
@@ -24,7 +24,7 @@ void play_sound ( uint32_t count )  {
  
      //set the frequency
  	frq = PIT_FRQ /count; 
- 	outb (PIT_SOUND,PIT_MODEREG); 
+ 	outb (PIT_SOUND,PIT_CMD); 
     
     uint8_t low = (uint8_t)(frq);// 1011 0110
     uint8_t high = (uint8_t)(frq>>SOUND_SHIFT);
@@ -44,16 +44,15 @@ void play_sound ( uint32_t count )  {
  }
 
  /* 
- *   nosound
+ *   stop_sound
  *   DESCRIPTION: mask the sound
  *   INPUTS: none
  *   OUTPUTS: none 
  *   RETURN VALUE:  none
  *   SIDE EFFECTS: none
  */
-void nosound ()  { 
+void stop_sound ()  { 
  	uint8_t temp = inb(PIT_INPUT)&SOUND_MASK;
- 
  	outb ( temp, PIT_INPUT); 
 
  }
@@ -67,10 +66,10 @@ void nosound ()  {
  */
 void beep() {
     //printf("OKK\n");
- 	 play_sound(10);
+ 	 play_sound(1000);
     int i = 0;
     for(i=0;i<100000000;i++){}
- 	 nosound();
+ 	 stop_sound();
 
  }
 
