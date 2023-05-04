@@ -144,10 +144,10 @@ void entry(unsigned long magic, unsigned long addr) {
     }
 
     int i=0;
-    while(i<100){
+    while(i<10){
         beep();
         i++;
-        printf("%d\n",i);
+        printf("beep %d\n",i);
     }
 
      /* Initialize Interrupt vector table*/
