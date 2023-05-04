@@ -14,6 +14,7 @@
 #include "paging.h"
 #include "filesystem.h"
 #include "pit.h"
+#include "sound.h"
 
 #define RUN_TESTS
 
@@ -140,6 +141,13 @@ void entry(unsigned long magic, unsigned long addr) {
         tss.ss0 = KERNEL_DS;
         tss.esp0 = 0x800000;
         ltr(KERNEL_TSS);
+    }
+
+    int i=0;
+    while(i<100){
+        beep();
+        i++;
+        printf("%d\n",i);
     }
 
      /* Initialize Interrupt vector table*/
