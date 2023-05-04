@@ -73,7 +73,7 @@ void* kmalloc(int32_t nbytes){
 *   Output: None
 */
 void kfree(void* base_addr){
-    int32_t i;
+    int32_t i,j;
     int32_t page_id = (int32_t)base_addr >> PAGE_BIT;
     int32_t free_flag = 0;
     for (i = 0; i < base_num; i++)
@@ -82,17 +82,15 @@ void kfree(void* base_addr){
             free_flag = 1;
             break;
         }
-    if (!free_flag){ 
+    if (free_flag==0){ 
         printf("Memory free failed.\n");
         return;
     }
 
     i = page_id - BLOCK_NUM * SPCAE_START;
-    int32_t counter = 0;
-    while (i != -1){ 
+    for(j=0;i!=-1;j++){ 
         mem_avl[(i >> 10) - SPCAE_START][i & (BLOCK_NUM-1)] = 1;      
         i = next_ptr[i];    //jump along the list
-        counter++;
     }
-    printf("Memory block stared at %x is freed. Freed size: %d KB\n", base_addr, counter * 4); // 4KB for each page
+    printf("Memory block stared at %x is freed. Freed size: %d KB\n", base_addr, j * 4); // 4KB for each page
 }
