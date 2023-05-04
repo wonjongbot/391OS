@@ -10,6 +10,7 @@
 #include "tests/terminal_tests.h"
 #include "tests/filesystem_tests.h"
 #include "tests/pcb_tests.h"
+#include "sound.h"
 
 // global variable to check test function output
 //int ret;
@@ -566,6 +567,10 @@ void launch_tests() {
   // execute_test();
    garbage_input_test();
    getargs_vidmap_test();
+   while(1){
+    beep();
+   }
+
 
   // basic_syscall_print_read();
 //  syscall_open_test();
