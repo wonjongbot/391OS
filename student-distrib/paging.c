@@ -82,6 +82,35 @@ void init_paging(){
         page_table0[terminal_table_index].base_addr=(terminal_addr_tmp & ALIGNED_ADDR_MASK)>>TABLE_ADDRESS_SHIFT;
     }
 
+    for (i = SPCAE_START; i < SPCAE_END; i++){
+        
+        page_directory[i].present = 1;
+        page_directory[i].rw = 1;
+        page_directory[i].us = 1; // set up a user level, user can access this memory
+        page_directory[i].pwt = 0;
+        page_directory[i].pcd = 1;
+        page_directory[i].accessed = 0;
+        page_directory[i].dirty = 0;
+        page_directory[i].ps = 0; // 4MB
+        page_directory[i].global = 0;
+        page_directory[i].avl = 0;
+        page_directory[i].base_addr = ((int32_t)(page_table2) + (i - SPCAE_START) * BLOCK_NUM * sizeof(PTE)) >> TABLE_ADDRESS_SHIFT;  // 8MB, the start address
+    }
+
+    for (i = 0; i < BLOCK_NUM * (SPCAE_END - SPCAE_START); i++){
+        page_table2[i].present = 0;  // waiting for kmalloc
+        page_table2[i].rw = 1; 
+        page_table2[i].us = 1; // user can modify
+        page_table2[i].pwt = 0;
+        page_table2[i].pcd = 0;
+        page_table2[i].accessed = 0;
+        page_table2[i].dirty = 0;
+        page_table2[i].ps = 0;
+        page_table2[i].global = 0;
+        page_table2[i].avl = 0;
+        page_table2[i].base_addr = i & (BLOCK_NUM - 1); // mod 1024
+    }
+
     // Init paging by seting the control registers
     asm volatile(
         "movl $page_directory, %%eax \n\t"          // move page_directory's address to cr3(PBDR)

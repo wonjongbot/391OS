@@ -11,6 +11,7 @@
 #include "tests/filesystem_tests.h"
 #include "tests/pcb_tests.h"
 #include "sound.h"
+#include "malloc.h"
 
 // global variable to check test function output
 //int ret;
@@ -443,6 +444,31 @@ void getargs_vidmap_test(){
 
 }
 
+int32_t kmalloc_test(){
+	TEST_HEADER;
+	int32_t* mal_1;
+	mal_1 = (int32_t*) kmalloc(sizeof(int32_t));
+	if (mal_1 == NULL) return FAIL;
+
+	int32_t* mal_2;
+	mal_2 = (int32_t*) kmalloc(sizeof(int32_t) * (1 << 20));
+	if (mal_2 == NULL) return FAIL;
+
+	printf("kmalloc test passed.\n");
+
+	(*mal_1) = 25;  // arbitary number
+	mal_2[5] = 15; // arbitary number
+	mal_2[1048000] = 8; // 1048000 is in the last page
+
+	printf("index test passed.\n");
+
+	kfree((int32_t*)mal_1);
+	kfree((int32_t*)mal_2);
+  
+	printf("kfree test passed.\n");
+	return PASS;
+}
+
 
 /* Checkpoint 5 tests */
 
@@ -565,11 +591,15 @@ void launch_tests() {
 #endif
 ///////////////////////////////////////////////////////////////////////////////
   // execute_test();
-   garbage_input_test();
-   getargs_vidmap_test();
-   while(1){
-    beep();
-   }
+   //garbage_input_test();
+   //getargs_vidmap_test();
+   TEST_OUTPUT("kmalloc_test", kmalloc_test());
+   int i=0;
+    while(i<10){
+        beep();
+        i++;
+        printf("beep %d\n",i);
+    }
 
 
   // basic_syscall_print_read();

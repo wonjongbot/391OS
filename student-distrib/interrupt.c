@@ -699,6 +699,8 @@ void init_idt(){
     // system call
     SET_IDT_ENTRY(idt[0x80], SYSTEM_CALL_HANDLER);
 
+
+
     // Init System Call in IDT (vec 0x80 is system call)
     //set_system_gate(0x80, SYSTEM_CALL_HANDLER);
 

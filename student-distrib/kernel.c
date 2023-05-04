@@ -143,12 +143,6 @@ void entry(unsigned long magic, unsigned long addr) {
         ltr(KERNEL_TSS);
     }
 
-    int i=0;
-    while(i<10){
-        beep();
-        i++;
-        printf("beep %d\n",i);
-    }
 
      /* Initialize Interrupt vector table*/
     init_idt();
@@ -166,9 +160,14 @@ void entry(unsigned long magic, unsigned long addr) {
     filesystem_init(fs.mod_start);
     //init page
     init_paging();
+    kmalloc_init();
 
     //init terminal
     terminal_init();
+#ifdef RUN_TESTS
+    /* Run tests */
+   launch_tests();
+#endif
 
     init_scheduler();
 
@@ -190,6 +189,7 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Run tests */
    launch_tests();
 #endif
+    
     /* Execute the first program ("shell") ... */
     //syscall_execute((uint8_t*)"shell");
     /* Spin (nicely, so we don't chew up cycles) */
