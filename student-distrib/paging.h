@@ -4,6 +4,7 @@
 #include "lib.h"
 #include "pcb.h"
 #include "definitions.h"
+#include "malloc.h"
 
 //the address in table start from the 12th b
 #define	TABLE_ADDRESS_SHIFT		12
@@ -91,7 +92,8 @@ PDE page_directory[PAGE_DIC_MAX] __attribute__((aligned (PAGE_4KB_VAL)));
 PTE page_table0[PAGE_TAB_MAX] __attribute__((aligned (PAGE_4KB_VAL)));
 // second page table for Vidmap
 PTE page_table1[PAGE_TAB_MAX] __attribute__((aligned (PAGE_4KB_VAL)));
-
+// third page table for malloc
+PTE page_table2[PAGE_TAB_MAX] __attribute__((aligned (PAGE_4KB_VAL)));
 void init_paging();
 inline void reload_tlb();
 

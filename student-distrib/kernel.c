@@ -14,6 +14,7 @@
 #include "paging.h"
 #include "filesystem.h"
 #include "pit.h"
+#include "sound.h"
 
 #define RUN_TESTS
 
@@ -142,6 +143,7 @@ void entry(unsigned long magic, unsigned long addr) {
         ltr(KERNEL_TSS);
     }
 
+
      /* Initialize Interrupt vector table*/
     init_idt();
 
@@ -158,9 +160,14 @@ void entry(unsigned long magic, unsigned long addr) {
     filesystem_init(fs.mod_start);
     //init page
     init_paging();
+    kmalloc_init();
 
     //init terminal
     terminal_init();
+#ifdef RUN_TESTS
+    /* Run tests */
+   launch_tests();
+#endif
 
     init_scheduler();
 
@@ -180,8 +187,9 @@ void entry(unsigned long magic, unsigned long addr) {
 
 #ifdef RUN_TESTS
     /* Run tests */
-//    launch_tests();
+   launch_tests();
 #endif
+    
     /* Execute the first program ("shell") ... */
     //syscall_execute((uint8_t*)"shell");
     /* Spin (nicely, so we don't chew up cycles) */
