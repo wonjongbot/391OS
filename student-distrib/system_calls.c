@@ -18,6 +18,7 @@
 #include "paging.h"
 #include "terminal.h"
 #include "schedule.h"
+#include "sound.h"
 
 // current executing EXE's fd # in parent process.
 // int32_t opened_exe_fd = 0;
@@ -25,7 +26,7 @@
 static file_ops_t rtc_ops_list = {rtc_read, rtc_write, rtc_open, rtc_close};
 static file_ops_t dir_ops_list = {d_read, d_write, d_open, d_close};
 static file_ops_t file_ops_list = {f_read, f_write, f_open, f_close};
-
+static file_ops_t sound_ops_list = {sound_read, sound_write, sound_open, sound_close};
 /*
  * sys_halt
  *   DESCRIPTION: set the vitual memory by page for pcb
@@ -373,7 +374,8 @@ int32_t syscall_open(const uint8_t* filename) {
     } else { return -1; }
 
     if (filenew->ops->open(filename) == -1) return -1;
-
+    if (strncmp((int8_t*)filename, (int8_t*)"sound",strlen((int8_t*)filename))){
+        filenew->ops = &sound_ops_list;}
     //not sure if we return fd or 0
     return fd;
 
